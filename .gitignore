@@ -1,0 +1,6 @@
+relatorios/
+historico/
+
+*.tmp
+*.bak
+.VSCode/
