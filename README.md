@@ -1,5 +1,10 @@
 # 🛠️ Projeto CheckUP Windows Automático
 
+![Status](https://img.shields.io/badge/Status-Concluído-success?style=flat)
+![Plataforma](https://img.shields.io/badge/Plataforma-Windows-0078D6?style=flat&logo=windows)
+![Linguagem](https://img.shields.io/badge/Linguagem-PowerShell-5391FE?style=flat&logo=powershell)
+![Interface](https://img.shields.io/badge/Interface-HTML%20%26%20CSS-E34F26?style=flat&logo=html5)
+
 Um sistema completo de diagnóstico, manutenção e monitoramento de integridade para ambientes Windows. Construído com PowerShell e Batch, o projeto gera relatórios interativos em HTML e automatiza rotinas de limpeza, otimização e auditoria de hardware.
 
 ## 🚀 Sobre o Projeto
