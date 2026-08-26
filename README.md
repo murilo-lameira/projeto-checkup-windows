@@ -23,4 +23,4 @@ O projeto utiliza uma arquitetura limpa, ocultando os motores lógicos na pasta 
 
 1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/MucaoShow/projeto-checkup-windows.git](https://github.com/MucaoShow/projeto-checkup-windows.git)
+   git clone (https://github.com/murilo-lameira/projeto-checkup-windows.git)
