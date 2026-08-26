@@ -84,6 +84,38 @@ try {
     }
 } catch {}
 
+Write-Host "      -> Auditando Firewall e Acessos Remotos..." -ForegroundColor Cyan
+
+# --- AUDITORIA DE FIREWALL ---
+$firewallStatus = "Desconhecido"
+try {
+    $fwProfiles = Get-NetFirewallProfile -ErrorAction SilentlyContinue
+    $fwActive = ($fwProfiles | Where-Object { $_.Enabled -eq 'True' }).Count
+    if ($fwActive -gt 0) {
+        $firewallStatus = "Ativo ✅"
+    } else {
+        $firewallStatus = "<span style='color: var(--red); font-weight: bold;'>Desativado ❌</span>"
+    }
+} catch {}
+
+# --- AUDITORIA DE ACESSO REMOTO (BACKGROUND) ---
+# Mapeia softwares comuns de acesso autônomo que ficam residentes na memória
+$remoteApps = @("AnyDesk", "TeamViewer", "RustDesk", "tv_w32", "tvnserver")
+$activeRemote = @()
+
+foreach ($app in $remoteApps) {
+    if (Get-Process -Name $app -ErrorAction SilentlyContinue) {
+        $activeRemote += $app
+    }
+}
+
+if ($activeRemote.Count -gt 0) {
+    $appsList = $activeRemote -join ", "
+    $remoteStatus = "<span style='color: var(--yellow); font-weight: bold;'>Ativo: $appsList ⚠️</span>"
+} else {
+    $remoteStatus = "Nenhum serviço detectado 🔒"
+}
+
 # 2. RAM E TEMPERATURA
 Write-Host "[2/10] Analisando Memória RAM e Sensores..." -ForegroundColor Yellow
 $totalRamGB = [math]::Round($cs.TotalPhysicalMemory / 1GB, 0)
@@ -143,8 +175,31 @@ foreach ($pdisk in $physicalDisks) {
         if ($null -ne $rel.Wear) { $wear = "$($rel.Wear)%" }
     } catch {}
     
-    $healthColor = if ($pdisk.HealthStatus -eq "Healthy") { "var(--green)" } else { "var(--red)" }
-    $physicalDiskRows += '<tr><td><strong>' + $pdisk.FriendlyName + '</strong></td><td>' + $pdisk.MediaType + '</td><td style="color: ' + $healthColor + '; font-weight: bold;">' + $pdisk.HealthStatus + '</td><td>' + $wear + '</td></tr>'
+    # 1. Tratamento do Tipo de Disco
+    $tipoTraduzido = switch ($pdisk.MediaType) {
+        "Unspecified" { "Desconhecido" }
+        "HDD"         { "HDD" }
+        "SSD"         { "SSD" }
+        "SCM"         { "Memória Persistente" }
+        default       { if ($pdisk.MediaType) { $pdisk.MediaType } else { "Desconhecido" } }
+    }
+
+    # 2. Tratamento do Status de Saúde e Cores
+    $saudeTexto = "Saudável"
+    $healthColor = "var(--green)"
+
+    if ($pdisk.HealthStatus -eq "Warning") {
+        $saudeTexto = "Atenção"
+        $healthColor = "var(--yellow)"
+    } elseif ($pdisk.HealthStatus -eq "Unhealthy") {
+        $saudeTexto = "Crítico"
+        $healthColor = "var(--red)"
+    } elseif ($pdisk.HealthStatus -ne "Healthy" -and $pdisk.HealthStatus) {
+        $saudeTexto = $pdisk.HealthStatus
+        $healthColor = "var(--yellow)"
+    }
+
+    $physicalDiskRows += '<tr><td><strong>' + $pdisk.FriendlyName + '</strong></td><td>' + $tipoTraduzido + '</td><td style="color: ' + $healthColor + '; font-weight: bold;">' + $saudeTexto + '</td><td>' + $wear + '</td></tr>'
 }
 
 # 4. GPU
@@ -468,6 +523,8 @@ $html = $html -replace '\{\{SYS_MODEL\}\}', $systemModel
 $html = $html -replace '\{\{NET_STYLE_ATTR\}\}', $netStyleAttr
 $html = $html -replace '\{\{LICENSE_INFO\}\}', $licenseInfo
 $html = $html -replace '\{\{BATTERY_INFO\}\}', $batteryInfo
+$html = $html -replace '\{\{FIREWALL_STATUS\}\}', $firewallStatus
+$html = $html -replace '\{\{REMOTE_STATUS\}\}', $remoteStatus
 
 Write-Host "Salvando relatório na pasta de relatórios..." -ForegroundColor Yellow
 $absolutePath = "$reportsDir\$ReportName"
