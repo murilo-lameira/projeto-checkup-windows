@@ -9,21 +9,23 @@
     "build": "electron-builder --win",
     "validate": "node --check main.js && node --check src/renderer.js"
   },
-  "build": {
-    "appId": "com.checkup.dashboard",
-    "productName": "CheckUP Windows",
-    "asar": false,
-    "win": {
-      "target": "nsis"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+  "dependencies": {
+    "systeminformation": "^5.23.0"
   },
   "devDependencies": {
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
     "electron-reloader": "^1.2.3"
+  },
+  "build": {
+    "appId": "com.checkup.dashboard",
+    "productName": "CheckUP Windows",
+    "asar": true,
+    "win": {
+      "target": "portable"
+    },
+    "extraResources": [
+      "core/checkup.ps1"
+    ]
   }
 }

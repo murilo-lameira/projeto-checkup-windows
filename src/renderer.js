@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const projectRoot = path.join(__dirname, '..');
+const projectRoot = process.defaultApp ? path.join(__dirname, '..') : process.resourcesPath;
 
 // Variáveis globais
 let btnCheckup, btnRepair, btnAdvanced, btnOptimize, logArea, sysChart, networkChart;
