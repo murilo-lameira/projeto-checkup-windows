@@ -5,9 +5,9 @@
 ![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![Copilot](https://img.shields.io/badge/GitHub_Copilot-2EA44F?style=for-the-badge&logo=github&logoColor=white)
+![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
 
-Aplicativo desktop (Single Page Application) para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP combina uma interface visual fluida construída com Electron a rotinas nativas do sistema operacional via PowerShell, permitindo acompanhar a saúde do computador em um único painel e registrando dados históricos para análises posteriores. O desenvolvimento contou com o uso ativo de agentes de IA (GitHub Copilot) para acelerar a geração de boilerplate, refatoração do motor assíncrono em Node.js e estruturação do flexbox no CSS.
+Aplicativo desktop (*Single Page Application*) para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP combina uma interface visual fluida construída com Electron a rotinas nativas do sistema operacional via PowerShell, permitindo acompanhar a saúde do computador em um único painel e registrando dados históricos para análises posteriores. O desenvolvimento contou com o uso ativo de agentes de IA (Claude), focado principalmente na prototipagem visual, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
 
 ## 📸 Telas do Aplicativo
 
