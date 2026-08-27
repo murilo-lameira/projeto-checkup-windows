@@ -12,6 +12,7 @@ function createWindow () {
     width: 1100,
     height: 700,
     backgroundColor: '#0d0c0f', // Nossa cor Ultra-Dark
+    icon: path.join(__dirname, 'src', 'assets', 'icons', 'exame.png'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false

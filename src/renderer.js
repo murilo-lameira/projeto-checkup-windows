@@ -366,7 +366,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
             // Constrói o caminho seguro para o script e executa oculto
             const scriptPath = path.join(projectRoot, 'core', 'checkup.ps1');
-            const command = `powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "${scriptPath}"`;
+            const command = `chcp 65001 > nul && powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "${scriptPath}"`;
             
             const process = exec(command);
             
@@ -393,7 +393,7 @@ window.addEventListener('DOMContentLoaded', () => {
         btnRepair.addEventListener('click', () => {
             setAppLockState(true);
             logArea.innerText = "[*] Iniciando rotina de limpeza nativa...\n";
-            const command = `powershell.exe -Command "Write-Output 'Limpando DNS...'; ipconfig /flushdns | Out-Null; Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; Write-Output 'Limpeza concluída!'"`;
+            const command = `chcp 65001 > nul && powershell.exe -Command "Write-Output 'Limpando DNS...'; ipconfig /flushdns | Out-Null; Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; Write-Output 'Limpeza concluída!'"`;
             const process = exec(command);
             process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
             process.on('close', (code) => { logArea.innerText += `\n[*] Manutenção finalizada.`; setAppLockState(false); });
@@ -405,7 +405,7 @@ window.addEventListener('DOMContentLoaded', () => {
         btnAdvanced.addEventListener('click', () => {
             setAppLockState(true);
             logArea.innerText = "[*] Iniciando Reparo Profundo (SFC e DISM)...\n";
-            const command = `powershell.exe -Command "sfc /scannow; DISM /Online /Cleanup-Image /RestoreHealth; Write-Output 'Reparo Profundo Concluído!'"`;
+            const command = `chcp 65001 > nul && powershell.exe -Command "sfc /scannow; DISM /Online /Cleanup-Image /RestoreHealth; Write-Output 'Reparo Profundo Concluído!'"`;
             const process = exec(command);
             process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
             process.on('close', (code) => { logArea.innerText += `\n[*] Manutenção finalizada.`; setAppLockState(false); });
@@ -417,7 +417,7 @@ window.addEventListener('DOMContentLoaded', () => {
         btnOptimize.addEventListener('click', () => {
             setAppLockState(true);
             logArea.innerText = "[*] Iniciando Otimização...\n";
-            const command = `powershell.exe -Command "Optimize-Volume -DriveLetter C -ReTrim; winget upgrade --all --silent --accept-package-agreements --accept-source-agreements; Write-Output 'Otimização Concluída!'"`;
+            const command = `chcp 65001 > nul && powershell.exe -Command "Optimize-Volume -DriveLetter C -ReTrim; winget upgrade --all --silent --accept-package-agreements --accept-source-agreements; Write-Output 'Otimização Concluída!'"`;
             const process = exec(command);
             process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
             process.on('close', (code) => { logArea.innerText += `\n[*] Tarefa finalizado.`; setAppLockState(false); });

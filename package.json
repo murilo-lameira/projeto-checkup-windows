@@ -6,8 +6,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win",
-    "validate": "node --check main.js && node --check src/renderer.js"
+    "build": "npm run icon:build && electron-builder --win",
+    "validate": "node --check main.js && node --check src/renderer.js",
+    "icon:build": "node scripts/convert-icon.js"
   },
   "dependencies": {
     "systeminformation": "^5.23.0"
@@ -15,14 +16,17 @@
   "devDependencies": {
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
-    "electron-reloader": "^1.2.3"
+    "electron-reloader": "^1.2.3",
+    "png-to-ico": "^3.0.2"
   },
   "build": {
     "appId": "com.checkup.dashboard",
     "productName": "CheckUP Windows",
     "asar": true,
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "requestedExecutionLevel": "highestAvailable",
+      "icon": "src/assets/icon.ico"
     },
     "extraResources": [
       "core/checkup.ps1"
