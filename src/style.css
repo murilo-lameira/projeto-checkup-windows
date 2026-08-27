@@ -1,0 +1,711 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+body {
+    background-color: #030303;
+    background-image:
+        linear-gradient(135deg, rgba(145, 70, 38, 0.13) 0%, transparent 18%, transparent 82%, rgba(145, 70, 38, 0.13) 100%),
+        radial-gradient(ellipse at 100% 0%, rgba(145, 70, 38, 0.28) 0%, rgba(70, 32, 20, 0.08) 22%, transparent 43%),
+        radial-gradient(ellipse at 0% 100%, rgba(145, 70, 38, 0.25) 0%, rgba(70, 32, 20, 0.07) 22%, transparent 43%),
+        linear-gradient(135deg, #020202 0%, #080808 48%, #020202 100%);
+    background-attachment: fixed;
+    
+    color: #f4f4f5; 
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.header {
+    width: 100%;
+    max-width: 1100px; 
+    margin-bottom: 30px;
+    display: none;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #f4f4f5; 
+}
+
+.header p {
+    color: #dedede; 
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.card {
+    background: rgba(24, 22, 25, 0.4); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 24px;
+    padding: 0;
+    width: 100%;
+    max-width: 1100px; /* Expandido */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ========================================= */
+/* GRID DO DASHBOARD NATIVO (NOVO LAYOUT)    */
+/* ========================================= */
+.dashboard-grid {
+    display: grid;
+    /* Ajusta as colunas para preencherem o espaço uniformemente */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: none;
+    padding: 40px 40px 40px 20px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+/* Permite que certos painéis ocupem duas colunas no Grid */
+.span-2 {
+    grid-column: span 2;
+}
+
+/* Permite que certos painéis ocupem quatro colunas (linha inteira) no Grid */
+.span-4 {
+    grid-column: span 4;
+}
+
+/* Em telas menores (responsividade), força a quebrar colunas */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .span-2 {
+        grid-column: span 2;
+    }
+}
+
+.glass-panel {
+    background: rgba(24, 22, 25, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.glass-panel:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel h3 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #8a888c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.metric {
+    font-size: 38px;
+    font-weight: 700;
+    color: #f4f4f5;
+    margin-bottom: 5px;
+}
+
+.sub-metric {
+    font-size: 13px;
+    color: #dedede;
+    margin-top: 4px;
+}
+
+/* Estilo para as tabelas injetadas no JS (Discos e Processos) */
+.table-container {
+    font-size: 13px;
+    color: #dedede;
+    overflow-x: auto;
+}
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 5px;
+}
+.table-container th, .table-container td {
+    padding: 8px 4px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.table-container th {
+    color: #8a888c;
+    font-weight: normal;
+}
+
+/* ========================================= */
+/* BOTÕES GLASS SUTIS                        */
+/* ========================================= */
+.btn-copper {
+    position: relative;
+    overflow: hidden;
+    /* Opacidade muito menor para o botão ficar mais translúcido e menos branco */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    /* Borda sutil */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Removido o brilho interno forte, mantendo apenas profundidade */
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+        
+    color: #f4f4f5; /* Texto claro de volta */
+    font-weight: 600;
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    align-self: flex-start;
+}
+
+/* Reflexo Superior bem mais leve */
+.btn-copper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+/* Reflexo Lateral bem mais leve */
+.btn-copper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent, rgba(255, 255, 255, 0.05));
+}
+
+.btn-copper:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.12); /* Leve clareada no hover */
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.console-box {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    height: 250px;
+    overflow-y: auto;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    color: #2dd4bf; 
+    box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
+    white-space: pre-wrap;
+}
+
+/* ========================================= */
+/* GRID DO DASHBOARD NATIVO                  */
+/* ========================================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.glass-panel {
+    background: rgba(24, 22, 25, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.glass-panel:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel h3 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #8a888c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.metric {
+    font-size: 38px;
+    font-weight: 700;
+    color: #f4f4f5;
+    margin-bottom: 5px;
+}
+
+.sub-metric {
+    font-size: 13px;
+    color: #dedede;
+    margin-top: 4px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* ========================================= */
+/* CONFIGURAÇÃO DO CORPO (TRAVADO 100% DA TELA) */
+/* ========================================= */
+* { box-sizing: border-box; }
+
+body {
+    background-color: #030303;
+    background-image:
+        linear-gradient(135deg, rgba(145, 70, 38, 0.13) 0%, transparent 18%, transparent 82%, rgba(145, 70, 38, 0.13) 100%),
+        radial-gradient(ellipse at 100% 0%, rgba(145, 70, 38, 0.28) 0%, rgba(70, 32, 20, 0.08) 22%, transparent 43%),
+        radial-gradient(ellipse at 0% 100%, rgba(145, 70, 38, 0.25) 0%, rgba(70, 32, 20, 0.07) 22%, transparent 43%),
+        linear-gradient(135deg, #020202 0%, #080808 48%, #020202 100%);
+    background-attachment: fixed;
+    color: #f4f4f5; 
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Altura exata da janela */
+    overflow: hidden; /* REMOVE A BARRA DE ROLAGEM GERAL */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ========================================= */
+/* PAINEL ESQUERDO (BOTÕES E LOG)            */
+/* ========================================= */
+.sidebar {
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    background: rgba(10, 9, 11, 0.8);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header { margin-bottom: 20px; }
+.header h1 { margin: 0; font-size: 28px; font-weight: 600; color: #f4f4f5; }
+.header p { color: #dedede; margin-top: 5px; font-size: 14px; }
+
+.card.side-card {
+    background: rgba(15, 14, 17, 0.9); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05); 
+    border-radius: 0;
+    padding: 24px 20px;
+    margin: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1; /* Estica o cartão até o pé da tela */
+}
+
+
+
+/* Botões adaptados para ocupar a largura total da coluna esquerda */
+.btn-copper {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    color: #f4f4f5; 
+    font-weight: 600;
+    padding: 14px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+.button-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex: 0 0 18px;
+    filter: brightness(0) invert(1);
+}
+
+.btn-copper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); }
+.btn-copper::after { content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent, rgba(255, 255, 255, 0.05)); }
+.btn-copper:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); }
+
+.console-box {
+    background: rgba(24, 22, 25, 0.42);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 16px;
+    flex-grow: 1; /* A caixa de log estica para consumir todo o espaço vazio da coluna */
+    overflow-y: auto;
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    line-height: 1.55;
+    color: #67e8f9;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    white-space: pre-wrap;
+    scrollbar-color: rgba(103, 232, 249, 0.45) transparent;
+    scrollbar-width: thin;
+}
+
+.console-box::-webkit-scrollbar { width: 6px; }
+.console-box::-webkit-scrollbar-track { background: transparent; }
+.console-box::-webkit-scrollbar-thumb {
+    background: rgba(103, 232, 249, 0.45);
+    border-radius: 999px;
+}
+
+/* ========================================= */
+/* PAINEL DIREITO (GRID DE INFORMAÇÕES)      */
+/* ========================================= */
+/* PAINEL DIREITO (GRID DE INFORMAÇÕES) - Atualizado para 6 colunas */
+.dashboard-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* Base matemática: 1+1+1+1+2 = 6 */
+    grid-template-rows: repeat(3, 1fr); 
+    gap: 20px;
+    height: 100%;
+    max-width: 100%; /* Libera o espaço em branco na direita */
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Modificadores de expansão lateral */
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; } 
+
+.glass-panel {
+    background: rgba(24, 22, 25, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: transform 0.3s ease;
+    overflow: hidden; 
+}
+
+.glass-panel:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel h3 {
+    min-height: 32px;
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    line-height: 16px;
+    color: #8a888c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#radialChart {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 210px;
+    height: 210px;
+    margin-top: -105px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+}
+
+.insights-panel {
+    min-height: 276px;
+}
+
+.hardware-panel {
+    grid-column: 1 / span 2;
+    grid-row: 2 / span 4;
+    min-height: 276px;
+}
+
+.health-panel {
+    grid-column: 3 / span 2;
+    grid-row: 2 / span 2;
+    min-height: 276px;
+}
+
+.network-panel {
+    grid-column: 5 / span 2;
+    grid-row: 2 / span 2;
+    min-height: 276px;
+}
+
+.errors-panel {
+    min-height: 276px;
+    grid-column: 3 / span 2;
+    grid-row: 4 / span 2;
+}
+
+.security-panel {
+    min-height: 276px;
+    grid-column: 5 / span 2;
+    grid-row: 4 / span 2;
+}
+
+.health-status {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.health-success { color: #34d399; background: rgba(16, 185, 129, 0.12); }
+.health-warning { color: #fbbf24; background: rgba(245, 158, 11, 0.12); }
+.health-danger { color: #fb7185; background: rgba(239, 68, 68, 0.12); }
+
+.health-details {
+    margin-bottom: 16px;
+}
+
+.health-recommendation {
+    margin-top: 10px;
+}
+
+.health-recommendation h3 {
+    min-height: 32px;
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    line-height: 16px;
+    color: #8a888c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.health-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    overflow-y: auto;
+}
+
+.health-item {
+    padding: 6px 8px;
+    border-left: 2px solid;
+    color: #c9cbd0;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.health-item-success { border-color: #34d399; }
+.health-item-warning { border-color: #fbbf24; }
+.health-item-danger { border-color: #fb7185; }
+
+.security-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 10px;
+}
+
+.security-item span {
+    color: #858992;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.security-item strong {
+    max-width: 62%;
+    overflow: hidden;
+    color: #d7d9dd;
+    font-weight: 500;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.security-active strong { color: #34d399; }
+.security-inactive strong { color: #fb7185; }
+
+.security-loading {
+    color: #858992;
+    font-size: 11px;
+    padding: 9px 0;
+}
+
+.disk-cell {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.disk-chart {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+}
+
+.hardware-grid {
+    display: grid;
+    grid-template-columns: minmax(105px, 0.7fr) minmax(0, 1.3fr);
+    flex: 1;
+    align-content: stretch;
+}
+
+.hardware-row {
+    display: contents;
+}
+
+.hardware-row span,
+.hardware-row strong {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hardware-row span {
+    color: #858992;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hardware-row strong {
+    padding-left: 10px;
+    color: #e1e3e6;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.insights-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-height: 210px;
+    gap: 4px;
+    position: relative;
+}
+
+.insights-legend {
+    width: 86px;
+    flex: 0 0 86px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.insight-legend-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-left: 8px;
+    line-height: 1.15;
+}
+
+.insight-legend-item::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    left: 0;
+    width: 2px;
+    border-radius: 2px;
+}
+
+.insight-cpu::before { background: #ef4444; }
+.insight-ram::before { background: #a855f7; }
+.insight-disk::before { background: #eab308; }
+
+.insight-legend-item strong {
+    color: #d7d9dd;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.insight-legend-item span {
+    color: #767a82;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+#networkChart {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 4px;
+}
+
+.metric { font-size: 34px; font-weight: 700; color: #f4f4f5; margin-bottom: 5px; }
+.sub-metric { font-size: 13px; color: #dedede; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.table-container { font-size: 12px; color: #dedede; overflow-y: auto; flex-grow: 1; }
+.table-container table { width: 100%; border-collapse: collapse; }
+.table-container th, .table-container td { padding: 6px 4px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.table-container th { color: #8a888c; font-weight: normal; }

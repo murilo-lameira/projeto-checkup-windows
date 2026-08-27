@@ -2,16 +2,10 @@
 # SCRIPT DE CHECKUP GERAL DO SISTEMA E GERADOR DE RELATÓRIO HTML
 # ==============================================================================
 
-[CmdletBinding()]
-param(
-    [string]$ReportName = "relatorio_checkup.html"
-)
-
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # Garantir que as pastas de destino existam
-$assetsDir = "$PSScriptRoot\..\assets"
 $reportsDir = "$PSScriptRoot\..\relatorios"
 
 if (-not (Test-Path $reportsDir)) { New-Item -ItemType Directory -Path $reportsDir | Out-Null }
@@ -29,7 +23,6 @@ $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
 $board = Get-CimInstance Win32_BaseBoard | Select-Object -First 1
 
 $computerName = $env:COMPUTERNAME
-$osName = $os.Caption
 $lastBoot = $os.LastBootUpTime
 $uptimeSpan = (Get-Date) - $lastBoot
 $uptimeStr = "{0} dias, {1} horas, {2} minutos" -f $uptimeSpan.Days, $uptimeSpan.Hours, $uptimeSpan.Minutes
@@ -44,8 +37,6 @@ try {
     }
 } catch {}
 
-$systemManufacturer = $cs.Manufacturer
-$systemModel = $cs.Model
 $cpuName = $cpu.Name
 $cpuCores = $cpu.NumberOfCores
 $cpuLogical = $cpu.NumberOfLogicalProcessors
@@ -86,18 +77,6 @@ try {
 
 Write-Host "      -> Auditando Firewall e Acessos Remotos..." -ForegroundColor Cyan
 
-# --- AUDITORIA DE FIREWALL ---
-$firewallStatus = "Desconhecido"
-try {
-    $fwProfiles = Get-NetFirewallProfile -ErrorAction SilentlyContinue
-    $fwActive = ($fwProfiles | Where-Object { $_.Enabled -eq 'True' }).Count
-    if ($fwActive -gt 0) {
-        $firewallStatus = "Ativo ✅"
-    } else {
-        $firewallStatus = "<span style='color: var(--red); font-weight: bold;'>Desativado ❌</span>"
-    }
-} catch {}
-
 # --- AUDITORIA DE ACESSO REMOTO (BACKGROUND) ---
 # Mapeia softwares comuns de acesso autônomo que ficam residentes na memória
 $remoteApps = @("AnyDesk", "TeamViewer", "RustDesk", "tv_w32", "tvnserver")
@@ -107,13 +86,6 @@ foreach ($app in $remoteApps) {
     if (Get-Process -Name $app -ErrorAction SilentlyContinue) {
         $activeRemote += $app
     }
-}
-
-if ($activeRemote.Count -gt 0) {
-    $appsList = $activeRemote -join ", "
-    $remoteStatus = "<span style='color: var(--yellow); font-weight: bold;'>Ativo: $appsList ⚠️</span>"
-} else {
-    $remoteStatus = "Nenhum serviço detectado 🔒"
 }
 
 # 2. RAM E TEMPERATURA
@@ -132,11 +104,6 @@ if ($rawManufacturer -and $rawManufacturer -ne "Undefined" -and $rawManufacturer
     $ramManufacturer = $rawManufacturer -join " / "
 } elseif ($rawParts = ($rawPartNumber | Where-Object { $_ -and $_.Trim() -ne "" })) {
     $ramManufacturer = ($rawParts -join " / ").Trim()
-}
-
-$ramManufacturerRow = ""
-if ($ramManufacturer -ne "Desconhecido") {
-    $ramManufacturerRow = '<div class="info-row"><span class="info-label">Fabricante / Modelo RAM</span><span class="info-val">' + $ramManufacturer + '</span></div>'
 }
 
 $speeds = $ramModules | Select-Object -ExpandProperty ConfiguredClockSpeed -ErrorAction SilentlyContinue
@@ -213,17 +180,9 @@ $gpus = Get-CimInstance Win32_VideoController | ForEach-Object {
 
 # 5 & 6. REDE E ESTABILIDADE
 Write-Host "[6/10] Analisando Conectividade..." -ForegroundColor Yellow
-$netAdapters = Get-NetAdapter | Where-Object Status -eq "Up" | ForEach-Object {
-    $ipInfo = Get-NetIPAddress -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue | Select-Object -First 1
-    $type = if ($_.Name -like "*Wi-Fi*" -or $_.InterfaceDescription -like "*Wireless*") { "Wi-Fi (Sem Fio)" } else { "Ethernet (Cabeada)" }
-    [PSCustomObject]@{ Name = $_.Name; Type = $type; LinkSpeed = $_.LinkSpeed; IPAddress = if ($ipInfo) { $ipInfo.IPAddress } else { "N/A" } }
-}
-
 $internetStatus = Test-Connection -ComputerName "8.8.8.8" -Count 2 -Quiet -ErrorAction SilentlyContinue
 $netStatusText = if ($internetStatus) { "Online 🟢" } else { "Offline 🔴" }
-$netStyleAttr = if ($internetStatus) { 'style="font-size: 1.35rem; color: var(--green);"' } else { 'style="font-size: 1.35rem; color: var(--red);"' }
 $speedText = "N/A"
-$netStability = "Perda: N/A | Ping: N/A"
 
 if ($internetStatus) {
     Write-Host "      -> Medindo estabilidade (Perda de Pacotes e Latência)..." -ForegroundColor Cyan
@@ -242,7 +201,6 @@ if ($internetStatus) {
         $received = ($pingTest | Where-Object { $_.Status -eq 'Success' -or $_.ReplySize -gt 0 -or $_.ResponseTime -ge 0 }).Count
         $loss = ((10 - $received) / 10) * 100
         $avgLatency = [math]::Round(($pingTest | Measure-Object -Property ResponseTime -Average -ErrorAction SilentlyContinue).Average, 0)
-        $netStability = "Perda: $loss% | Ping médio: ${avgLatency}ms"
     }
 }
 
@@ -252,20 +210,34 @@ $antivirus = try { (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName A
 if (-not $antivirus) { $antivirus = "Windows Defender" }
 $firewall = if ((Get-NetFirewallProfile -ErrorAction SilentlyContinue | Where-Object Enabled -eq $true)) { "Ativo" } else { "Inativo" }
 
-$startupApps = Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, User | Select-Object -First 10
-$topRamProcesses = Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 5 | ForEach-Object {
-    [PSCustomObject]@{ Name = $_.Name; PID = $_.Id; RAM_MB = [math]::Round($_.WorkingSet64 / 1MB, 1) }
-}
-
 $recentErrors = try {
     Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2; StartTime=(Get-Date).AddDays(-1)} -MaxEvents 10 -ErrorAction SilentlyContinue | 
     Where-Object { $_.ProviderName -ne "Microsoft-Windows-DistributedCOM" -and $_.Id -ne 10016 } | Select-Object -First 6
 } catch { @() }
 
+$errorRecords = @()
+foreach ($errorEvent in @($recentErrors)) {
+    $errorMessage = ($errorEvent.Message -replace '\s+', ' ').Trim()
+    if ($errorMessage.Length -gt 220) { $errorMessage = $errorMessage.Substring(0, 220) + '...' }
+    $errorRecords += [PSCustomObject]@{
+        Id = $errorEvent.Id
+        Fonte = $errorEvent.ProviderName
+        DataHora = $errorEvent.TimeCreated.ToString('dd/MM HH:mm')
+        Mensagem = $errorMessage
+    }
+}
+
 # 8. CÁLCULO DE SCORE DE SAÚDE E ALERTAS
 Write-Host "[8/10] Analisando Saúde do Sistema..." -ForegroundColor Yellow
 $healthIssues = @()
 $healthWarnings = @()
+
+try {
+    $latestHotFix = Get-HotFix -ErrorAction SilentlyContinue | Where-Object InstalledOn | Sort-Object InstalledOn -Descending | Select-Object -First 1
+    if (-not $latestHotFix -or ((Get-Date) - [datetime]$latestHotFix.InstalledOn).Days -gt 45) {
+        $healthWarnings += "Atualizações do Windows podem estar pendentes. Verifique o Windows Update."
+    }
+} catch {}
 
 if ($ramUsagePercent -gt 85) { $healthWarnings += "Uso de Memória RAM elevado ($ramUsagePercent%). Dica: Feche abas do navegador ou considere um upgrade de memória." }
 if ($cpuLoad -gt 80) { $healthWarnings += "Uso de Processador (CPU) elevado ($cpuLoad%). Dica: Verifique se há atualizações rodando em segundo plano no Gerenciador de Tarefas." }
@@ -288,14 +260,11 @@ if (-not $internetStatus) {
     $healthWarnings += "Sem conexão ativa com a Internet (Ping falhou). Algumas verificações podem estar incompletas."
 }
 
-$statusColorClass = "status-green"
 $statusBadgeText = "SISTEMA SAUDÁVEL"
 
 if ($healthIssues.Count -gt 0) {
-    $statusColorClass = "status-red"
     $statusBadgeText = "PROBLEMAS DETECTADOS"
 } elseif ($healthWarnings.Count -gt 0) {
-    $statusColorClass = "status-yellow"
     $statusBadgeText = "ALERTAS DE ATENÇÃO"
 }
 
@@ -439,98 +408,83 @@ pause
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($repairBatPath, $repairBatContent, $utf8NoBom)
 
-# 10. LER O TEMPLATE NA PASTA ASSETS E SALVAR NA PASTA RELATORIOS
-Write-Host "[10/10] Montando Relatório..." -ForegroundColor Yellow
-$generatedDate = Get-Date -Format "dd/MM/yyyy 'às' HH:mm:ss"
+# 10. GERAR PACOTE DE TELEMETRIA (JSON) PARA O DASHBOARD
+Write-Host "[10/10] Compilando payload de telemetria detalhado..." -ForegroundColor Yellow
 
-$gpuRows = ""
-foreach ($gpu in $gpus) { $gpuRows += '<div class="info-row"><span class="info-label">Placa de Vídeo</span><span class="info-val">' + $gpu.Name + ' (' + $gpu.VRAM + ' GB)</span></div><div class="info-row"><span class="info-label">Resolução</span><span class="info-val">' + $gpu.Resolution + '</span></div>' }
-
-$diskRows = ""
-foreach ($disk in $logicalDisks) {
-    $barColor = if ($disk.UsedPercent -gt 85) { "var(--red)" } elseif ($disk.UsedPercent -gt 70) { "var(--yellow)" } else { "var(--green)" }
-    $diskRows += '<tr><td><strong>' + $disk.DeviceID + '</strong></td><td><div>' + $disk.UsedPercent + '%</div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + $disk.UsedPercent + '%; background: ' + $barColor + ';"></div></div></td><td>' + $disk.FreeGB + ' GB</td><td>' + $disk.TotalGB + ' GB</td></tr>'
+# Capturando Top 5 Processos
+$topProcs = Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 5
+$procArray = @()
+foreach ($p in $topProcs) {
+    $procArray += [PSCustomObject]@{ Nome = $p.Name; PID = $p.Id; RAM = [math]::Round($p.WorkingSet / 1MB, 1) }
 }
 
-$netRows = ""
-foreach ($net in $netAdapters) {
-    $badgeColor = if ($net.Type -like "*Wi-Fi*") { "var(--yellow)" } else { "var(--accent-blue)" }
-    $netRows += '<tr><td><strong>' + $net.Name + '</strong></td><td><span style="color: ' + $badgeColor + '; font-weight: 600;">' + $net.Type + '</span></td><td>' + $net.IPAddress + '</td><td>' + $net.LinkSpeed + '</td></tr>'
+# Capturando Discos
+$discos = Get-WmiObject Win32_LogicalDisk -Filter "DriveType=3"
+$diskArray = @()
+foreach ($d in $discos) {
+    $livre = [math]::Round($d.FreeSpace / 1GB, 1)
+    $total = [math]::Round($d.Size / 1GB, 1)
+    $usoPercent = [math]::Round((($total - $livre) / $total) * 100, 1)
+    $diskArray += [PSCustomObject]@{ Drive = $d.DeviceID; Uso = "$usoPercent%"; Livre = "$livre GB"; Total = "$total GB" }
 }
 
-$procRows = ""
-foreach ($proc in $topRamProcesses) { $procRows += '<tr><td><strong>' + $proc.Name + '</strong></td><td>' + $proc.PID + '</td><td>' + $proc.RAM_MB + ' MB</td></tr>' }
+# Capturando GPU (Garante leitura limpa)
+$gpuInfo = Get-WmiObject Win32_VideoController | Select-Object -First 1
+$gpuDetails = $gpus | Select-Object -First 1
 
-$startupRows = ""
-foreach ($app in $startupApps) {
-    $cmdShort = if ($app.Command -and $app.Command.Length -gt 30) { $app.Command.Substring(0, 30) + "..." } else { $app.Command }
-    $startupRows += '<tr><td><strong>' + $app.Name + '</strong></td><td>' + $app.User + '</td><td title="' + $app.Command + '"><code style="font-size: 0.75rem;">' + $cmdShort + '</code></td></tr>'
-}
-
-$errorContent = ""
-if ($recentErrors.Count -eq 0) {
-    $errorContent = '<p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum erro crítico registrado nas últimas 24 horas. 👍</p>'
-} else {
-    $errorContent = '<table class="info-table" style="table-layout: fixed; width: 100%;"><thead><tr><th style="width: 20%;">Data/Hora</th><th style="width: 30%;">Origem</th><th style="width: 50%;">Mensagem</th></tr></thead><tbody>'
-    foreach ($err in $recentErrors) {
-        $msg = if ($err.Message.Length -gt 90) { $err.Message.Substring(0, 90) + "..." } else { $err.Message }
-        $errorContent += '<tr><td style="font-size: 0.8rem; color: var(--text-muted);">' + $err.TimeCreated.ToString("dd/MM HH:mm") + '</td><td><strong>' + $err.ProviderName + '</strong></td><td style="color: #fca5a5; font-size: 0.85rem; word-break: break-word;">' + $msg + '</td></tr>'
+# Montando o Pacote JSON Completo
+$dashboardPayload = [PSCustomObject]@{
+    Sistema = [PSCustomObject]@{ 
+        OS = (Get-WmiObject Win32_OperatingSystem).Caption.Replace("Microsoft ", "") # Limpa o nome
+        Uptime = $uptimeStr
+        Licenca = $licenseInfo
+        Bateria = $batteryInfo 
     }
-    $errorContent += '</tbody></table>'
+    PlacaMae = $motherboardInfo
+    Processador = [PSCustomObject]@{ 
+        Nome = $cpuName
+        Nucleos = $cpuCores
+        Threads = $cpuLogical
+        Load = $cpuLoad
+        Temp = $cpuTemp 
+    }
+    Memoria = [PSCustomObject]@{ 
+        Total = $totalRamGB
+        Uso = $usedRamGB
+        Percent = $ramUsagePercent
+        Velocidade = $ramSpeed
+        Fabricante = $ramManufacturer
+    }
+    GPU = [PSCustomObject]@{
+        Nome = if ($gpuInfo.Name) { $gpuInfo.Name } else { "N/A" }
+        Driver = if ($gpuInfo.DriverVersion) { $gpuInfo.DriverVersion } else { "N/A" }
+        VRAM = if ($gpuDetails.VRAM) { $gpuDetails.VRAM } else { "N/A" }
+        Resolucao = if ($gpuDetails.Resolution) { $gpuDetails.Resolution } else { "N/A" }
+    }
+    Rede = [PSCustomObject]@{ 
+        Status = $netStatusText
+        Velocidade = $speedText 
+    }
+    Saude = [PSCustomObject]@{
+        Status = $statusBadgeText
+        Problemas = @($healthIssues)
+        Avisos = @($healthWarnings)
+    }
+    Seguranca = [PSCustomObject]@{
+        Antivirus = "Ativo - $antivirus"
+        Firewall = $firewall
+        AcessoRemoto = if ($activeRemote.Count -gt 0) { "Atenção: $($activeRemote -join ', ')" } else { "Nenhum serviço detectado" }
+    }
+    Erros = $errorRecords
+    Discos = $diskArray
+    Processos = $procArray
 }
 
-$templatePath = "$assetsDir\template.html"
-if (-not (Test-Path $templatePath)) {
-    Write-Host "Erro: O arquivo template.html não foi encontrado na pasta assets!" -ForegroundColor Red
-    exit
-}
+# Exportação
+$jsonPath = "$reportsDir\dados_atuais.json"
+$dashboardPayload | ConvertTo-Json -Depth 5 | Out-File $jsonPath -Encoding utf8
 
-$html = Get-Content -Path $templatePath -Raw -Encoding UTF8
-$html = $html -replace '\{\{COMPUTER_NAME\}\}', $computerName
-$html = $html -replace '\{\{OS_NAME\}\}', $osName
-$html = $html -replace '\{\{UPTIME\}\}', $uptimeStr
-$html = $html -replace '\{\{BOOT_TIME\}\}', $bootTimeStr
-$html = $html -replace '\{\{CPU_NAME\}\}', $cpuName
-$html = $html -replace '\{\{CPU_CORES\}\}', $cpuCores
-$html = $html -replace '\{\{CPU_LOAD\}\}', $cpuLoad
-$html = $html -replace '\{\{CPU_TEMP\}\}', $cpuTemp
-$html = $html -replace '\{\{RAM_TOTAL\}\}', $totalRamGB
-$html = $html -replace '\{\{RAM_USED\}\}', $usedRamGB
-$html = $html -replace '\{\{RAM_PERCENT\}\}', $ramUsagePercent
-$html = $html -replace '\{\{RAM_SPEED\}\}', $ramSpeed
-$html = $html -replace '\{\{RAM_MANUFACTURER_ROW\}\}', $ramManufacturerRow
-$html = $html -replace '\{\{MOTHERBOARD\}\}', $motherboardInfo
-$html = $html -replace '\{\{NET_STATUS\}\}', $netStatusText
-$html = $html -replace '\{\{NET_COLOR\}\}', $netColor
-$html = $html -replace '\{\{NET_SPEED\}\}', $speedText
-$html = $html -replace '\{\{NET_STABILITY\}\}', $netStability
-$html = $html -replace '\{\{ANTIVIRUS\}\}', $antivirus
-$html = $html -replace '\{\{FIREWALL\}\}', $firewall
-$html = $html -replace '\{\{GPU_ROWS\}\}', $gpuRows
-$html = $html -replace '\{\{DISK_ROWS\}\}', $diskRows
-$html = $html -replace '\{\{PHYSICAL_DISK_ROWS\}\}', $physicalDiskRows
-$html = $html -replace '\{\{NET_ROWS\}\}', $netRows
-$html = $html -replace '\{\{PROC_ROWS\}\}', $procRows
-$html = $html -replace '\{\{STARTUP_ROWS\}\}', $startupRows
-$html = $html -replace '\{\{ERROR_CONTENT\}\}', $errorContent
-$html = $html -replace '\{\{GEN_DATE\}\}', $generatedDate
-$html = $html -replace '\{\{STATUS_CLASS\}\}', $statusColorClass
-$html = $html -replace '\{\{STATUS_BADGE\}\}', $statusBadgeText
-$html = $html -replace '\{\{ALERTS_CONTENT\}\}', $alertsContent
-$html = $html -replace '\{\{CPU_THREADS\}\}', $cpuLogical
-$html = $html -replace '\{\{SYS_MANU\}\}', $systemManufacturer
-$html = $html -replace '\{\{SYS_MODEL\}\}', $systemModel
-$html = $html -replace '\{\{NET_STYLE_ATTR\}\}', $netStyleAttr
-$html = $html -replace '\{\{LICENSE_INFO\}\}', $licenseInfo
-$html = $html -replace '\{\{BATTERY_INFO\}\}', $batteryInfo
-$html = $html -replace '\{\{FIREWALL_STATUS\}\}', $firewallStatus
-$html = $html -replace '\{\{REMOTE_STATUS\}\}', $remoteStatus
-
-Write-Host "Salvando relatório na pasta de relatórios..." -ForegroundColor Yellow
-$absolutePath = "$reportsDir\$ReportName"
-[System.IO.File]::WriteAllText($absolutePath, $html, $utf8NoBom)
-
+Write-Host "Pacote JSON detalhado exportado com sucesso!" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "  CHECKUP CONCLUÍDO COM SUCESSO!         " -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
-Start-Process -FilePath $absolutePath

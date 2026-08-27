@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckUP Windows</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        
+        <!-- PAINEL ESQUERDO: Controles e Logs -->
+        <div class="sidebar">
+            <div class="card side-card">
+                <button id="btnCheckup" class="btn-copper"><img class="button-icon" src="assets/icons/lupa.png" alt="">Diagnóstico</button>
+                <button id="btnRepair" class="btn-copper"><img class="button-icon" src="assets/icons/ferramentas.png" alt="">Limpeza e Reparo</button>
+                <button id="btnAdvanced" class="btn-copper"><img class="button-icon" src="assets/icons/atencao.png" alt="">Reparo Profundo</button>
+                <button id="btnOptimize" class="btn-copper"><img class="button-icon" src="assets/icons/engrenagem.png" alt="">Otimizar SO</button>
+                
+                <div class="console-box" id="logArea">Aguardando inicialização da telemetria...</div>
+            </div>
+        </div>
+
+        <!-- PAINEL DIREITO: Grid de Informações -->
+        <div class="dashboard-grid" id="mainDashboard">
+            
+            <!-- LINHA 1: Gráfico de Insights (Radial Chart) -->
+            <div class="glass-panel span-2 insights-panel">
+                <h3>Insights do Sistema</h3>
+                <div class="insights-content">
+                    <div class="insights-legend">
+                        <div class="insight-legend-item insight-cpu">
+                            <strong id="insightCpuValue">--%</strong>
+                            <span>CPU Usage</span>
+                        </div>
+                        <div class="insight-legend-item insight-ram">
+                            <strong id="insightRamValue">--%</strong>
+                            <span>RAM Usage</span>
+                        </div>
+                        <div class="insight-legend-item insight-disk">
+                            <strong id="insightDiskValue">--%</strong>
+                            <span>Disk Usage</span>
+                        </div>
+                    </div>
+                    <div id="radialChart"></div>
+                </div>
+            </div>
+
+            <!-- LINHA 2: Hardware instalado (4 linhas x 2 colunas) -->
+            <div class="glass-panel span-2 hardware-panel">
+                <h3>Hardware Instalado</h3>
+                <div class="hardware-grid">
+                    <div class="hardware-row"><span>Processador</span><strong id="hardwareCpu">--</strong></div>
+                    <div class="hardware-row"><span>Memória RAM</span><strong id="hardwareRam">--</strong></div>
+                    <div class="hardware-row"><span>Placa de vídeo</span><strong id="hardwareGpu">--</strong></div>
+                    <div class="hardware-row"><span>Placa-mãe / Sistema</span><strong id="hardwareSystem">--</strong></div>
+                </div>
+            </div>
+
+            <!-- LINHA 3 (2 Colunas Duplas) -->
+            <div class="glass-panel span-2">
+                <h3>Discos e Armazenamento</h3>
+                <div id="valDisksArea" class="table-container">Aguardando leitura de discos...</div>
+            </div>
+
+            <div class="glass-panel span-2">
+                <h3>Maior Consumo de RAM</h3>
+                <div id="valProcessesArea" class="table-container">Aguardando análise de processos...</div>
+            </div>
+
+            <!-- LINHA 4 (2 Colunas Duplas) -->
+            <div class="glass-panel span-2 health-panel">
+                <h3>Saúde do Computador</h3>
+                <div id="healthStatus" class="health-status">Aguardando diagnóstico...</div>
+                <div id="healthDetails" class="health-details"></div>
+                <div class="health-recommendation">
+                    <h3>RECOMENDAÇÃO</h3>
+                    <div id="healthRecommendationStatus" class="health-status health-success">RECOMENDAÇÃO</div>
+                    <div id="healthRecommendationText" class="health-item health-item-success">Execute um diagnóstico para receber uma recomendação.</div>
+                </div>
+            </div>
+
+            <div class="glass-panel span-2 errors-panel">
+                <h3>Erros do Sistema (24h)</h3>
+                <div id="errorsStatus" class="health-status">Aguardando diagnóstico...</div>
+                <div id="errorsDetails" class="health-details"></div>
+            </div>
+
+            <div class="glass-panel span-2 security-panel">
+                <h3>Segurança do Sistema</h3>
+                <div id="securityDetails" class="security-details">
+                    <div class="security-loading">Coletando informações de segurança...</div>
+                </div>
+            </div>
+
+            <div class="glass-panel span-2 network-panel">
+                <h3>Rede e Conexão</h3>
+                <div id="networkChart"></div>
+                <div class="metric" id="valNetStatus" style="font-size: 24px;">--</div>
+                <div class="sub-metric" id="valNetSpeed">Download: --</div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="renderer.js"></script>
+</body>
+</html>

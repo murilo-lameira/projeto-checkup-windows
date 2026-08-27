@@ -1,5 +1,11 @@
 relatorios/
 historico/
+dist/
+node_modules/
+
+# Arquivos gerados localmente pelos scripts
+core/relatorios/
+core/historico/
 
 *.tmp
 *.bak
