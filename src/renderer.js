@@ -13,14 +13,12 @@ let realtimeMetricsRunning = false;
 let smoothRealtimeValues = [0, 0, 0];
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Selecionar elementos após DOM estar pronto
     btnCheckup = document.getElementById('btnCheckup');
     btnRepair = document.getElementById('btnRepair');
     btnAdvanced = document.getElementById('btnAdvanced');
     btnOptimize = document.getElementById('btnOptimize');
     logArea = document.getElementById('logArea');
 
-    // Configuração do ApexCharts (Radial Bar)
     const radialOptions = {
         series: [0, 0, 0],
         labels: ['CPU', 'RAM', 'Disco (C:)'],
@@ -168,7 +166,6 @@ window.addEventListener('DOMContentLoaded', () => {
     monitorRealtimeMetrics();
     setInterval(monitorRealtimeMetrics, 2000);
 
-    // Função de Intertravamento (Trava/Destrava Interface)
     function setAppLockState(isLocked) {
         [btnCheckup, btnRepair, btnAdvanced, btnOptimize].forEach(btn => {
             if (btn) {
@@ -179,7 +176,6 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.cursor = isLocked ? 'wait' : 'default';
     }
 
-    // FUNÇÃO: Ler o JSON e atualizar os números na tela
     function updateDashboardUI() {
         const possibleDirs = [
             path.join(projectRoot, 'core', 'relatorios'),
@@ -210,7 +206,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     diskVal = parseFloat(data.Discos[0].Uso.replace('%', '')) || 0;
                 }
 
-                // 1. Injeção Direta de Textos
                 document.getElementById('hardwareCpu').innerText = `${data.Processador.Nome || '--'} (${data.Processador.Nucleos || '--'}C / ${data.Processador.Threads || '--'}T)`;
                 document.getElementById('hardwareRam').innerText = `${data.Memoria.Fabricante || '--'} | ${data.Memoria.Total || '--'} GB | ${data.Memoria.Velocidade || '--'} MHz`;
                 document.getElementById('hardwareGpu').innerText = `${data.GPU.Nome || '--'} | ${data.GPU.VRAM || '--'} GB | ${data.GPU.Resolucao || '--'}`;
@@ -308,7 +303,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     securityDetails.appendChild(item);
                 });
 
-                // 2. Construção da Tabela de Discos
                 let disksHtml = '<table><tr><th>Drive</th><th>Uso</th><th>Livre</th><th>Total</th><th>Visual</th></tr>';
                 if (data.Discos && data.Discos.length > 0) {
                     data.Discos.forEach((d, index) => {
@@ -337,7 +331,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // 3. Construção da Tabela de Processos
                 let procHtml = '<table><tr><th>Processo</th><th>PID</th><th>RAM (MB)</th></tr>';
                 if (data.Processos && data.Processos.length > 0) {
                     data.Processos.forEach(p => {
@@ -358,13 +351,11 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Evento: Executar Diagnóstico (checkup.ps1)
     if (btnCheckup) {
         btnCheckup.addEventListener('click', () => {
             setAppLockState(true);
             logArea.innerText = "[*] Iniciando coleta de telemetria via PowerShell...\n";
             
-            // Constrói o caminho seguro para o script e executa oculto
             const scriptPath = path.join(projectRoot, 'core', 'checkup.ps1');
             const command = `chcp 65001 > nul && powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "${scriptPath}"`;
             
@@ -383,12 +374,11 @@ window.addEventListener('DOMContentLoaded', () => {
             process.on('close', (code) => { 
                 logArea.innerText += `\n[*] Leitura concluída. Atualizando Dashboard...`; 
                 setAppLockState(false); 
-                updateDashboardUI(); // Injeta o JSON lido na tela
+                updateDashboardUI(); 
             });
         });
     }
 
-    // Evento: Limpeza e Reparo
     if (btnRepair) {
         btnRepair.addEventListener('click', () => {
             setAppLockState(true);
@@ -400,7 +390,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Evento: Reparo Profundo
     if (btnAdvanced) {
         btnAdvanced.addEventListener('click', () => {
             setAppLockState(true);
@@ -412,7 +401,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Evento: Otimizar e Atualizar
     if (btnOptimize) {
         btnOptimize.addEventListener('click', () => {
             setAppLockState(true);
@@ -424,7 +412,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // GATILHO AUTOMÁTICO: Assim que a janela abrir, clica no botão "Diagnóstico"
     if (btnCheckup) {
         btnCheckup.click();
     }

@@ -56,11 +56,10 @@ body {
 }
 
 /* ========================================= */
-/* GRID DO DASHBOARD NATIVO (NOVO LAYOUT)    */
+/* GRID DO DASHBOARD                         */
 /* ========================================= */
 .dashboard-grid {
     display: grid;
-    /* Ajusta as colunas para preencherem o espaço uniformemente */
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
@@ -70,17 +69,14 @@ body {
     max-height: 100vh;
 }
 
-/* Permite que certos painéis ocupem duas colunas no Grid */
 .span-2 {
     grid-column: span 2;
 }
 
-/* Permite que certos painéis ocupem quatro colunas (linha inteira) no Grid */
 .span-4 {
     grid-column: span 4;
 }
 
-/* Em telas menores (responsividade), força a quebrar colunas */
 @media (max-width: 900px) {
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -129,7 +125,6 @@ body {
     margin-top: 4px;
 }
 
-/* Estilo para as tabelas injetadas no JS (Discos e Processos) */
 .table-container {
     font-size: 13px;
     color: #dedede;
@@ -156,20 +151,17 @@ body {
 .btn-copper {
     position: relative;
     overflow: hidden;
-    /* Opacidade muito menor para o botão ficar mais translúcido e menos branco */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    /* Borda sutil */
     border: 1px solid rgba(255, 255, 255, 0.1);
-    /* Removido o brilho interno forte, mantendo apenas profundidade */
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.15),
         inset 0 -1px 0 rgba(255, 255, 255, 0.05);
         
-    color: #f4f4f5; /* Texto claro de volta */
+    color: #f4f4f5; 
     font-weight: 600;
     padding: 12px 24px;
     font-size: 14px;
@@ -178,7 +170,6 @@ body {
     align-self: flex-start;
 }
 
-/* Reflexo Superior bem mais leve */
 .btn-copper::before {
     content: '';
     position: absolute;
@@ -189,7 +180,6 @@ body {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
 }
 
-/* Reflexo Lateral bem mais leve */
 .btn-copper::after {
     content: '';
     position: absolute;
@@ -202,7 +192,7 @@ body {
 
 .btn-copper:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.12); /* Leve clareada no hover */
+    background: rgba(255, 255, 255, 0.12); 
     border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -289,8 +279,8 @@ body {
     font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh; /* Altura exata da janela */
-    overflow: hidden; /* REMOVE A BARRA DE ROLAGEM GERAL */
+    height: 100vh; 
+    overflow: hidden; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -337,12 +327,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    flex-grow: 1; /* Estica o cartão até o pé da tela */
+    flex-grow: 1; 
 }
 
-
-
-/* Botões adaptados para ocupar a largura total da coluna esquerda */
 .btn-copper {
     position: relative;
     overflow: hidden;
@@ -385,7 +372,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 18px;
     padding: 16px;
-    flex-grow: 1; /* A caixa de log estica para consumir todo o espaço vazio da coluna */
+    flex-grow: 1; 
     overflow-y: auto;
     font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
     font-size: 11px;
@@ -407,20 +394,18 @@ body {
 /* ========================================= */
 /* PAINEL DIREITO (GRID DE INFORMAÇÕES)      */
 /* ========================================= */
-/* PAINEL DIREITO (GRID DE INFORMAÇÕES) - Atualizado para 6 colunas */
 .dashboard-grid {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* Base matemática: 1+1+1+1+2 = 6 */
+    grid-template-columns: repeat(6, 1fr); 
     grid-template-rows: repeat(3, 1fr); 
     gap: 20px;
     height: 100%;
-    max-width: 100%; /* Libera o espaço em branco na direita */
+    max-width: 100%; 
     min-height: 0;
     overflow-y: auto;
 }
 
-/* Modificadores de expansão lateral */
 .span-2 { grid-column: span 2; }
 .span-3 { grid-column: span 3; } 
 

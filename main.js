@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-// Ativa o recarregamento automático durante o desenvolvimento
 try {
   require('electron-reloader')(module, {
     ignore: [/relatorios/, /historico/, /core/]
@@ -19,10 +18,8 @@ function createWindow () {
     }
   });
 
-  // Carrega a interface visual
   win.loadFile(path.join(__dirname, 'src', 'index.html'));
   
-  // Remove o menu superior padrão do Windows para um visual limpo
   win.setMenuBarVisibility(false);
 }
 
