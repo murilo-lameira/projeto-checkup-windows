@@ -1,23 +1,34 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const projectRoot = process.defaultApp ? path.join(__dirname, '..') : process.resourcesPath;
+const os = require('os');
+
+const isPackaged = __dirname.includes('app.asar');
+const projectRoot = isPackaged 
+    ? process.resourcesPath 
+    : path.join(__dirname, '..');
+
+// Caminho para o cache de estado do agendamento (salvo na pasta do usuário)
+const scheduleStatePath = path.join(os.homedir(), 'checkup_agendamento.json');
 
 // Variáveis globais
-let btnCheckup, btnRepair, btnAdvanced, btnOptimize, logArea, sysChart, networkChart;
+let btnCheckup, btnFullMaintenance, logArea, sysChart, networkChart, btnSchedule;
 let networkHistory = [0];
 let previousNetworkBytes = null;
 let previousNetworkSampleTime = null;
 let diskCharts = [];
 let realtimeMetricsRunning = false;
 let smoothRealtimeValues = [0, 0, 0];
+let uptimeChart, tempChart; 
+let diskTempChart;
 
 window.addEventListener('DOMContentLoaded', () => {
     btnCheckup = document.getElementById('btnCheckup');
-    btnRepair = document.getElementById('btnRepair');
-    btnAdvanced = document.getElementById('btnAdvanced');
-    btnOptimize = document.getElementById('btnOptimize');
+    btnFullMaintenance = document.getElementById('btnFullMaintenance');
+    btnSchedule = document.getElementById('btnSchedule');
     logArea = document.getElementById('logArea');
+    
+    const activeSchedulesDiv = document.getElementById('activeSchedules');
 
     const radialOptions = {
         series: [0, 0, 0],
@@ -61,16 +72,28 @@ window.addEventListener('DOMContentLoaded', () => {
     const networkOptions = {
         series: [{ name: 'Uso da rede', data: networkHistory }],
         chart: {
-            height: 120,
-            type: 'line',
+            height: 70,
+            type: 'area', 
             sparkline: { enabled: true },
             parentHeightOffset: 0,
             animations: { enabled: true, easing: 'linear', dynamicAnimation: { speed: 500 } }
         },
-        colors: ['#67e8f9'],
-        stroke: { curve: 'smooth', width: 4, lineCap: 'round' },
-        fill: { type: 'gradient', gradient: { opacityFrom: 0.5, opacityTo: 0.12 } },
-        markers: { size: 2, colors: ['#67e8f9'], strokeColors: '#d9fbff', strokeWidth: 1 },
+        colors: ['#2dd4bf'], 
+        stroke: { 
+            curve: 'smooth', 
+            width: 3, 
+            lineCap: 'round' 
+        },
+        fill: { 
+            type: 'gradient', 
+            gradient: { 
+                shadeIntensity: 1,
+                opacityFrom: 0.4, 
+                opacityTo: 0.0,   
+                stops: [0, 100]
+            } 
+        },
+        markers: { size: 0 }, 
         tooltip: { theme: 'dark', y: { formatter: (value) => value.toFixed(2) + ' Mbps' } },
         yaxis: { min: 0, labels: { show: false } },
         grid: { show: false }
@@ -166,14 +189,44 @@ window.addEventListener('DOMContentLoaded', () => {
     monitorRealtimeMetrics();
     setInterval(monitorRealtimeMetrics, 2000);
 
-    function setAppLockState(isLocked) {
-        [btnCheckup, btnRepair, btnAdvanced, btnOptimize].forEach(btn => {
-            if (btn) {
-                btn.disabled = isLocked;
-                btn.style.opacity = isLocked ? '0.4' : '1';
+    function setAppLockState(isLocked, actionText = 'Processando...') {
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        
+        if (overlay && loadingText) {
+            loadingText.innerText = actionText;
+            if (isLocked) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
             }
+        }
+
+        [btnCheckup, btnFullMaintenance, btnSchedule].forEach(btn => {
+            if (btn) btn.disabled = isLocked;
         });
         document.body.style.cursor = isLocked ? 'wait' : 'default';
+    }
+
+    function setStatus(type, title, message) {
+        if (!logArea) return;
+        const icons = {
+            'success': '✅',
+            'error': '🚨',
+            'warning': '⚠️',
+            'info': 'ℹ️',
+            'action': '⚙️'
+        };
+        const html = `
+            <div class="status-message status-${type === 'action' ? 'info' : type}">
+                <div class="status-icon">${icons[type]}</div>
+                <div class="status-text">
+                    <strong>${title}</strong>
+                    <span>${message}</span>
+                </div>
+            </div>
+        `;
+        logArea.innerHTML = html;
     }
 
     function updateDashboardUI() {
@@ -209,11 +262,104 @@ window.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('hardwareCpu').innerText = `${data.Processador.Nome || '--'} (${data.Processador.Nucleos || '--'}C / ${data.Processador.Threads || '--'}T)`;
                 document.getElementById('hardwareRam').innerText = `${data.Memoria.Fabricante || '--'} | ${data.Memoria.Total || '--'} GB | ${data.Memoria.Velocidade || '--'} MHz`;
                 document.getElementById('hardwareGpu').innerText = `${data.GPU.Nome || '--'} | ${data.GPU.VRAM || '--'} GB | ${data.GPU.Resolucao || '--'}`;
-                document.getElementById('hardwareSystem').innerText = `${data.PlacaMae || '--'} | ${data.Sistema.OS || '--'}`;
+                document.getElementById('hardwareMotherboard').innerText = data.PlacaMae || '--';
+                document.getElementById('hardwareOS').innerText = data.Sistema.OS || '--';
 
                 document.getElementById('valNetStatus').innerText = data.Rede.Status || '--';
                 document.getElementById('valNetSpeed').innerText = 'Download: ' + (data.Rede.Velocidade || '--');
+                
+                // --- GRÁFICO 1: Velocímetro do Ciclo de Atividade (Uptime) ---
+                const uptimeStr = data.Sistema.Uptime || '';
+                const dMatch = uptimeStr.match(/(\d+)\s*dias?/);
+                const hMatch = uptimeStr.match(/(\d+)\s*horas?/);
+                const d = dMatch ? parseInt(dMatch[1]) : 0;
+                const h = hMatch ? parseInt(hMatch[1]) : 0;
+                
+                const totalHours = (d * 24) + h;
+                const uptimePercent = Math.min((totalHours / 168) * 100, 100); 
+                
+                let uptimeColor = '#34d399'; 
+                if (uptimePercent > 50) uptimeColor = '#fbbf24'; 
+                if (uptimePercent > 80) uptimeColor = '#ef4444'; 
 
+                document.getElementById('valUptime').innerText = uptimeStr || '--';
+
+                if (uptimeChart) { uptimeChart.destroy(); }
+                uptimeChart = new ApexCharts(document.querySelector("#uptimeChart"), {
+                    series: [uptimePercent],
+                    chart: { type: 'radialBar', width: 220, height: 180, sparkline: { enabled: true } },
+                    colors: [uptimeColor],
+                    plotOptions: {
+                        radialBar: {
+                            startAngle: -90,
+                            endAngle: 90,
+                            hollow: { size: '60%' },
+                            track: { background: 'rgba(255,255,255,0.05)', strokeWidth: '100%' },
+                            dataLabels: {
+                                name: { show: false },
+                                value: { offsetY: -5, fontSize: '18px', fontWeight: 600, color: uptimeColor, formatter: (val) => Math.round(val) + "%" }
+                            }
+                        }
+                    },
+                    stroke: { lineCap: 'round' }
+                });
+                uptimeChart.render();
+
+                // --- GRÁFICO 2: Mini-Anel de Temperatura da CPU ---
+                const tempStr = data.Processador.Temp || 'N/A';
+                document.getElementById('valCpuTemp').innerText = tempStr;
+                let tempVal = 0;
+                if (tempStr !== 'N/A') {
+                    tempVal = parseFloat(tempStr.replace('°C', '').trim()) || 0;
+                }
+
+                if (tempChart) { tempChart.destroy(); }
+                const tempChartEl = document.querySelector("#tempChart");
+                if (tempChartEl) {
+                    tempChart = new ApexCharts(tempChartEl, {
+                        series: [tempVal],
+                        chart: { type: 'radialBar', width: 38, height: 38, sparkline: { enabled: true } },
+                        colors: [tempVal > 75 ? '#ef4444' : '#fbbf24'],
+                        plotOptions: {
+                            radialBar: {
+                                hollow: { size: '25%' },
+                                track: { background: 'rgba(255,255,255,0.08)', strokeWidth: '100%' },
+                                dataLabels: { show: false },
+                                max: 100
+                            }
+                        },
+                        stroke: { lineCap: 'round' }
+                    });
+                    tempChart.render();
+                }
+                
+                // --- GRÁFICO 3: Novo Anel de Temperatura do Disco SSD ---
+                const dTempStr = data.Processador.TempDisco || 'N/A';
+                document.getElementById('valDiskTemp').innerText = dTempStr;
+
+                let dTempVal = 0;
+                if (dTempStr !== 'N/A') { dTempVal = parseFloat(dTempStr.replace('°C', '').trim()) || 0; }
+
+                if (diskTempChart) { diskTempChart.destroy(); }
+                const diskTempChartEl = document.querySelector("#diskTempChart");
+                if (diskTempChartEl) {
+                    diskTempChart = new ApexCharts(diskTempChartEl, {
+                        series: [dTempVal],
+                        chart: { type: 'radialBar', width: 38, height: 38, sparkline: { enabled: true } },
+                        colors: [dTempVal > 55 ? '#ef4444' : '#2dd4bf'], 
+                        plotOptions: {
+                            radialBar: {
+                                hollow: { size: '25%' },
+                                track: { background: 'rgba(255,255,255,0.08)', strokeWidth: '100%' },
+                                dataLabels: { show: false },
+                                max: 100
+                            }
+                        },
+                        stroke: { lineCap: 'round' }
+                    });
+                    diskTempChart.render();
+                }
+                
                 if (document.getElementById('radCpuVal')) document.getElementById('radCpuVal').innerText = cpuVal + '%';
                 if (document.getElementById('radRamVal')) document.getElementById('radRamVal').innerText = ramVal + '%';
                 if (document.getElementById('radDiskVal')) document.getElementById('radDiskVal').innerText = diskVal + '%';
@@ -342,75 +488,140 @@ window.addEventListener('DOMContentLoaded', () => {
                 procHtml += '</table>';
                 document.getElementById('valProcessesArea').innerHTML = procHtml;
 
-                logArea.innerText += `\n[+] Telemetria avançada atualizada na interface!`;
             } catch (err) {
-                logArea.innerText += `\n[ERRO] Falha ao processar dados detalhados: ${err.message}`;
+                setStatus('error', 'Erro de Processamento', `Falha ao ler os dados do diagnóstico: ${err.message}`);
             }
         } else {
-            logArea.innerText += `\n[ERRO] Pacote de dados da telemetria não encontrado.`;
+            setStatus('error', 'Dados Ausentes', 'Pacote de telemetria não encontrado. Execute o diagnóstico novamente.');
         }
     }
 
     if (btnCheckup) {
         btnCheckup.addEventListener('click', () => {
-            setAppLockState(true);
-            logArea.innerText = "[*] Iniciando coleta de telemetria via PowerShell...\n";
+            setAppLockState(true, 'Diagnosticando o Sistema...');
+            setStatus('action', 'Diagnóstico em Andamento', 'Coletando telemetria avançada via PowerShell...');
             
             const scriptPath = path.join(projectRoot, 'core', 'checkup.ps1');
             const command = `chcp 65001 > nul && powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "${scriptPath}"`;
-            
             const process = exec(command);
             
-            process.stdout.on('data', (data) => { 
-                logArea.innerText += data; 
-                logArea.scrollTop = logArea.scrollHeight; 
-            });
-            
-            process.stderr.on('data', (data) => {
-                logArea.innerText += `\n[ERRO/AVISO] ${data}`;
-                logArea.scrollTop = logArea.scrollHeight;
-            });
-
             process.on('close', (code) => { 
-                logArea.innerText += `\n[*] Leitura concluída. Atualizando Dashboard...`; 
+                setStatus('success', 'Diagnóstico Concluído', 'Painel de controle atualizado com sucesso.');
                 setAppLockState(false); 
                 updateDashboardUI(); 
             });
         });
     }
 
-    if (btnRepair) {
-        btnRepair.addEventListener('click', () => {
-            setAppLockState(true);
-            logArea.innerText = "[*] Iniciando rotina de limpeza nativa...\n";
-            const command = `chcp 65001 > nul && powershell.exe -Command "Write-Output 'Limpando DNS...'; ipconfig /flushdns | Out-Null; Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; Write-Output 'Limpeza concluída!'"`;
+    if (btnFullMaintenance) {
+        btnFullMaintenance.addEventListener('click', () => {
+            setAppLockState(true, 'Executando Manutenção Completa...');
+            setStatus('warning', 'Manutenção em Andamento', 'Executando SFC, DISM e atualizações. O computador pode apresentar lentidão temporária.');
+            
+            const psScriptPath = path.join(os.homedir(), 'checkup_manutencao_manual.ps1');
+            const psScriptContent = [
+                "ipconfig /flushdns | Out-Null",
+                "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue",
+                "sfc /scannow",
+                "DISM /Online /Cleanup-Image /RestoreHealth",
+                "Optimize-Volume -DriveLetter C -ReTrim",
+                "winget upgrade --all --silent --accept-package-agreements --accept-source-agreements"
+            ].join('\n');
+            fs.writeFileSync(psScriptPath, psScriptContent, 'utf8');
+
+            const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "${psScriptPath}"\n`;
+            const tempBat = path.join(os.tmpdir(), 'RunMaintenanceTask.bat');
+            fs.writeFileSync(tempBat, batContent, 'utf8');
+
+            const command = `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
             const process = exec(command);
-            process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
-            process.on('close', (code) => { logArea.innerText += `\n[*] Manutenção finalizada.`; setAppLockState(false); });
+
+            process.on('close', (code) => { 
+                setStatus('success', 'Manutenção Concluída', 'Rotinas de limpeza e reparo finalizadas com sucesso.');
+                setAppLockState(false); 
+            });
         });
     }
 
-    if (btnAdvanced) {
-        btnAdvanced.addEventListener('click', () => {
-            setAppLockState(true);
-            logArea.innerText = "[*] Iniciando Reparo Profundo (SFC e DISM)...\n";
-            const command = `chcp 65001 > nul && powershell.exe -Command "sfc /scannow; DISM /Online /Cleanup-Image /RestoreHealth; Write-Output 'Reparo Profundo Concluído!'"`;
-            const process = exec(command);
-            process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
-            process.on('close', (code) => { logArea.innerText += `\n[*] Manutenção finalizada.`; setAppLockState(false); });
+    function loadScheduledTasks() {
+        if (!activeSchedulesDiv) return;
+        
+        if (fs.existsSync(scheduleStatePath)) {
+            try {
+                const data = JSON.parse(fs.readFileSync(scheduleStatePath, 'utf8'));
+                activeSchedulesDiv.innerHTML = `
+                    <div class="schedule-tag">
+                        <span>🚀 Todo dia ${data.dia} às ${data.hora}</span>
+                        <button class="delete-btn" onclick="window.deleteSchedule()" title="Cancelar automação">✕</button>
+                    </div>
+                `;
+            } catch(e) {
+                activeSchedulesDiv.innerHTML = `<span class="schedule-empty">Nenhum agendamento ativo.</span>`;
+            }
+        } else {
+            activeSchedulesDiv.innerHTML = `<span class="schedule-empty">Nenhum agendamento ativo.</span>`;
+        }
+    }
+
+    window.deleteSchedule = () => {
+        setAppLockState(true, 'Cancelando automação...');
+        setStatus('action', 'Processando Cancelamento', 'Removendo tarefa agendada do Windows...');
+
+        const batContent = `@echo off\nchcp 65001 > nul\nschtasks /delete /tn "CheckUP_Windows_Mensal" /f\n`;
+        const tempBat = path.join(os.tmpdir(), 'DeleteCheckupTask.bat');
+        fs.writeFileSync(tempBat, batContent, 'utf8');
+
+        const command = `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
+        exec(command, (error) => {
+            setStatus('info', 'Automação Cancelada', 'A rotina mensal foi desativada e removida.');
+            setAppLockState(false);
+            if (fs.existsSync(scheduleStatePath)) {
+                fs.unlinkSync(scheduleStatePath); 
+            }
+            loadScheduledTasks(); 
+        });
+    };
+
+    if (btnSchedule) {
+        btnSchedule.addEventListener('click', () => {
+            const day = document.getElementById('scheduleDay').value;
+            const time = document.getElementById('scheduleTime').value;
+            if (!time) return;
+
+            setAppLockState(true, 'Solicitando permissão UAC...');
+            setStatus('action', 'Agendando Tarefa', `Configurando execução para o dia ${day} às ${time}...`);
+
+            const psScriptPath = path.join(os.homedir(), 'checkup_manutencao.ps1');
+            const psScriptContent = [
+                "ipconfig /flushdns | Out-Null",
+                "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue",
+                "sfc /scannow",
+                "DISM /Online /Cleanup-Image /RestoreHealth",
+                "Optimize-Volume -DriveLetter C -ReTrim",
+                "winget upgrade --all --silent --accept-package-agreements --accept-source-agreements"
+            ].join('\n');
+            fs.writeFileSync(psScriptPath, psScriptContent, 'utf8');
+            
+            const batContent = `@echo off\nchcp 65001 > nul\nschtasks /create /tn "CheckUP_Windows_Mensal" /tr "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File \\"${psScriptPath}\\"" /sc MONTHLY /d ${day} /st ${time} /rl HIGHEST /ru SYSTEM /f\n`;
+            const tempBat = path.join(os.tmpdir(), 'CreateCheckupTask.bat');
+            fs.writeFileSync(tempBat, batContent, 'utf8');
+
+            const command = `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
+            exec(command, (error) => {
+                if (error) {
+                    setStatus('error', 'Falha no Agendamento', 'Permissão negada ou erro ao criar a tarefa.');
+                } else {
+                    setStatus('success', 'Automação Configurada', `Manutenção Geral rodará dia ${day} às ${time} em background.`);
+                    const scheduleData = { dia: day, hora: time };
+                    fs.writeFileSync(scheduleStatePath, JSON.stringify(scheduleData), 'utf8');
+                }
+                setAppLockState(false);
+                loadScheduledTasks();
+            });
         });
     }
 
-    if (btnOptimize) {
-        btnOptimize.addEventListener('click', () => {
-            setAppLockState(true);
-            logArea.innerText = "[*] Iniciando Otimização...\n";
-            const command = `chcp 65001 > nul && powershell.exe -Command "Optimize-Volume -DriveLetter C -ReTrim; winget upgrade --all --silent --accept-package-agreements --accept-source-agreements; Write-Output 'Otimização Concluída!'"`;
-            const process = exec(command);
-            process.stdout.on('data', (data) => { logArea.innerText += data; logArea.scrollTop = logArea.scrollHeight; });
-            process.on('close', (code) => { logArea.innerText += `\n[*] Tarefa finalizado.`; setAppLockState(false); });
-        });
-    }
+    loadScheduledTasks();
 
     if (btnCheckup) {
         btnCheckup.click();

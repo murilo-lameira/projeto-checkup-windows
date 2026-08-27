@@ -13,11 +13,39 @@
         <div class="sidebar">
             <div class="card side-card">
                 <button id="btnCheckup" class="btn-copper"><img class="button-icon" src="assets/icons/lupa.png" alt="">Diagnóstico</button>
-                <button id="btnRepair" class="btn-copper"><img class="button-icon" src="assets/icons/ferramentas.png" alt="">Limpeza e Reparo</button>
-                <button id="btnAdvanced" class="btn-copper"><img class="button-icon" src="assets/icons/atencao.png" alt="">Reparo Profundo</button>
-                <button id="btnOptimize" class="btn-copper"><img class="button-icon" src="assets/icons/engrenagem.png" alt="">Otimizar SO</button>
+                <button id="btnFullMaintenance" class="btn-copper"><img class="button-icon" src="assets/icons/ferramentas.png" alt="">Manutenção Completa</button>
                 
-                <div class="console-box" id="logArea">Aguardando inicialização da telemetria...</div>
+                <div class="status-box" id="logArea">
+                    <div class="status-message status-info">
+                        <div class="status-icon">ℹ️</div>
+                        <div class="status-text">
+                            <strong>Sistema Pronto</strong>
+                            <span>Aguardando inicialização da telemetria...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schedule-box">
+                    <h3>Automação Mensal</h3>
+
+                    <div id="activeSchedules" class="active-schedules-container">
+                        <span class="schedule-empty">Carregando status...</span>
+                    </div>
+
+                    <div class="schedule-controls">
+                        <select id="scheduleDay" class="glass-input">
+                            <option value="1">Dia 1</option>
+                            <option value="5">Dia 5</option>
+                            <option value="10">Dia 10</option>
+                            <option value="15">Dia 15</option>
+                            <option value="20">Dia 20</option>
+                        </select>
+                        <input type="time" id="scheduleTime" class="glass-input" value="09:00">
+                    </div>
+                    <button id="btnSchedule" class="btn-copper" style="width: 100%;">
+                        Agendar CheckUP
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -50,7 +78,40 @@
                     <div class="hardware-row"><span>Processador</span><strong id="hardwareCpu">--</strong></div>
                     <div class="hardware-row"><span>Memória RAM</span><strong id="hardwareRam">--</strong></div>
                     <div class="hardware-row"><span>Placa de vídeo</span><strong id="hardwareGpu">--</strong></div>
-                    <div class="hardware-row"><span>Placa-mãe / Sistema</span><strong id="hardwareSystem">--</strong></div>
+                    <div class="hardware-row"><span>Placa-mãe</span><strong id="hardwareMotherboard">--</strong></div>
+                    <div class="hardware-row"><span>Sistema</span><strong id="hardwareOS">--</strong></div>
+                </div>
+            </div>
+
+            <div class="glass-panel span-2 uptime-panel">
+                <h3>Ciclo de Atividade</h3>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative;">
+                    <!-- Gráfico Maior e Centralizado -->
+                    <div id="uptimeChart" style="margin-top: -15px;"></div>
+                    <div style="text-align: center; margin-top: -35px; z-index: 10;">
+                        <div class="metric" id="valUptime" style="font-size: 18px; line-height: 1.2;">--</div>
+                        <div class="sub-metric">Tempo sem reiniciar</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel span-2 sensors-panel">
+                <h3>Sensores Térmicos</h3>
+                <div class="hardware-grid">
+                    <div class="hardware-row">
+                        <span>Temp. CPU / Placa</span>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                            <strong id="valCpuTemp" style="color: #fbbf24;">--</strong>
+                            <div id="tempChart" style="width: 38px; height: 38px;"></div>
+                        </div>
+                    </div>
+                    <div class="hardware-row">
+                        <span>Temp. Armazenamento</span>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                            <strong id="valDiskTemp" style="color: #34d399;">--</strong>
+                            <div id="diskTempChart" style="width: 38px; height: 38px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -96,6 +157,12 @@
             </div>
 
         </div>
+    </div>
+    
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <h2 id="loadingText">Processando...</h2>
+        <p>Por favor, aguarde enquanto a operação é concluída.</p>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

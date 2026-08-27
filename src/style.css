@@ -196,19 +196,76 @@ body {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.console-box {
-    background-color: rgba(0, 0, 0, 0.6);
+/* ========================================= */
+/* PAINEL DE STATUS (Substituto do Console)  */
+/* ========================================= */
+.status-box {
+    background: rgba(24, 22, 25, 0.42);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    height: 250px;
-    overflow-y: auto;
-    font-family: 'Consolas', monospace;
-    font-size: 13px;
-    color: #2dd4bf; 
-    box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
-    white-space: pre-wrap;
+    border-radius: 18px;
+    padding: 12px;
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Fixa os cards na parte superior */
+    gap: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
+
+.status-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.status-text strong {
+    color: #f4f4f5;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-text span {
+    color: #8a888c;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+/* Variações de Cores para os Cards */
+.status-success { background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2); }
+.status-success .status-text strong { color: #34d399; }
+
+.status-warning { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); }
+.status-warning .status-text strong { color: #fbbf24; }
+
+.status-error { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+.status-error .status-text strong { color: #ef4444; }
+
+.status-info { background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.2); }
+.status-info .status-text strong { color: #2dd4bf; }
 
 /* ========================================= */
 /* GRID DO DASHBOARD NATIVO                  */
@@ -464,14 +521,25 @@ body {
 
 .health-panel {
     grid-column: 3 / span 2;
-    grid-row: 2 / span 2;
-    min-height: 276px;
+    grid-row: 2 / span 1;
+    min-height: 150px;
 }
 
 .network-panel {
     grid-column: 5 / span 2;
-    grid-row: 2 / span 2;
-    min-height: 276px;
+    grid-row: 2 / span 1;
+    min-height: 150px;;
+}
+.uptime-panel {
+    grid-column: 3 / span 2;
+    grid-row: 3 / span 1;
+    min-height: 140px;
+}
+
+.sensors-panel {
+    grid-column: 5 / span 2;
+    grid-row: 3 / span 1;
+    min-height: 140px;
 }
 
 .errors-panel {
@@ -694,3 +762,158 @@ body {
 .table-container table { width: 100%; border-collapse: collapse; }
 .table-container th, .table-container td { padding: 6px 4px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 .table-container th { color: #8a888c; font-weight: normal; }
+
+/* ========================================= */
+/* OVERLAY DE CARREGAMENTO                   */
+/* ========================================= */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 9, 11, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none; /* Bloqueia cliques apenas quando invisível */
+}
+
+.loading-overlay h2 {
+    color: #f4f4f5;
+    margin-top: 25px;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.loading-overlay p {
+    color: #8a888c;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Spinner animado */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #2dd4bf; /* Teal - cor dos logs */
+    border-right-color: #eab308; /* Amarelo - alertas */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* ========================================= */
+/* CONTROLES DE AGENDAMENTO                  */
+/* ========================================= */
+.schedule-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.schedule-box h3 {
+    margin: 0;
+    color: #8a888c;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.schedule-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f4f4f5;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.glass-input:focus {
+    border-color: #2dd4bf;
+}
+
+.glass-input option {
+    background: #181619;
+    color: #f4f4f5;
+}
+
+/* Inverte a cor do ícone de relógio nativo do HTML para branco */
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.6;
+    cursor: pointer;
+}
+/* Container de Agendamentos Ativos */
+.active-schedules-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.schedule-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(45, 212, 191, 0.1); /* Fundo Teal Glass */
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    color: #2dd4bf;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.schedule-tag .delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444; /* Vermelho */
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: transform 0.2s, color 0.2s;
+    outline: none;
+}
+
+.schedule-tag .delete-btn:hover {
+    transform: scale(1.2);
+    color: #f87171;
+}
+
+.schedule-empty {
+    font-size: 11px;
+    color: #767a82;
+    font-style: italic;
+    padding: 4px 0;
+}

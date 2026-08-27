@@ -428,6 +428,13 @@ foreach ($d in $discos) {
     $diskArray += [PSCustomObject]@{ Drive = $d.DeviceID; Uso = "$usoPercent%"; Livre = "$livre GB"; Total = "$total GB" }
 }
 
+# Capturando Temperatura Principal do SSD/NVMe
+$diskTempStr = "N/A"
+try {
+    $tempVal = (Get-StorageReliabilityCounter -ErrorAction SilentlyContinue | Where-Object Temperature -gt 0 | Select-Object -ExpandProperty Temperature -First 1)
+    if ($tempVal) { $diskTempStr = "$tempVal °C" }
+} catch {}
+
 # Capturando GPU (Garante leitura limpa)
 $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object -First 1
 $gpuDetails = $gpus | Select-Object -First 1
@@ -447,6 +454,7 @@ $dashboardPayload = [PSCustomObject]@{
         Threads = $cpuLogical
         Load = $cpuLoad
         Temp = $cpuTemp 
+        TempDisco = $diskTempStr
     }
     Memoria = [PSCustomObject]@{ 
         Total = $totalRamGB
