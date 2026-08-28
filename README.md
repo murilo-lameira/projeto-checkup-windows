@@ -13,9 +13,9 @@ Aplicativo desktop para diagnóstico, monitoramento e manutenção de computador
 
 ## 📸 Telas do Aplicativo
 
-![alt text](image-1.png)
-![alt text](image-2.png)
+<img width="2557" height="1389" alt="image" src="https://github.com/user-attachments/assets/0da5dfa9-039d-4a19-bb35-48b759e1536c" />
 
+<img width="2551" height="1387" alt="image" src="https://github.com/user-attachments/assets/013670fc-d3d2-44ea-81e0-1cbc22d98aa3" />
 
 ## ✨ Funcionalidades
 
