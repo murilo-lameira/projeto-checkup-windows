@@ -1,4 +1,4 @@
-# ⚡ CheckUP Windows - Dashboard de Telemetria
+# ⚡ CheckUP Windows - Dashboard
 
 ![Electron](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
