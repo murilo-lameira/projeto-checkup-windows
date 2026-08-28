@@ -1,4 +1,4 @@
-# ⚡ CheckUP Windows - Dashboard de Telemetria
+# ⚡ CheckUP Windows - Dashboard
 
 ![Electron](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
@@ -6,13 +6,15 @@
 ![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://gemini.google.com/)
+[![Download CheckUP](https://img.shields.io/badge/Download_Executável-2dd4bf?style=for-the-badge&logo=windows)](https://github.com/murilo-lameira/projeto-checkup-windows/releases/latest)
 
-Aplicativo desktop (*Single Page Application*) para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP combina uma interface visual fluida construída com Electron a rotinas nativas do sistema operacional via PowerShell, permitindo acompanhar a saúde do computador em um único painel e registrando dados históricos para análises posteriores. O desenvolvimento contou com o uso ativo de agentes de IA (Claude), focado principalmente na prototipagem visual, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
+Aplicativo desktop (Single Page Application) para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP combina uma interface visual fluida construída com Electron a rotinas nativas do sistema operacional via PowerShell, permitindo acompanhar a saúde do computador em um único painel e registrando dados históricos para análises posteriores. O desenvolvimento contou com o uso ativo de IA (Google Gemini / Claude), focado na prototipagem visual, solução de gargalos de WMI, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
 
 ## 📸 Telas do Aplicativo
 
-<img width="2553" height="1380" alt="image" src="https://github.com/user-attachments/assets/b08b86db-a409-4489-8b2b-dd2f89c0b593" />
+<img width="2559" height="1393" alt="image" src="https://github.com/user-attachments/assets/1631593f-6fd0-4d52-9b45-2fe451c2c2c6" />
+
 
 
 ## ✨ Funcionalidades
@@ -46,6 +48,14 @@ checkup-windows/
 └── relatorios/                  # Snapshot atual dos dados gerados
 ```
 
+## 📥 Como Baixar e Usar (Usuário Final)
+
+Não é necessário instalar nada ou ter conhecimento em programação para usar o CheckUP.
+
+1. Acesse a página de [Releases](../../releases/latest).
+2. Baixe o arquivo `.exe` mais recente disponível na seção *Assets*.
+3. ⚠️ **IMPORTANTE:** Clique com o botão direito no arquivo baixado e selecione **"Executar como Administrador"**. Isso é obrigatório para que o painel consiga ler os sensores térmicos, discos físicos e rodar os reparos do Windows nativamente.
+   
 ## ⚙️ Requisitos
 
 * **Sistema:** Windows 10 ou superior.
@@ -81,3 +91,7 @@ O build utiliza o electron-builder e cria a saída em .exe portátil nativo (exi
 ## 🏗️ Observações de Arquitetura e Empacotamento
 
 Para garantir que o Node.js e os scripts do PowerShell comuniquem-se corretamente no ambiente de produção, o empacotador mantém os scripts de recursos isolados da blindagem padrão. Configurado via `extraResources` no `package.json`, o artefato final extrai a pasta `core/` para que o PowerShell consiga ler, executar rotinas de administrador e gravar arquivos em diretórios externos sem bloqueios de permissão do arquivo `app.asar`.
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Sinta-se livre para usar, modificar e distribuir conforme necessário.
