@@ -296,3 +296,56 @@ body {
     background-color: #ef4444; /* Vermelho */
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
+
+/* === QUEBRA DE LINHA PARA TEXTOS LONGOS (HARDWARE) === */
+.hardware-row strong {
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* === RESPONSIVIDADE (Telas e Janelas Menores) === */
+@media (max-width: 1400px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr); /* Reduz o layout de 6 para 2 colunas */
+        grid-template-rows: auto;
+    }
+    
+    /* Remove as coordenadas fixas para permitir o fluxo natural dos cards */
+    .insights-panel, .hardware-panel, .disks-panel, .ram-panel, 
+    .health-panel, .network-panel, .uptime-panel, .sensors-panel, 
+    .errors-panel, .security-panel {
+        grid-column: span 1;
+        grid-row: auto;
+        min-height: auto;
+    }
+
+    /* Mantém os cards principais ocupando a largura total (2 colunas) */
+    .insights-panel, .hardware-panel {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 950px) {
+    .app-layout {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Reduz para 1 coluna empilhada */
+        height: auto;
+        overflow: visible;
+    }
+    
+    .insights-panel, .hardware-panel {
+        grid-column: span 1;
+    }
+}
