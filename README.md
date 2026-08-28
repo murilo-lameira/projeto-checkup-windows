@@ -9,23 +9,27 @@
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://gemini.google.com/)
 [![Download CheckUP](https://img.shields.io/badge/Download_Executável-2dd4bf?style=for-the-badge&logo=windows)](https://github.com/murilo-lameira/projeto-checkup-windows/releases/latest)
 
-Aplicativo desktop (Single Page Application) para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP combina uma interface visual fluida construída com Electron a rotinas nativas do sistema operacional via PowerShell, permitindo acompanhar a saúde do computador em um único painel e registrando dados históricos para análises posteriores. O desenvolvimento contou com o uso ativo de IA (Google Gemini / Claude), focado na prototipagem visual, solução de gargalos de WMI, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
+Aplicativo desktop para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP conta com uma interface de duas abas integradas (**Dashboard** e **Histórico**) com navegação fluida e design *Glassmorphism* escuro aprimorado com acentos e iluminação em cobre metálico. Desenvolvido com Electron e rotinas nativas do sistema operacional via PowerShell, ele permite acompanhar a saúde do computador em tempo real e analisar séries temporais de diagnósticos passados em painéis responsivos e intuitivos. O desenvolvimento contou com o uso ativo de IA (Google Gemini / Claude), focado na prototipagem visual, resolução de sensores WMI/CIM e DLLs de baixo nível, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
 
 ## 📸 Telas do Aplicativo
 
-<img width="2559" height="1393" alt="image" src="https://github.com/user-attachments/assets/1631593f-6fd0-4d52-9b45-2fe451c2c2c6" />
-
+![alt text](image-1.png)
+![alt text](image-2.png)
 
 
 ## ✨ Funcionalidades
 
 * **Monitoramento em Tempo Real:** Acompanhamento do uso de CPU, memória RAM, armazenamento e tráfego de rede (Mbps) renderizados via ApexCharts e suavizados matematicamente na interface em ciclos de 2 segundos.
-* **Diagnóstico Profundo:** Varredura detalhada de hardware (GPU, discos, bateria), sistema operacional, licença, processos ativos e tempo exato de boot utilizando WMI/CIM.
-* **Saúde do Sistema e S.M.A.R.T:** Classificação do computador em Saudável, Alerta ou Problema Crítico, com recomendações contextualizadas. Inclui leitura do desgaste físico de HDDs/SSDs com gráficos sparkline dedicados.
+* **Sensores Térmicos Dinâmicos:** Novos medidores semicirculares dinâmicos (estilo velocímetro) para CPU (compatível com arquiteturas AMD Ryzen e Intel) e Armazenamento (SSDs NVMe/SATA e HDDs), integrados à telemetria de baixo nível via `LibreHardwareMonitorLib`.
+* **Aba de Histórico e Telemetria Temporal:**
+  * **Janela Rotativa:** Histórico dedicado com persistência automática travada nos 50 diagnósticos mais recentes.
+  * **Gráfico de Desempenho Bruto:** Cruzamento visual e correlação de carga de CPU vs uso de Memória RAM ao longo do tempo.
+  * **Linha do Tempo de Alertas e Incidentes:** Cards flutuantes interativos que explicam detalhadamente a causa raiz das anomalias no *hover* (picos de CPU, saturação de RAM, perda de pacotes e erros de sistema do Windows).
+* **Diagnóstico Profundo:** Varredura detalhada de hardware (GPU, placas-mãe, discos, bateria), sistema operacional, licença, processos ativos de maior consumo e tempo exato de boot utilizando WMI/CIM.
+* **Saúde do Sistema e S.M.A.R.T:** Classificação do computador em Saudável, Alerta ou Problema Crítico, com recomendações contextualizadas. Inclui leitura do desgaste físico de HDDs/SSDs com gráficos *sparkline* dedicados.
 * **Auditoria de Segurança:** Rastreamento do Antivírus, Firewall, alertas críticos do Event Viewer (últimas 24h) e softwares de acesso remoto residentes em memória.
 * **Manutenção e Otimização:** Interface para limpeza de arquivos temporários, otimização do sistema (Winget) e reparo autônomo da imagem do Windows com `SFC /scannow` e `DISM /RestoreHealth`.
-* **Histórico e Exportação:** Métricas dos diagnósticos são armazenadas em JSON localmente para acompanhamento temporal e uso em ferramentas de análise ou BI.
-* **Agendamento:** Instalação de uma tarefa mensal do Windows para executar o checkup automaticamente em segundo plano.
+* **Agendamento:** Instalação e controle de tarefas mensais do Windows para executar o checkup automaticamente em segundo plano.
 * **Alertas Remotos:** Sistema de webhook para envio de notificações automáticas via Discord caso componentes críticos apresentem falhas graves.
 
 ## 📂 Estrutura do Projeto
@@ -34,12 +38,13 @@ Aplicativo desktop (Single Page Application) para diagnóstico, monitoramento e 
 checkup-windows/
 ├── main.js                      # Processo principal do Electron
 ├── src/
-│   ├── index.html               # Estrutura da interface
-│   ├── style.css                # Estilos da interface (Glassmorphism)
-│   ├── renderer.js              # Telemetria e interações do painel
+│   ├── index.html               # Estrutura da interface (Dashboard e Histórico)
+│   ├── style.css                # Estilos da interface (Glassmorphism e acentos cobre)
+│   ├── renderer.js              # Telemetria, gráficos e interações do painel
 │   └── assets/icons/            # Ícones dos controles
 ├── core/
-│   ├── checkup.ps1              # Diagnóstico e geração dos dados (WMI)
+│   ├── lib/                     # Dependências de baixo nível (LibreHardwareMonitorLib.dll, etc.)
+│   ├── checkup.ps1              # Diagnóstico e geração dos dados (WMI/CIM e LHM)
 │   ├── Ferramenta_Reparo.bat    # Limpeza e reparo avançado
 │   ├── Instalar_Rotina.ps1      # Agendamento mensal do sistema
 │   ├── CriarTarefa.bat          # Criação da tarefa agendada
@@ -85,7 +90,7 @@ O build utiliza o electron-builder e cria a saída em .exe portátil nativo (exi
 ## 📊 Dados Gerados (Ignorados no Git)
 
 * `relatorios/dados_atuais.json`: Snapshot usado ativamente pelo painel para injetar as informações de hardware e saúde na interface.
-* `historico/historico_checkup.json`: Registros incrementais de todos os diagnósticos executados, incluindo carga térmica e ping.
+* `historico/historico_checkup.json`: Registros incrementais dos últimos 50 diagnósticos executados, armazenando métricas detalhadas de integridade, contagem de erros de sistema (`Erros_Qtd`) do Event Viewer, carga térmica e estabilidade de rede.
 (Nota: Esses arquivos contêm informações sensíveis de hardware e rede da máquina host e não devem ser versionados).
 
 ## 🏗️ Observações de Arquitetura e Empacotamento
