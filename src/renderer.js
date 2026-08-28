@@ -21,6 +21,24 @@ let smoothRealtimeValues = [0, 0, 0];
 let uptimeChart, tempChart, diskTempChart;
 
 window.addEventListener('DOMContentLoaded', () => {
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page-view').forEach(p => p.style.display = 'none');
+            
+            tab.classList.add('active');
+            const targetId = tab.dataset.target;
+            const targetPage = document.getElementById(targetId);
+            
+            if (targetPage) {
+                targetPage.style.display = 'grid';
+                if (targetId === 'historicoPage') {
+                    setTimeout(loadAndRenderHistory, 100); 
+                }
+            }
+        });
+    });
     btnCheckup = document.getElementById('btnCheckup');
     btnFullMaintenance = document.getElementById('btnFullMaintenance');
     btnSchedule = document.getElementById('btnSchedule');
@@ -32,12 +50,13 @@ window.addEventListener('DOMContentLoaded', () => {
         series: [0, 0, 0],
         labels: ['CPU', 'RAM', 'Disco (C:)'],
         chart: {
-            height: 260, 
+            width: '100%',
+            height: '100%', 
             type: 'radialBar',
             fontFamily: 'Inter, sans-serif',
             parentHeightOffset: 0,
-            redrawOnParentResize: false,
-            redrawOnWindowResize: false,
+            redrawOnParentResize: true,
+            redrawOnWindowResize: true,
             animations: { enabled: false }
         },
         colors: ['#ef4444', '#a855f7', '#eab308'],
@@ -45,8 +64,8 @@ window.addEventListener('DOMContentLoaded', () => {
         legend: { show: false },
         plotOptions: {
             radialBar: {
-                offsetY: -10, 
-                hollow: { size: '30%' },
+                offsetY: 0, 
+                hollow: { size: '32%' },
                 track: { background: 'rgba(255,255,255,0.05)', strokeWidth: '100%' },
                 dataLabels: {
                     name: { show: false },
@@ -54,8 +73,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     total: {
                         show: true,
                         label: 'AVG',
-                        color: '#70747b',
-                        fontSize: '22px',
+                        color: '#8a888c',
+                        fontSize: '18px',
                         fontWeight: 600,
                         formatter: (w) => {
                             const values = w.globals.seriesTotals;
@@ -65,20 +84,55 @@ window.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-        }
+        },
+        responsive: [
+            {
+                breakpoint: 1440,
+                options: {
+                    plotOptions: {
+                        radialBar: {
+                            hollow: { size: '28%' },
+                            dataLabels: {
+                                total: {
+                                    fontSize: '16px'
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                breakpoint: 1200,
+                options: {
+                    plotOptions: {
+                        radialBar: {
+                            hollow: { size: '25%' },
+                            dataLabels: {
+                                total: {
+                                    fontSize: '14px'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]
     };
 
     const networkOptions = {
         series: [{ name: 'Uso da rede', data: networkHistory }],
         chart: {
-            height: 70,
+            width: '100%',
+            height: '100%', 
             type: 'area', 
             sparkline: { enabled: true },
             parentHeightOffset: 0,
+            redrawOnParentResize: true,
+            redrawOnWindowResize: true,
             animations: { enabled: true, easing: 'linear', dynamicAnimation: { speed: 500 } }
         },
         colors: ['#2dd4bf'], 
-        stroke: { curve: 'smooth', width: 3, lineCap: 'round' },
+        stroke: { curve: 'smooth', width: 2.5, lineCap: 'round' },
         fill: { 
             type: 'gradient', 
             gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.0, stops: [0, 100] } 
@@ -277,52 +331,153 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (document.querySelector("#uptimeChart")) {
                     uptimeChart = new ApexCharts(document.querySelector("#uptimeChart"), {
                         series: [uptimePercent],
-                        // Tamanho aumentado para preencher o card
-                        chart: { type: 'radialBar', width: 280, height: 260, sparkline: { enabled: true } },
+                        chart: { 
+                            type: 'radialBar', 
+                            width: '100%', 
+                            height: 140, 
+                            sparkline: { enabled: true },
+                            redrawOnParentResize: true,
+                            redrawOnWindowResize: true
+                        },
                         colors: [uptimeColor],
                         plotOptions: {
                             radialBar: {
-                                offsetY: -10,
-                                startAngle: -90, endAngle: 90, hollow: { size: '65%' },
+                                offsetY: 0,
+                                startAngle: -90, 
+                                endAngle: 90, 
+                                hollow: { size: '68%' },
                                 track: { background: 'rgba(255,255,255,0.05)', strokeWidth: '100%' },
                                 dataLabels: { show: false }
                             }
-                        }, stroke: { lineCap: 'round' }
+                        }, 
+                        stroke: { lineCap: 'round' },
+                        responsive: [
+                            {
+                                breakpoint: 1440,
+                                options: {
+                                    plotOptions: {
+                                        radialBar: {
+                                            hollow: { size: '64%' }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                breakpoint: 1200,
+                                options: {
+                                    plotOptions: {
+                                        radialBar: {
+                                            hollow: { size: '60%' }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
                     });
                     uptimeChart.render();
                 }
 
+                // === SENSORES TÉRMICOS ===
+                // Helper: resolve cor, status e percentual de uma temperatura (escala 0 a 100°C)
+                function resolveTempStyle(tempStr) {
+                    if (!tempStr || tempStr === 'N/A') {
+                        return { color: '#4b5563', status: 'Indisponível', pct: 0, isNA: true, display: 'N/A' };
+                    }
+                    const val = parseFloat(tempStr.replace('°C', '').trim()) || 0;
+                    const pct = Math.min(Math.round((val / 100) * 100), 100); // escala 0–100 °C
+                    let color, status;
+                    if (val > 75) {
+                        color = '#ef4444'; status = 'Elevado'; // Acima de 75°C
+                    } else if (val >= 50) {
+                        color = '#fbbf24'; status = 'Médio';   // Entre 50°C e 75°C
+                    } else {
+                        color = '#2dd4bf'; status = 'Normal';  // Abaixo de 50°C
+                    }
+                    return { color, status, pct, isNA: false, display: `${Math.round(val)} °C` };
+                }
+
                 // --- TEMP CPU ---
                 const tempStr = data.Processador.Temp || 'N/A';
-                if (document.getElementById('valCpuTemp')) document.getElementById('valCpuTemp').innerText = tempStr;
-                let tempVal = 0;
-                if (tempStr !== 'N/A') { tempVal = parseFloat(tempStr.replace('°C', '').trim()) || 0; }
+                const cpuStyle = resolveTempStyle(tempStr);
+
+                const valCpuTempEl = document.getElementById('valCpuTemp');
+                const valCpuStatusEl = document.getElementById('valCpuTempStatus');
+                if (valCpuTempEl) { valCpuTempEl.innerText = cpuStyle.display; valCpuTempEl.style.color = cpuStyle.color; }
+                if (valCpuStatusEl) { valCpuStatusEl.innerText = cpuStyle.status; valCpuStatusEl.style.color = cpuStyle.color; }
 
                 if (tempChart) { tempChart.destroy(); }
-                const tempChartEl = document.querySelector("#tempChart");
+                const tempChartEl = document.querySelector('#tempChart');
                 if (tempChartEl) {
                     tempChart = new ApexCharts(tempChartEl, {
-                        series: [tempVal], chart: { type: 'radialBar', width: 55, height: 55, sparkline: { enabled: true } },
-                        colors: [tempVal > 75 ? '#ef4444' : '#fbbf24'],
-                        plotOptions: { radialBar: { hollow: { size: '35%' }, track: { background: 'rgba(255,255,255,0.08)', strokeWidth: '100%' }, dataLabels: { show: false }, max: 100 } }, stroke: { lineCap: 'round' }
+                        series: [cpuStyle.pct],
+                        chart: {
+                            type: 'radialBar',
+                            width: '100%',
+                            height: '100%',
+                            sparkline: { enabled: true },
+                            parentHeightOffset: 0,
+                            redrawOnParentResize: true,
+                            redrawOnWindowResize: true,
+                            animations: { enabled: false }
+                        },
+                        colors: [cpuStyle.color],
+                        plotOptions: {
+                            radialBar: {
+                                startAngle: -90,
+                                endAngle: 90,
+                                offsetY: 0,
+                                hollow: { size: '62%' },
+                                track: {
+                                    background: cpuStyle.isNA ? 'rgba(75,85,99,0.2)' : 'rgba(255,255,255,0.06)',
+                                    strokeWidth: '100%'
+                                },
+                                dataLabels: { show: false }
+                            }
+                        },
+                        stroke: { lineCap: 'round' }
                     });
                     tempChart.render();
                 }
-                
+
                 // --- TEMP DISCO ---
                 const dTempStr = data.Processador.TempDisco || 'N/A';
-                if (document.getElementById('valDiskTemp')) document.getElementById('valDiskTemp').innerText = dTempStr;
-                let dTempVal = 0;
-                if (dTempStr !== 'N/A') { dTempVal = parseFloat(dTempStr.replace('°C', '').trim()) || 0; }
+                const diskStyle = resolveTempStyle(dTempStr);
+
+                const valDiskTempEl = document.getElementById('valDiskTemp');
+                const valDiskStatusEl = document.getElementById('valDiskTempStatus');
+                if (valDiskTempEl) { valDiskTempEl.innerText = diskStyle.display; valDiskTempEl.style.color = diskStyle.color; }
+                if (valDiskStatusEl) { valDiskStatusEl.innerText = diskStyle.status; valDiskStatusEl.style.color = diskStyle.color; }
 
                 if (diskTempChart) { diskTempChart.destroy(); }
-                const diskTempChartEl = document.querySelector("#diskTempChart");
+                const diskTempChartEl = document.querySelector('#diskTempChart');
                 if (diskTempChartEl) {
                     diskTempChart = new ApexCharts(diskTempChartEl, {
-                        // Dimensões corrigidas para igualar à CPU
-                        series: [dTempVal], chart: { type: 'radialBar', width: 55, height: 55, sparkline: { enabled: true } },
-                        colors: [dTempVal > 55 ? '#ef4444' : '#2dd4bf'], 
-                        plotOptions: { radialBar: { hollow: { size: '35%' }, track: { background: 'rgba(255,255,255,0.08)', strokeWidth: '100%' }, dataLabels: { show: false }, max: 100 } }, stroke: { lineCap: 'round' }
+                        series: [diskStyle.pct],
+                        chart: {
+                            type: 'radialBar',
+                            width: '100%',
+                            height: '100%',
+                            sparkline: { enabled: true },
+                            parentHeightOffset: 0,
+                            redrawOnParentResize: true,
+                            redrawOnWindowResize: true,
+                            animations: { enabled: false }
+                        },
+                        colors: [diskStyle.color],
+                        plotOptions: {
+                            radialBar: {
+                                startAngle: -90,
+                                endAngle: 90,
+                                offsetY: 0,
+                                hollow: { size: '62%' },
+                                track: {
+                                    background: diskStyle.isNA ? 'rgba(75,85,99,0.2)' : 'rgba(255,255,255,0.06)',
+                                    strokeWidth: '100%'
+                                },
+                                dataLabels: { show: false }
+                            }
+                        },
+                        stroke: { lineCap: 'round' }
                     });
                     diskTempChart.render();
                 }
@@ -471,12 +626,12 @@ window.addEventListener('DOMContentLoaded', () => {
             setStatus('action', 'Diagnóstico em Andamento', 'Coletando telemetria avançada... (Isso pode levar de 15 a 30 segundos).');
 
             const scriptPath = path.join(projectRoot, 'core', 'checkup.ps1');
-            const command = `powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File "${scriptPath}"`;
+            const command = `powershell.exe -NoProfile -Command "Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \\"${scriptPath}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
             
             exec(command, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
                 setAppLockState(false); 
                 if (error) {
-                    setStatus('error', 'Erro no Diagnóstico', `Ocorreu uma falha na execução: ${error.message}`);
+                    setStatus('error', 'Erro no Diagnóstico', `Ocorreu uma falha na execução ou permissão negada: ${error.message}`);
                     return;
                 }
                 setStatus('success', 'Diagnóstico Concluído', 'Painel de controle atualizado com sucesso.');
@@ -592,6 +747,328 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     loadScheduledTasks();
+
+// === RENDERIZAÇÃO DO HISTÓRICO (CPU/RAM + LINHA DO TEMPO DE ALERTAS) ===
+    let cpuRamChart = null;
+    let alertsChart = null;
+
+    function parseHistoryData(raw) {
+        // 1. Remove BOM e espaços vazios
+        let clean = raw.replace(/^\uFEFF/, '').trim();
+
+        // 2. Corrige junções malfeitas de múltiplos arrays: ][ ou ], [ -> ,
+        clean = clean.replace(/\]\s*,?\s*\[/g, ',');
+        
+        // 3. Remove vírgulas antes de fechar array
+        clean = clean.replace(/,\s*\]/g, ']');
+
+        // 4. Garante encapsulamento em array []
+        if (!clean.startsWith('[')) {
+            clean = '[' + clean.replace(/,\s*$/, '') + ']';
+        }
+
+        try {
+            return JSON.parse(clean);
+        } catch (e) {
+            // Fallback: extração manual de cada objeto JSON {...}
+            const matches = clean.match(/\{[^{}]*\}/g);
+            if (matches && matches.length > 0) {
+                return matches.map(m => {
+                    try { return JSON.parse(m); } catch (_) { return null; }
+                }).filter(Boolean);
+            }
+            throw e;
+        }
+    }
+
+    function formatHistoryDate(dateStr) {
+        if (!dateStr) return '--';
+        try {
+            if (dateStr.includes('T')) {
+                const d = new Date(dateStr);
+                return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
+            const parts = dateStr.trim().split(/\s+/);
+            const datePart = parts[0];
+            const timePart = parts[1] || '00:00';
+            const tParts = timePart.split(':');
+            const timeFormatted = `${tParts[0] || '00'}:${tParts[1] || '00'}`;
+
+            if (datePart.includes('-')) {
+                const dParts = datePart.split('-');
+                if (dParts[0].length === 4) {
+                    return `${dParts[2]}/${dParts[1]} ${timeFormatted}`;
+                }
+                return `${dParts[0]}/${dParts[1]} ${timeFormatted}`;
+            }
+            if (datePart.includes('/')) {
+                const dParts = datePart.split('/');
+                if (dParts[2] && dParts[2].length === 4) {
+                    return `${dParts[0]}/${dParts[1]} ${timeFormatted}`;
+                }
+                return `${dParts[0]}/${dParts[1]} ${timeFormatted}`;
+            }
+            return dateStr;
+        } catch (_) {
+            return dateStr;
+        }
+    }
+
+    function getAlertDiagnostics(item) {
+        const reasons = [];
+        const cpu = Number(item.CPU_Load) || 0;
+        const ram = Number(item.RAM_Usage_Pct) || 0;
+        const packetLoss = Number(item.Packet_Loss) || 0;
+        const ping = Number(item.Ping_Avg_ms) || 0;
+        const errosQtd = Number(item.Erros_Qtd) || 0;
+
+        const isAlert = item.Status_Saude === "ALERTAS DE ATENÇÃO" || item.Status_Saude === "PROBLEMAS DETECTADOS" || cpu >= 80 || ram >= 80 || packetLoss > 0 || errosQtd > 0;
+
+        if (errosQtd > 0) reasons.push(`🚨 ${errosQtd} Erro(s) de Sistema nas últimas 24h`);
+        if (cpu >= 80) reasons.push(`🔥 Pico de CPU Crítico (${cpu}%)`);
+        if (ram >= 80) reasons.push(`⚠️ Uso de Memória Elevado (${ram}%)`);
+        if (packetLoss > 0) reasons.push(`📡 Perda de Pacotes de Rede (${packetLoss}%)`);
+        if (ping >= 50) reasons.push(`⏱️ Latência Excessiva (${ping} ms)`);
+        
+        if (reasons.length === 0 && (item.Status_Saude === "ALERTAS DE ATENÇÃO" || item.Status_Saude === "PROBLEMAS DETECTADOS")) {
+            reasons.push(`⚠️ Alerta de integridade/manutenção do Windows`);
+        }
+
+        const severity = isAlert ? Math.max(cpu, ram, errosQtd > 0 ? 90 : 80) : 0;
+
+        return {
+            isAlert,
+            reasons,
+            severity
+        };
+    }
+
+    function loadAndRenderHistory() {
+        const possiblePaths = [
+            path.join(projectRoot, 'historico', 'historico_checkup.json'),
+            path.join(projectRoot, 'core', 'historico', 'historico_checkup.json'),
+            path.join(projectRoot, 'core', 'relatorios', 'historico_checkup.json'),
+            path.join(projectRoot, 'historico_checkup.json')
+        ];
+        
+        const historyPath = possiblePaths.find(p => fs.existsSync(p));
+        const cpuRamEl = document.querySelector("#cpuRamChart");
+        const alertsEl = document.querySelector("#pingHealthChart");
+        
+        if (!historyPath) {
+            if (cpuRamEl) cpuRamEl.innerHTML = '<p style="color:#8a888c; text-align:center; padding-top:60px;">Arquivo de histórico não encontrado.</p>';
+            if (alertsEl) alertsEl.innerHTML = '<p style="color:#8a888c; text-align:center; padding-top:60px;">Aguardando diagnósticos...</p>';
+            return;
+        }
+
+        try {
+            const rawData = fs.readFileSync(historyPath, 'utf8');
+            let data = parseHistoryData(rawData);
+
+            if (!Array.isArray(data) || data.length === 0) {
+                if (cpuRamEl) cpuRamEl.innerHTML = '<p style="color:#8a888c; text-align:center; padding-top:60px;">Nenhum registro encontrado no histórico.</p>';
+                return;
+            }
+
+            // Trava nos últimos 50 registros
+            if (data.length > 50) {
+                data = data.slice(-50);
+            }
+
+            const dates = [];
+            const cpuData = [];
+            const ramData = [];
+            const alertSeverities = [];
+            const barColors = [];
+            const diagnosticsList = [];
+
+            data.forEach(item => {
+                const formattedDate = formatHistoryDate(item.DataHora);
+                const diag = getAlertDiagnostics(item);
+
+                dates.push(formattedDate);
+                cpuData.push(Number(item.CPU_Load) || 0);
+                ramData.push(Number(item.RAM_Usage_Pct) || 0);
+                
+                alertSeverities.push(diag.severity);
+                barColors.push(diag.isAlert ? '#ef4444' : 'rgba(52, 211, 153, 0.25)');
+                diagnosticsList.push(diag);
+            });
+
+            // 1. Gráfico Superior: CPU vs RAM
+            const cpuRamOptions = {
+                series: [
+                    { name: 'Uso de CPU', data: cpuData },
+                    { name: 'Uso de RAM', data: ramData }
+                ],
+                chart: {
+                    type: 'area',
+                    width: '100%',
+                    height: '100%',
+                    fontFamily: 'Inter, sans-serif',
+                    background: 'transparent',
+                    toolbar: { show: false },
+                    redrawOnParentResize: true,
+                    redrawOnWindowResize: true,
+                    animations: { enabled: true, easing: 'easeinout' }
+                },
+                colors: ['#cf663f', '#a855f7'],
+                fill: {
+                    type: 'gradient',
+                    gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.02, stops: [0, 100] }
+                },
+                dataLabels: { show: false },
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    categories: dates,
+                    labels: { style: { colors: '#8a888c', fontSize: '11px' } },
+                    tickAmount: 8
+                },
+                yaxis: {
+                    min: 0,
+                    max: 100,
+                    labels: {
+                        style: { colors: '#8a888c', fontSize: '11px' },
+                        formatter: (val) => Math.round(val) + "%"
+                    }
+                },
+                tooltip: {
+                    theme: 'dark',
+                    y: { formatter: (val) => (val !== undefined ? val.toFixed(1) + '%' : '--') }
+                },
+                theme: { mode: 'dark' },
+                grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    labels: { colors: '#d7d9dd' }
+                }
+            };
+
+            // 2. Gráfico Inferior: Linha do Tempo de Alertas
+            const alertsOptions = {
+                series: [{ name: 'Status', data: alertSeverities }],
+                chart: {
+                    type: 'bar',
+                    width: '100%',
+                    height: '100%',
+                    fontFamily: 'Inter, sans-serif',
+                    background: 'transparent',
+                    toolbar: { show: false },
+                    redrawOnParentResize: true,
+                    redrawOnWindowResize: true,
+                    animations: { enabled: true, easing: 'easeinout' }
+                },
+                plotOptions: {
+                    bar: {
+                        distributed: true,
+                        borderRadius: 3,
+                        columnWidth: '50%',
+                        dataLabels: {
+                            position: 'top'
+                        }
+                    }
+                },
+                colors: barColors,
+                dataLabels: {
+                    enabled: true,
+                    formatter: function(val, opts) {
+                        const dataPointIndex = opts && opts.dataPointIndex !== undefined ? opts.dataPointIndex : -1;
+                        const diag = diagnosticsList[dataPointIndex];
+                        if (diag && diag.isAlert && val > 0) {
+                            return Math.round(val) + '%';
+                        }
+                        return '';
+                    },
+                    offsetY: -6,
+                    style: {
+                        fontSize: '10px',
+                        fontFamily: 'Inter, sans-serif',
+                        fontWeight: 600,
+                        colors: ['#ef4444']
+                    },
+                    background: {
+                        enabled: false
+                    }
+                },
+                xaxis: {
+                    categories: dates,
+                    labels: { style: { colors: '#8a888c', fontSize: '11px' } },
+                    tickAmount: 8
+                },
+                yaxis: {
+                    min: 0,
+                    max: 100,
+                    labels: { show: false }
+                },
+                grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
+                legend: { show: false },
+                tooltip: {
+                    theme: 'dark',
+                    custom: function({ series, seriesIndex, dataPointIndex }) {
+                        const item = data[dataPointIndex];
+                        const diag = diagnosticsList[dataPointIndex];
+                        const dateFormatted = dates[dataPointIndex];
+                        if (!item) return '';
+
+                        if (diag.isAlert) {
+                            const reasonsHtml = diag.reasons.map(r => `<div style="color: #fca5a5; font-size: 11px; margin-top: 3px;">• ${r}</div>`).join('');
+                            return `
+                                <div style="background: rgba(18, 16, 20, 0.96); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-family: 'Inter', sans-serif; min-width: 220px; backdrop-filter: blur(10px);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                                        <span style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${dateFormatted}</span>
+                                        <span style="font-size: 10px; font-weight: 700; color: #fff; background: #ef4444; padding: 2px 6px; border-radius: 4px;">ALERTA</span>
+                                    </div>
+                                    <div style="font-size: 11px; font-weight: 600; color: #f4f4f5; margin-bottom: 4px;">Ocorrências Detectadas:</div>
+                                    ${reasonsHtml}
+                                    <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; font-size: 10px; color: #71717a;">
+                                        <span>CPU: <strong style="color:#d4d4d8">${item.CPU_Load}%</strong></span>
+                                        <span>RAM: <strong style="color:#d4d4d8">${item.RAM_Usage_Pct}%</strong></span>
+                                        <span>Ping: <strong style="color:#d4d4d8">${item.Ping_Avg_ms}ms</strong></span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            return `
+                                <div style="background: rgba(18, 16, 20, 0.96); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 10px; padding: 10px 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); font-family: 'Inter', sans-serif; min-width: 200px; backdrop-filter: blur(10px);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                                        <span style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${dateFormatted}</span>
+                                        <span style="font-size: 10px; font-weight: 700; color: #34d399; background: rgba(52, 211, 153, 0.15); padding: 2px 6px; border-radius: 4px;">ESTÁVEL</span>
+                                    </div>
+                                    <div style="font-size: 11px; color: #a7f3d0;">✅ Sistema Saudável (Sem anomalias)</div>
+                                    <div style="margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; font-size: 10px; color: #71717a;">
+                                        <span>CPU: <strong style="color:#d4d4d8">${item.CPU_Load}%</strong></span>
+                                        <span>RAM: <strong style="color:#d4d4d8">${item.RAM_Usage_Pct}%</strong></span>
+                                        <span>Ping: <strong style="color:#d4d4d8">${item.Ping_Avg_ms}ms</strong></span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            };
+
+            if (cpuRamChart) cpuRamChart.destroy();
+            if (alertsChart) alertsChart.destroy();
+
+            if (cpuRamEl) {
+                cpuRamEl.innerHTML = '';
+                cpuRamChart = new ApexCharts(cpuRamEl, cpuRamOptions);
+                cpuRamChart.render();
+            }
+
+            if (alertsEl) {
+                alertsEl.innerHTML = '';
+                alertsChart = new ApexCharts(alertsEl, alertsOptions);
+                alertsChart.render();
+            }
+
+        } catch (err) {
+            if (cpuRamEl) {
+                cpuRamEl.innerHTML = `<p style="color:#fb7185; text-align:center; padding-top:50px;">Erro ao processar dados do histórico: ${err.message}</p>`;
+            }
+        }
+    }
 
     if (btnCheckup) {
         btnCheckup.click();

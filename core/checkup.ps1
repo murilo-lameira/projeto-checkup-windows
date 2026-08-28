@@ -90,14 +90,219 @@ if (-not $ramSpeed) { $ramSpeed = "Desconhecida" }
 $cpuLoad = (Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
 if ($null -eq $cpuLoad) { $cpuLoad = 0 }
 
-$cpuTemp = "N/A"
-try {
-    $thermal = Get-CimInstance -Namespace root\wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($thermal -and $thermal.CurrentTemperature) {
-        $tempCelsius = [math]::Round(($thermal.CurrentTemperature / 10) - 273.15, 1)
-        if ($tempCelsius -gt 0 -and $tempCelsius -lt 120) { $cpuTemp = "$tempCelsius °C" }
+# =========================================================
+# === CAPTURA DE TEMPERATURA (LIBREHARDWAREMONITORLIB) ===
+# =========================================================
+$libDir = Join-Path $PSScriptRoot "lib"
+$lhmDllPath = Join-Path $libDir "LibreHardwareMonitorLib.dll"
+
+# Fallback se a DLL estiver diretamente na raiz de core
+if (-not (Test-Path $lhmDllPath)) {
+    $fallbackLhm = Join-Path $PSScriptRoot "LibreHardwareMonitorLib.dll"
+    if (Test-Path $fallbackLhm) {
+        $lhmDllPath = $fallbackLhm
+        $libDir = $PSScriptRoot
     }
-} catch {}
+}
+
+# Download automático da biblioteca caso não exista
+if (-not (Test-Path $lhmDllPath)) {
+    try {
+        if (-not (Test-Path $libDir)) { New-Item -ItemType Directory -Path $libDir -Force | Out-Null }
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $lhmZipPath = Join-Path $libDir "lhm_temp.zip"
+        $lhmTempFolder = Join-Path $libDir "lhm_temp"
+        $lhmUrl = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases/latest/download/LibreHardwareMonitor.zip"
+        Invoke-WebRequest -Uri $lhmUrl -OutFile $lhmZipPath -UseBasicParsing -TimeoutSec 15
+        if (Test-Path $lhmZipPath) {
+            Expand-Archive -Path $lhmZipPath -DestinationPath $lhmTempFolder -Force
+            Get-ChildItem -Path $lhmTempFolder -Include "*.dll", "*.sys" -Recurse | ForEach-Object {
+                Copy-Item -Path $_.FullName -Destination $libDir -Force
+            }
+            Remove-Item -Path $lhmZipPath -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $lhmTempFolder -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    } catch {}
+}
+
+$cpuTemp = "N/A"
+$diskTempStr = "N/A"
+
+# 1. Carregamento e leitura dos sensores via LibreHardwareMonitorLib
+if (Test-Path $lhmDllPath) {
+    try {
+        # Carregamento absoluto de todas as dependências auxiliares (ex: HidSharp.dll)
+        if (Test-Path $libDir) {
+            Get-ChildItem -Path $libDir -Filter "*.dll" | ForEach-Object {
+                try { [System.Reflection.Assembly]::LoadFrom($_.FullName) | Out-Null } catch {}
+            }
+        }
+        [System.Reflection.Assembly]::LoadFrom((Resolve-Path $lhmDllPath).Path) | Out-Null
+
+        $computer = New-Object LibreHardwareMonitor.Hardware.Computer
+        $computer.IsCpuEnabled = $true
+        $computer.IsStorageEnabled = $true
+        $computer.IsGpuEnabled = $true
+        $computer.IsMotherboardEnabled = $true
+        $computer.Open()
+
+        try {
+            $cpuTempSensors = [System.Collections.Generic.List[object]]::new()
+
+            # Função de varredura recursiva em Hardwares e SubHardwares
+            function Update-And-Collect-Sensors($hw) {
+                $hw.Update()
+                if ($hw.SubHardware) {
+                    foreach ($sub in $hw.SubHardware) {
+                        Update-And-Collect-Sensors $sub
+                    }
+                }
+
+                # Coleta sensores de temperatura da CPU com valores válidos (> 0)
+                if ($hw.HardwareType -eq [LibreHardwareMonitor.Hardware.HardwareType]::Cpu) {
+                    if ($hw.Sensors) {
+                        foreach ($s in $hw.Sensors) {
+                            if ($s.SensorType -eq [LibreHardwareMonitor.Hardware.SensorType]::Temperature -and $null -ne $s.Value -and [double]$s.Value -gt 0) {
+                                $cpuTempSensors.Add($s)
+                            }
+                        }
+                    }
+                }
+
+                # Armazenamento (SSD NVMe, SATA, HD)
+                if ($hw.HardwareType -eq [LibreHardwareMonitor.Hardware.HardwareType]::Storage) {
+                    if ($hw.Sensors) {
+                        foreach ($s in $hw.Sensors) {
+                            if ($s.SensorType -eq [LibreHardwareMonitor.Hardware.SensorType]::Temperature -and $null -ne $s.Value -and [double]$s.Value -gt 0) {
+                                $valC = [math]::Round([double]$s.Value, 1)
+                                if ($script:diskTempStr -eq "N/A" -or $s.Name -like "*Temperature*" -or $s.Name -like "*Composite*") {
+                                    $script:diskTempStr = "$valC °C"
+                                }
+                            }
+                        }
+                    }
+                }
+
+                # GPU (Nvidia, AMD, Intel)
+                if ($hw.HardwareType -in @([LibreHardwareMonitor.Hardware.HardwareType]::GpuNvidia, [LibreHardwareMonitor.Hardware.HardwareType]::GpuAmd, [LibreHardwareMonitor.Hardware.HardwareType]::GpuIntel)) {
+                    if ($hw.Sensors) {
+                        foreach ($s in $hw.Sensors) {
+                            if ($s.SensorType -eq [LibreHardwareMonitor.Hardware.SensorType]::Temperature -and $null -ne $s.Value -and [double]$s.Value -gt 0) {
+                                $valC = [math]::Round([double]$s.Value, 1)
+                                if ($script:gpuTempStr -eq "N/A" -or $s.Name -like "*Core*" -or $s.Name -like "*GPU*") {
+                                    $script:gpuTempStr = "$valC °C"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach ($h in $computer.Hardware) {
+                Update-And-Collect-Sensors $h
+            }
+
+            # Resolução Inteligente da Temperatura da CPU (Universal AMD e Intel)
+            if ($cpuTempSensors.Count -gt 0) {
+                $selectedCpuTemp = $null
+
+                # Prioridade 1: Sensores de Encapsulamento / Gerais
+                $generalPatterns = @(
+                    "*Package*",
+                    "*Tctl*",
+                    "*Tdie*",
+                    "*Core (Tctl/Tdie)*",
+                    "*CPU Total*",
+                    "*Core Max*"
+                )
+
+                foreach ($pattern in $generalPatterns) {
+                    $matched = $cpuTempSensors | Where-Object { $_.Name -like $pattern -and $null -ne $_.Value -and [double]$_.Value -gt 0 } | Select-Object -First 1
+                    if ($matched) {
+                        $selectedCpuTemp = [double]$matched.Value
+                        break
+                    }
+                }
+
+                # Prioridade 2: Sensores por Núcleo (Fallback Intel/AMD: Core #1, Core #2, Core #N)
+                if ($null -eq $selectedCpuTemp) {
+                    $coreSensors = $cpuTempSensors | Where-Object { 
+                        ($_.Name -like "*Core #*" -or $_.Name -match "Core\s*#?\d+") -and $null -ne $_.Value -and [double]$_.Value -gt 0
+                    }
+                    if ($coreSensors -and $coreSensors.Count -gt 0) {
+                        $maxCoreVal = ($coreSensors | Measure-Object -Property Value -Maximum).Maximum
+                        if ($null -ne $maxCoreVal -and [double]$maxCoreVal -gt 0) {
+                            $selectedCpuTemp = [double]$maxCoreVal
+                        }
+                    }
+                }
+
+                # Prioridade 3: Primeiro Sensor Válido (Leitura genérica de temperatura)
+                if ($null -eq $selectedCpuTemp) {
+                    $firstValid = $cpuTempSensors | Where-Object { $null -ne $_.Value -and [double]$_.Value -gt 0 } | Select-Object -First 1
+                    if ($firstValid) {
+                        $selectedCpuTemp = [double]$firstValid.Value
+                    }
+                }
+
+                if ($null -ne $selectedCpuTemp) {
+                    $cpuTemp = "$([math]::Round($selectedCpuTemp, 1)) °C"
+                }
+            }
+        } finally {
+            if ($computer) {
+                $computer.Close()
+            }
+        }
+    } catch {}
+}
+
+# 2. Fallbacks de CPU (MSAcpi e Zonas Térmicas)
+if ($cpuTemp -eq "N/A") {
+    try {
+        $thermal = Get-CimInstance -Namespace root\wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($thermal -and $thermal.CurrentTemperature) {
+            $tempCelsius = [math]::Round(($thermal.CurrentTemperature / 10) - 273.15, 1)
+            if ($tempCelsius -gt 0 -and $tempCelsius -lt 120) { $cpuTemp = "$tempCelsius °C" }
+        }
+    } catch {}
+}
+
+if ($cpuTemp -eq "N/A") {
+    try {
+        $thermalZones = Get-CimInstance -ClassName Win32_PerfFormattedData_Counters_ThermalZoneInformation -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($thermalZones -and $thermalZones.HighPrecisionTemperature) {
+            $tempCelsius = [math]::Round(($thermalZones.HighPrecisionTemperature / 10.0) - 273.15, 1)
+            if ($tempCelsius -gt 0 -and $tempCelsius -lt 120) { $cpuTemp = "$tempCelsius °C" }
+        }
+    } catch {}
+}
+
+# 3. Fallbacks de Armazenamento (PhysicalDisk e StorageReliabilityCounter)
+if ($diskTempStr -eq "N/A") {
+    try {
+        $physDisksForTemp = Get-PhysicalDisk -ErrorAction SilentlyContinue
+        if ($physDisksForTemp) {
+            foreach ($pd in $physDisksForTemp) {
+                try {
+                    $rel = $pd | Get-StorageReliabilityCounter -ErrorAction SilentlyContinue
+                    if ($rel -and $rel.Temperature -gt 0) {
+                        $diskTempStr = "$($rel.Temperature) °C"
+                        break
+                    }
+                } catch {}
+            }
+        }
+    } catch {}
+}
+
+if ($diskTempStr -eq "N/A") {
+    try {
+        $tempVal = (Get-StorageReliabilityCounter -ErrorAction SilentlyContinue | `
+            Where-Object { $_.Temperature -gt 0 } | Select-Object -ExpandProperty Temperature -First 1)
+        if ($tempVal) { $diskTempStr = "$tempVal °C" }
+    } catch {}
+}
 
 $logicalDisks = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | ForEach-Object {
     $totalGB = [math]::Round($_.Size / 1GB, 2)
@@ -117,7 +322,7 @@ $gpus = Get-CimInstance Win32_VideoController | ForEach-Object {
 }
 
 $internetStatus = Test-Connection -ComputerName "8.8.8.8" -Count 2 -Quiet -ErrorAction SilentlyContinue
-$netStatusText = if ($internetStatus) { "Online 🟢" } else { "Offline 🔴" }
+$netStatusText = if ($internetStatus) { "Online" } else { "Offline" }
 $speedText = "N/A"
 $avgLatency = 0
 $loss = 0
@@ -151,14 +356,15 @@ $recentErrors = try {
 } catch { @() }
 
 $errorRecords = @()
-foreach ($errorEvent in @($recentErrors)) {
-    $errorMessage = ($errorEvent.Message -replace '\s+', ' ').Trim()
-    if ($errorMessage.Length -gt 220) { $errorMessage = $errorMessage.Substring(0, 220) + '...' }
-    $errorRecords += [PSCustomObject]@{
-        Id = $errorEvent.Id
-        Fonte = $errorEvent.ProviderName
-        DataHora = $errorEvent.TimeCreated.ToString('dd/MM HH:mm')
-        Mensagem = $errorMessage
+if ($recentErrors) {
+    foreach ($err in $recentErrors) {
+        $msg = if ($err.Message) { $err.Message } else { "Sem descrição adicional" }
+        $errorRecords += [PSCustomObject]@{
+            DataHora = $err.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss")
+            Fonte = $err.ProviderName
+            Id = $err.Id
+            Mensagem = $msg
+        }
     }
 }
 
@@ -172,8 +378,8 @@ try {
     }
 } catch {}
 
-if ($ramUsagePercent -gt 85) { $healthWarnings += "Uso de Memória RAM elevado ($ramUsagePercent%). Dica: Feche abas do navegador ou considere um upgrade de memória." }
-if ($cpuLoad -gt 80) { $healthWarnings += "Uso de Processador (CPU) elevado ($cpuLoad%). Dica: Verifique se há atualizações rodando em segundo plano no Gerenciador de Tarefas." }
+if ($ramUsagePercent -gt 85) { $healthWarnings += "Uso de Memória RAM elevado ($($ramUsagePercent)%). Dica: Feche abas do navegador ou considere um upgrade de memória." }
+if ($cpuLoad -gt 80) { $healthWarnings += "Uso de Processador (CPU) elevado ($($cpuLoad)%). Dica: Verifique se há atualizações rodando em segundo plano no Gerenciador de Tarefas." }
 
 foreach ($disk in $logicalDisks) {
     if ($disk.UsedPercent -gt 90) {
@@ -204,18 +410,20 @@ $historyDir = "$PSScriptRoot\..\historico"
 if (-not (Test-Path $historyDir)) { New-Item -ItemType Directory -Path $historyDir | Out-Null }
 
 $historyRecord = [PSCustomObject]@{
-    DataHora       = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-    Computador     = $computerName
-    CPU_Load       = $cpuLoad
-    CPU_Temp       = $cpuTemp
-    RAM_Usage_Pct  = $ramUsagePercent
-    RAM_Used_GB    = $usedRamGB
-    RAM_Total_GB   = $totalRamGB
-    Boot_Time      = $bootTimeStr
-    Internet_Status= $internetStatus
-    Ping_Avg_ms    = $avgLatency
-    Packet_Loss    = $loss
-    Status_Saude   = $statusBadgeText
+    DataHora        = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    Computador      = $computerName
+    CPU_Load        = $cpuLoad
+    CPU_Temp        = $cpuTemp
+    Disk_Temp       = $diskTempStr
+    RAM_Usage_Pct   = $ramUsagePercent
+    RAM_Used_GB     = $usedRamGB
+    RAM_Total_GB    = $totalRamGB
+    Boot_Time       = $bootTimeStr
+    Internet_Status = $internetStatus
+    Ping_Avg_ms     = $avgLatency
+    Packet_Loss     = $loss
+    Erros_Qtd       = @($errorRecords).Count
+    Status_Saude    = $statusBadgeText
 }
 
 $jsonHistoryPath = "$historyDir\historico_checkup.json"
@@ -229,6 +437,12 @@ if (Test-Path $jsonHistoryPath) {
 }
 
 [void]$historyList.Add($historyRecord)
+
+# === TRAVA NOS ÚLTIMOS 50 REGISTROS ===
+while ($historyList.Count -gt 50) {
+    $historyList.RemoveAt(0)
+}
+
 $historyList | ConvertTo-Json -Depth 5 | Out-File $jsonHistoryPath -Encoding utf8
 
 $discordWebhookUrl = "https://discord.com/api/webhooks/1539265722264453171/sxaVx1PBCs-QXceSuyYjtG-U2L5tzdZaIACHBiFAZ5O2hGuJyfCEg2x0PXdEPJowiUKN" 
@@ -251,12 +465,6 @@ foreach ($d in $discos) {
     $usoPercent = [math]::Round((($total - $livre) / $total) * 100, 1)
     $diskArray += [PSCustomObject]@{ Drive = $d.DeviceID; Uso = "$usoPercent%"; Livre = "$livre GB"; Total = "$total GB" }
 }
-
-$diskTempStr = "N/A"
-try {
-    $tempVal = (Get-StorageReliabilityCounter -ErrorAction SilentlyContinue | Where-Object Temperature -gt 0 | Select-Object -ExpandProperty Temperature -First 1)
-    if ($tempVal) { $diskTempStr = "$tempVal °C" }
-} catch {}
 
 $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object -First 1
 $gpuDetails = $gpus | Select-Object -First 1

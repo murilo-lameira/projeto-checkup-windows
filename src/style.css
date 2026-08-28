@@ -1,14 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-* { box-sizing: border-box; }
+* { 
+    box-sizing: border-box; 
+}
+
+/* === CUSTOM SCROLLBARS === */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(207, 102, 63, 0.5);
+}
 
 body {
-    background-color: #030303;
+    background-color: #000000;
     background-image:
-        linear-gradient(135deg, rgba(145, 70, 38, 0.13) 0%, transparent 18%, transparent 82%, rgba(145, 70, 38, 0.13) 100%),
-        radial-gradient(ellipse at 100% 0%, rgba(145, 70, 38, 0.28) 0%, rgba(70, 32, 20, 0.08) 22%, transparent 43%),
-        radial-gradient(ellipse at 0% 100%, rgba(145, 70, 38, 0.25) 0%, rgba(70, 32, 20, 0.07) 22%, transparent 43%),
-        linear-gradient(135deg, #020202 0%, #080808 48%, #020202 100%);
+        /* Pincelada Angular Top-Right (Lâmina / Traço de Tinta Cobre Metálica) */
+        linear-gradient(222deg, rgba(255, 180, 130, 0.55) 0%, rgba(220, 110, 68, 0.42) 5%, rgba(184, 87, 42, 0.26) 12%, rgba(120, 45, 18, 0.08) 22%, transparent 34%),
+        linear-gradient(205deg, rgba(245, 130, 80, 0.35) 0%, rgba(168, 74, 40, 0.16) 14%, transparent 28%),
+        radial-gradient(ellipse 48% 28% at 100% 0%, rgba(255, 170, 120, 0.38) 0%, rgba(207, 102, 63, 0.22) 32%, rgba(120, 45, 18, 0.06) 60%, transparent 80%),
+        
+        /* Pincelada Angular Bottom-Left (Lâmina / Traço de Tinta Cobre Metálica) */
+        linear-gradient(42deg, rgba(255, 180, 130, 0.5) 0%, rgba(220, 110, 68, 0.38) 5%, rgba(184, 87, 42, 0.24) 12%, rgba(120, 45, 18, 0.07) 22%, transparent 34%),
+        linear-gradient(25deg, rgba(245, 130, 80, 0.3) 0%, rgba(168, 74, 40, 0.14) 14%, transparent 28%),
+        radial-gradient(ellipse 48% 28% at 0% 100%, rgba(255, 170, 120, 0.32) 0%, rgba(207, 102, 63, 0.2) 32%, rgba(120, 45, 18, 0.05) 60%, transparent 80%),
+
+        /* Base Preto Puro Profundo */
+        linear-gradient(180deg, #000000 0%, #000000 100%);
     background-attachment: fixed;
     color: #f4f4f5; 
     font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
@@ -30,12 +56,20 @@ body {
 /* === SIDEBAR (Painel Esquerdo) === */
 .sidebar {
     width: 320px; 
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     height: 100vh;
-    background: rgba(10, 9, 11, 0.8);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 7, 10, 0.88);
+    backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.6);
+    transition: border-color 0.3s ease;
+}
+
+.sidebar:hover {
+    border-right-color: rgba(207, 102, 63, 0.25);
 }
 
 .card.side-card {
@@ -48,35 +82,45 @@ body {
     overflow-y: auto; 
 }
 
+/* === BOTÕES EM COBRE === */
 .btn-copper {
-    position: relative;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(8px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-    color: #f4f4f5; 
-    font-weight: 600;
-    padding: 14px 20px;
-    font-size: 14px;
+    background: rgba(14, 13, 16, 0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 30px; 
+    border: 1px solid rgba(207, 102, 63, 0.25);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    color: #d7d9dd;
+    font-weight: 500;
+    padding: 12px 20px;
+    font-size: 13px;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s, border-color 0.2s;
-    width: 100%;
+    transition: all 0.25s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
+    gap: 10px;
+    width: 100%;
 }
 
-.button-icon { width: 18px; height: 18px; filter: brightness(0) invert(1); }
-.btn-copper:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); }
+.button-icon { 
+    width: 18px; 
+    height: 18px; 
+    filter: brightness(0) invert(1); 
+}
+
+.btn-copper:hover {
+    background: rgba(207, 102, 63, 0.15);
+    color: #ffffff;
+    border-color: rgba(207, 102, 63, 0.65);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(207, 102, 63, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
 
 /* === STATUS BOX === */
 .status-box {
-    background: rgba(24, 22, 25, 0.42);
+    background: rgba(18, 16, 20, 0.55);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 18px;
     padding: 12px;
     flex-grow: 1; 
@@ -98,7 +142,10 @@ body {
     animation: slideIn 0.3s ease-out forwards;
 }
 
-@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
 
 .status-icon { font-size: 20px; flex-shrink: 0; }
 .status-text { display: flex; flex-direction: column; gap: 2px; }
@@ -116,7 +163,7 @@ body {
 
 /* === AGENDAMENTO === */
 .schedule-box {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     padding: 16px;
@@ -146,59 +193,252 @@ body {
 .schedule-tag .delete-btn { background: none; border: none; color: #ef4444; font-weight: bold; font-size: 13px; cursor: pointer; padding: 0 4px; }
 .schedule-empty { font-size: 11px; color: #767a82; font-style: italic; }
 
+/* === ESTRUTURA PRINCIPAL E ROLAGEM === */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: 100vh;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.top-nav {
+    display: flex;
+    align-items: center;
+    padding: 20px 28px 0 28px;
+    gap: 30px;
+    flex-shrink: 0;
+}
+
+.nav-tab {
+    background: none;
+    border: none;
+    outline: none;
+    color: #8a888c;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 0 10px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-tab:hover {
+    color: #d7d9dd;
+}
+
+.nav-tab.active {
+    color: #f4f4f5;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #cf663f; /* Sublinhado metálico */
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 0 10px #cf663f, 0 0 20px rgba(207, 102, 63, 0.7);
+}
+
+.page-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    height: 100%;
+    min-height: 0;
+}
+
 /* === GRID DASHBOARD === */
 .dashboard-grid {
-    flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(6, 1fr); 
-    grid-template-rows: repeat(4, 1fr);
-    gap: 20px;
-    padding: 24px;
-    overflow-y: auto;
-    height: 100%;
+    grid-auto-rows: auto;
+    gap: 18px;
+    padding: 20px 28px 40px 28px;
+    min-height: min-content;
 }
 
 .span-2 { grid-column: span 2; }
 
 .glass-panel {
-    background: rgba(24, 22, 25, 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 8, 10, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    padding: 18px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: 0;
 }
-.glass-panel h3 { margin: 0 0 15px 0; font-size: 13px; color: #8a888c; text-transform: uppercase; letter-spacing: 1px; }
 
-/* Configuração Rígida de Posição dos Cards */
-.insights-panel { grid-column: 1 / span 2; grid-row: 1 / span 1; min-height: 260px; }
-.hardware-panel { grid-column: 1 / span 2; grid-row: 2 / span 3; } 
-.disks-panel    { grid-column: 3 / span 2; grid-row: 1 / span 1; }
-.ram-panel      { grid-column: 5 / span 2; grid-row: 1 / span 1; }
-.health-panel   { grid-column: 3 / span 2; grid-row: 2 / span 1; }
-.network-panel  { grid-column: 5 / span 2; grid-row: 2 / span 1; }
-.uptime-panel   { grid-column: 3 / span 2; grid-row: 3 / span 1; }
-.sensors-panel  { grid-column: 5 / span 2; grid-row: 3 / span 1; }
-.errors-panel   { grid-column: 3 / span 2; grid-row: 4 / span 1; }
-.security-panel { grid-column: 5 / span 2; grid-row: 4 / span 1; }
+.glass-panel:hover {
+    border-color: rgba(207, 102, 63, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(207, 102, 63, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel h3 { 
+    margin: 0 0 12px 0; 
+    font-size: 12px; 
+    color: #8a888c; 
+    text-transform: uppercase; 
+    letter-spacing: 0.8px; 
+}
+
+/* Posição dos Cards no Desktop Widescreen */
+.insights-panel { 
+    grid-column: 1 / span 2; 
+    grid-row: 1 / span 1; 
+    min-height: 250px; 
+}
+
+.hardware-panel { 
+    grid-column: 1 / span 2; 
+    grid-row: 2 / span 3; 
+    min-height: 380px; 
+}
+
+.disks-panel    { grid-column: 3 / span 2; grid-row: 1 / span 1; min-height: 180px; }
+.ram-panel      { grid-column: 5 / span 2; grid-row: 1 / span 1; min-height: 180px; }
+.health-panel   { grid-column: 3 / span 2; grid-row: 2 / span 1; min-height: 200px; }
+.network-panel  { grid-column: 5 / span 2; grid-row: 2 / span 1; min-height: 200px; }
+.uptime-panel   { grid-column: 3 / span 2; grid-row: 3 / span 1; min-height: 170px; }
+.sensors-panel  { grid-column: 5 / span 2; grid-row: 3 / span 1; min-height: 200px; }
+.errors-panel   { grid-column: 3 / span 2; grid-row: 4 / span 1; min-height: 180px; }
+.security-panel { grid-column: 5 / span 2; grid-row: 4 / span 1; min-height: 180px; }
+
+/* === SENSORES TÉRMICOS (Medidores Duplos) === */
+.sensors-gauges {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex: 1;
+    gap: 8px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.sensor-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    position: relative;
+}
+
+/* The ApexCharts element for each gauge */
+.sensor-gauge > div:first-child {
+    width: 100%;
+    max-width: 140px;
+    height: 80px;
+}
+
+.sensor-center-info {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.sensor-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f4f4f5;
+    line-height: 1.1;
+}
+
+.sensor-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #8a888c;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+}
+
+.sensor-title {
+    font-size: 10px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-top: 2px;
+}
 
 /* === INSIGHTS CHART === */
-.insights-content { display: flex; justify-content: space-around; align-items: center; flex: 1; padding: 0 10px; }
-.insights-legend { display: flex; flex-direction: column; gap: 18px; width: 140px; }
-.insight-legend-item { position: relative; display: flex; flex-direction: column; padding-left: 12px; }
-.insight-legend-item::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 4px; border-radius: 4px; }
+.insights-content { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    flex: 1; 
+    gap: 10px;
+    padding: 0 4px; 
+}
+
+.insights-legend { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 14px; 
+    width: 125px; 
+    flex-shrink: 0;
+}
+
+.insight-legend-item { 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    padding-left: 12px; 
+}
+
+.insight-legend-item::before { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 0; 
+    width: 4px; 
+    border-radius: 4px; 
+}
+
 .insight-cpu::before { background: #ef4444; }
 .insight-ram::before { background: #a855f7; }
 .insight-disk::before { background: #eab308; }
-.insight-legend-item strong { color: #d7d9dd; font-size: 20px; font-weight: 700; }
-.insight-legend-item span { color: #8a888c; font-size: 13px; margin-top: 2px; }
+.insight-legend-item strong { color: #d7d9dd; font-size: 18px; font-weight: 700; }
+.insight-legend-item span { color: #8a888c; font-size: 12px; margin-top: 1px; }
+
+.radial-chart-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    max-width: 240px;
+    height: 100%;
+    min-height: 180px;
+}
 
 #radialChart {
     position: relative;
-    width: 260px; 
-    height: 260px; 
+    width: 100%; 
+    height: 100%; 
+    max-width: 220px;
+    max-height: 220px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -206,43 +446,182 @@ body {
 }
 
 /* === HARDWARE === */
-.hardware-grid { display: grid; grid-template-columns: minmax(105px, 0.7fr) minmax(0, 1.3fr); flex: 1; align-content: stretch; }
-.hardware-row { display: contents; }
-.hardware-row span, .hardware-row strong { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-.hardware-row span { color: #858992; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-.hardware-row strong { padding-left: 10px; color: #e1e3e6; font-size: 12px; font-weight: 500; text-align: right; justify-content: flex-end;}
+.hardware-grid { 
+    display: grid; 
+    grid-template-columns: minmax(95px, auto) 1fr; 
+    flex: 1; 
+    align-content: start; 
+    gap: 0 10px;
+}
+
+.hardware-row { 
+    display: contents; 
+}
+
+.hardware-row span, .hardware-row strong { 
+    display: flex; 
+    align-items: center; 
+    padding: 7px 0; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+    font-size: 11px;
+}
+
+.hardware-row span { 
+    color: #858992; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    white-space: nowrap;
+}
+
+.hardware-row strong { 
+    color: #e1e3e6; 
+    font-weight: 500; 
+    text-align: right; 
+    justify-content: flex-end;
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.35;
+}
 
 /* === TEXTOS E TABELAS === */
-.metric { font-size: 34px; font-weight: 700; color: #f4f4f5; margin-bottom: 5px; }
-.sub-metric { font-size: 13px; color: #dedede; margin-top: 4px; }
+.metric { font-size: 30px; font-weight: 700; color: #f4f4f5; margin-bottom: 4px; }
+.sub-metric { font-size: 12px; color: #dedede; margin-top: 3px; }
 
-.table-container { font-size: 12px; color: #dedede; overflow-y: auto; flex-grow: 1; }
+.table-container { 
+    font-size: 12px; 
+    color: #dedede; 
+    overflow-y: auto; 
+    flex-grow: 1; 
+    max-height: 220px;
+}
+
 .table-container table { width: 100%; border-collapse: collapse; }
 .table-container th, .table-container td { padding: 6px 4px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-.table-container th { color: #8a888c; font-weight: normal; }
+.table-container th { color: #8a888c; font-weight: normal; font-size: 11px; }
 
-.health-status { padding: 8px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+.health-status { padding: 7px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
 .health-success { color: #34d399; background: rgba(16, 185, 129, 0.12); }
 .health-warning { color: #fbbf24; background: rgba(245, 158, 11, 0.12); }
 .health-danger { color: #fb7185; background: rgba(239, 68, 68, 0.12); }
 
-.health-details { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; overflow-y: auto; }
-.health-recommendation { margin-top: 35px; } 
-.health-item { padding: 6px 8px; border-left: 2px solid; color: #c9cbd0; font-size: 11px; line-height: 1.35; }
+.health-details { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.health-recommendation { margin-top: 16px; } 
+.health-item { 
+    padding: 6px 10px; 
+    border-left: 2px solid; 
+    color: #c9cbd0; 
+    font-size: 11px; 
+    line-height: 1.4; 
+    word-break: break-word;
+}
 .health-item-success { border-color: #34d399; }
 .health-item-warning { border-color: #fbbf24; }
 .health-item-danger { border-color: #fb7185; }
 
-.security-details { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-.security-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 11px; }
-.security-item span { color: #858992; text-transform: uppercase; }
-.security-item strong { color: #d7d9dd; font-weight: 500; text-align: right; }
+.security-details { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+    margin-top: 4px; 
+    flex: 1;
+}
+
+.security-item { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 10px; 
+    padding: 8px 0; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+    font-size: 11px; 
+}
+
+.security-item span { 
+    color: #858992; 
+    text-transform: uppercase; 
+    white-space: nowrap;
+}
+
+.security-item strong { 
+    color: #d7d9dd; 
+    font-weight: 500; 
+    text-align: right; 
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
 .security-active strong { color: #34d399; }
 .security-inactive strong { color: #fb7185; }
 
-#networkChart { width: 100%; height: 75px; display: flex; justify-content: center; align-items: center; }
+/* === REDE E CONEXÃO === */
+.network-chart-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 70px;
+}
 
-/* === OVERLAY DE CARREGAMENTO (Corrigido) === */
+#networkChart { 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.network-info {
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+/* === CICLO DE ATIVIDADE (UPTIME) === */
+.uptime-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    min-height: 130px;
+}
+
+#uptimeChart {
+    width: 100%;
+    max-width: 260px;
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.uptime-center-info {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.uptime-center-info .metric {
+    font-size: 16px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.uptime-center-info .sub-metric {
+    font-size: 11px;
+    color: #8a888c;
+    margin-top: 0;
+}
+
+/* === OVERLAY DE CARREGAMENTO === */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -259,10 +638,12 @@ body {
     opacity: 1;
     transition: opacity 0.3s ease;
 }
+
 .loading-overlay.hidden {
     opacity: 0;
     pointer-events: none;
 }
+
 .loading-overlay h2 { color: #f4f4f5; margin-top: 25px; font-size: 20px; font-weight: 500; }
 .loading-overlay p { color: #8a888c; font-size: 13px; margin-top: 8px; }
 
@@ -279,8 +660,8 @@ body {
 
 /* === PONTO DE STATUS DA REDE === */
 .status-dot {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: #767a82; 
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
@@ -297,55 +678,188 @@ body {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
-/* === QUEBRA DE LINHA PARA TEXTOS LONGOS (HARDWARE) === */
-.hardware-row strong {
-    white-space: normal !important;
-    word-break: break-word;
-    line-height: 1.4;
+/* === PÁGINA DE HISTÓRICO === */
+#historicoPage {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(2, minmax(280px, auto)) !important;
+    gap: 20px;
+    height: auto;
+    min-height: 100%;
 }
 
-/* === RESPONSIVIDADE (Telas e Janelas Menores) === */
-@media (max-width: 1400px) {
+/* =========================================================
+   === RESPONSIVIDADE REFINADA (NOTEBOOKS E TELAS MENORES) ===
+   ========================================================= */
+
+/* Notebooks médios e grandes (abaixo de 1440px) */
+@media (max-width: 1440px) {
     .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr); /* Reduz o layout de 6 para 2 colunas */
-        grid-template-rows: auto;
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: auto;
+        gap: 16px;
+        padding: 16px 20px 36px 20px;
     }
     
-    /* Remove as coordenadas fixas para permitir o fluxo natural dos cards */
-    .insights-panel, .hardware-panel, .disks-panel, .ram-panel, 
-    .health-panel, .network-panel, .uptime-panel, .sensors-panel, 
-    .errors-panel, .security-panel {
+    .insights-panel { 
+        grid-column: span 2; 
+        grid-row: auto; 
+        min-height: 230px; 
+    }
+    
+    .hardware-panel { 
+        grid-column: span 2; 
+        grid-row: auto; 
+        min-height: auto; 
+    }
+    
+    .disks-panel    { grid-column: span 2; grid-row: auto; }
+    .ram-panel      { grid-column: span 2; grid-row: auto; }
+    .health-panel   { grid-column: span 2; grid-row: auto; }
+    .network-panel  { grid-column: span 2; grid-row: auto; }
+    .uptime-panel   { grid-column: span 2; grid-row: auto; min-height: 180px; }
+    .sensors-panel  { grid-column: span 2; grid-row: auto; }
+    .errors-panel   { grid-column: span 2; grid-row: auto; }
+    .security-panel { grid-column: span 2; grid-row: auto; }
+    
+    .radial-chart-wrapper {
+        max-width: 200px;
+    }
+
+    #radialChart {
+        max-width: 195px;
+        max-height: 195px;
+    }
+
+    #uptimeChart {
+        max-width: 220px;
+        height: 130px;
+    }
+    
+    .uptime-center-info .metric {
+        font-size: 15px;
+    }
+    
+    .insights-legend {
+        width: 110px;
+        gap: 10px;
+    }
+}
+
+/* Notebooks compactos e monitores menores (abaixo de 1200px) */
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 280px;
+        min-width: 280px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 14px 16px 36px 16px;
+    }
+    
+    .insights-panel, 
+    .hardware-panel {
+        grid-column: span 2;
+        grid-row: auto;
+        min-height: auto;
+    }
+    
+    .disks-panel, 
+    .ram-panel, 
+    .health-panel, 
+    .network-panel, 
+    .uptime-panel, 
+    .sensors-panel, 
+    .errors-panel, 
+    .security-panel {
         grid-column: span 1;
         grid-row: auto;
         min-height: auto;
     }
+    
+    .radial-chart-wrapper {
+        max-width: 190px;
+    }
 
-    /* Mantém os cards principais ocupando a largura total (2 colunas) */
-    .insights-panel, .hardware-panel {
-        grid-column: span 2;
+    #radialChart {
+        max-width: 180px;
+        max-height: 180px;
+    }
+
+    #uptimeChart {
+        max-width: 200px;
+        height: 120px;
+    }
+
+    .uptime-center-info .metric {
+        font-size: 14px;
+    }
+    
+    .insights-legend {
+        width: 105px;
     }
 }
 
+/* Tablets e janelas redimensionadas estreitas (abaixo de 950px) */
 @media (max-width: 950px) {
     .app-layout {
         flex-direction: column;
         overflow-y: auto;
+        height: 100vh;
     }
     
     .sidebar {
         width: 100%;
+        min-width: 100%;
         height: auto;
+        max-height: 420px;
         border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     
-    .dashboard-grid {
-        grid-template-columns: 1fr; /* Reduz para 1 coluna empilhada */
+    .main-content {
         height: auto;
         overflow: visible;
     }
     
-    .insights-panel, .hardware-panel {
-        grid-column: span 1;
+    .page-container {
+        overflow: visible;
+        height: auto;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 14px 14px 40px 14px;
+    }
+    
+    .insights-panel, .hardware-panel, .disks-panel, .ram-panel, 
+    .health-panel, .network-panel, .uptime-panel, .sensors-panel, 
+    .errors-panel, .security-panel {
+        grid-column: span 1 !important;
+        grid-row: auto !important;
+        min-height: auto;
+    }
+    
+    .insights-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+    }
+    
+    .radial-chart-wrapper {
+        max-width: 220px;
+    }
+
+    #radialChart {
+        max-width: 210px;
+        max-height: 210px;
+    }
+
+    .insights-legend {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
     }
 }

@@ -45,129 +45,157 @@
             </div>
         </div>
 
-        <div class="dashboard-grid" id="mainDashboard">
+        <div class="main-content">
             
-            <div class="glass-panel span-2 insights-panel">
-                <h3>Insights do Sistema</h3>
-                <div class="insights-content">
-                    <div class="insights-legend">
-                        <div class="insight-legend-item insight-cpu">
-                            <strong id="insightCpuValue">--%</strong>
-                            <span>CPU Usage</span>
-                        </div>
-                        <div class="insight-legend-item insight-ram">
-                            <strong id="insightRamValue">--%</strong>
-                            <span>RAM Usage</span>
-                        </div>
-                        <div class="insight-legend-item insight-disk">
-                            <strong id="insightDiskValue">--%</strong>
-                            <span>Disk Usage</span>
-                        </div>
-                    </div>
-                    <div id="radialChart"></div>
-                </div>
-            </div>
+            <nav class="top-nav">
+                <button class="nav-tab active" data-target="dashboardPage">Dashboard</button>
+                <button class="nav-tab" data-target="historicoPage">Histórico</button>
+            </nav>
 
-            <div class="glass-panel span-2 hardware-panel">
-                <h3>Hardware Instalado</h3>
-                <div class="hardware-grid">
-                    <div class="hardware-row"><span>Processador</span><strong id="hardwareCpu">--</strong></div>
-                    <div class="hardware-row"><span>Memória RAM</span><strong id="hardwareRam">--</strong></div>
-                    <div class="hardware-row"><span>Placa de vídeo</span><strong id="hardwareGpu">--</strong></div>
-                    <div class="hardware-row"><span>Placa-mãe</span><strong id="hardwareMotherboard">--</strong></div>
-                    <div class="hardware-row"><span>Sistema</span><strong id="hardwareOS">--</strong></div>
-                    <div class="hardware-row"><span>Licença Win</span><strong id="valLicense" style="white-space: normal; line-height: 1.4;">--</strong></div>
-                </div>
-            </div>
-            
-            <div class="glass-panel span-2 disks-panel">
-                <h3>Discos e Armazenamento</h3>
-                <div id="valDisksArea" class="table-container">Aguardando leitura de discos...</div>
-            </div>
-
-            <div class="glass-panel span-2 ram-panel">
-                <h3>Maior Consumo de RAM</h3>
-                <div id="valProcessesArea" class="table-container">Aguardando análise de processos...</div>
-            </div>
-
-            <div class="glass-panel span-2 health-panel">
-                <h3>Saúde do Computador</h3>
-                <div id="healthStatus" class="health-status">Aguardando diagnóstico...</div>
-                <div id="healthDetails" class="health-details"></div>
-                <div class="health-recommendation">
-                    <h3>RECOMENDAÇÃO</h3>
-                    <div id="healthRecommendationStatus" class="health-status health-success">RECOMENDAÇÃO</div>
-                    <div id="healthRecommendationText" class="health-item health-item-success">Execute um diagnóstico para receber uma recomendação.</div>
-                </div>
-            </div>
-            
-            <div class="glass-panel span-2 network-panel">
-                <h3>Rede e Conexão</h3>
+            <div class="page-container">
                 
-                <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-                    <div id="networkChart" style="width: 100%;"></div>
-                </div>
-                
-                <div style="margin-top: auto; padding-top: 5px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
-                        <div id="netStatusDot" class="status-dot"></div>
-                        <div class="metric" id="valNetStatus" style="font-size: 24px; margin-bottom: 0;">--</div>
+                <!-- PÁGINA 1: DASHBOARD -->
+                <div class="dashboard-grid page-view" id="dashboardPage">
+                    <div class="glass-panel span-2 insights-panel">
+                        <h3>Insights do Sistema</h3>
+                        <div class="insights-content">
+                            <div class="insights-legend">
+                                <div class="insight-legend-item insight-cpu">
+                                    <strong id="insightCpuValue">--%</strong>
+                                    <span>CPU Usage</span>
+                                </div>
+                                <div class="insight-legend-item insight-ram">
+                                    <strong id="insightRamValue">--%</strong>
+                                    <span>RAM Usage</span>
+                                </div>
+                                <div class="insight-legend-item insight-disk">
+                                    <strong id="insightDiskValue">--%</strong>
+                                    <span>Disk Usage</span>
+                                </div>
+                            </div>
+                            <div class="radial-chart-wrapper">
+                                <div id="radialChart"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="sub-metric" id="valNetSpeed">Download: --</div>
-                        <div class="sub-metric" id="valConnType" style="color: #2dd4bf; font-weight: 500;">--</div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="glass-panel span-2 uptime-panel">
-                <h3>Ciclo de Atividade</h3>
-                <div style="display: flex; justify-content: center; align-items: center; flex-grow: 1; position: relative;">
-                    <!-- Gráfico renderizado no fundo -->
-                    <div id="uptimeChart" style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
+                    <div class="glass-panel span-2 hardware-panel">
+                        <h3>Hardware Instalado</h3>
+                        <div class="hardware-grid">
+                            <div class="hardware-row"><span>Processador</span><strong id="hardwareCpu">--</strong></div>
+                            <div class="hardware-row"><span>Memória RAM</span><strong id="hardwareRam">--</strong></div>
+                            <div class="hardware-row"><span>Placa de vídeo</span><strong id="hardwareGpu">--</strong></div>
+                            <div class="hardware-row"><span>Placa-mãe</span><strong id="hardwareMotherboard">--</strong></div>
+                            <div class="hardware-row"><span>Sistema</span><strong id="hardwareOS">--</strong></div>
+                            <div class="hardware-row"><span>Licença Win</span><strong id="valLicense" style="white-space: normal; line-height: 1.4;">--</strong></div>
+                        </div>
+                    </div>
                     
-                    <!-- Texto posicionado limpo na frente -->
-                    <div style="text-align: center; z-index: 10; margin-top: 55px;">
-                        <div class="metric" id="valUptime" style="font-size: 20px; line-height: 1.2; margin-bottom: 2px;">--</div>
-                        <div class="sub-metric">Tempo sem reiniciar</div>
+                    <div class="glass-panel span-2 disks-panel">
+                        <h3>Discos e Armazenamento</h3>
+                        <div id="valDisksArea" class="table-container">Aguardando leitura de discos...</div>
                     </div>
-                </div>
-            </div>
 
-            <div class="glass-panel span-2 sensors-panel">
-                <h3>Sensores Térmicos</h3>
-                <div class="hardware-grid">
-                    <div class="hardware-row">
-                        <span>Temp. CPU / Placa</span>
-                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
-                            <strong id="valCpuTemp" style="color: #fbbf24; font-size: 14px;">--</strong>
-                            <div id="tempChart" style="width: 55px; height: 55px;"></div>
+                    <div class="glass-panel span-2 ram-panel">
+                        <h3>Maior Consumo de RAM</h3>
+                        <div id="valProcessesArea" class="table-container">Aguardando análise de processos...</div>
+                    </div>
+
+                    <div class="glass-panel span-2 health-panel">
+                        <h3>Saúde do Computador</h3>
+                        <div id="healthStatus" class="health-status">Aguardando diagnóstico...</div>
+                        <div id="healthDetails" class="health-details"></div>
+                        <div class="health-recommendation">
+                            <h3>RECOMENDAÇÃO</h3>
+                            <div id="healthRecommendationStatus" class="health-status health-success">RECOMENDAÇÃO</div>
+                            <div id="healthRecommendationText" class="health-item health-item-success">Execute um diagnóstico para receber uma recomendação.</div>
                         </div>
                     </div>
-                    <div class="hardware-row">
-                        <span>Temp. Armazenamento</span>
-                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
-                            <strong id="valDiskTemp" style="color: #34d399; font-size: 14px;">--</strong>
-                            <div id="diskTempChart" style="width: 55px; height: 55px;"></div>
+                    
+                    <div class="glass-panel span-2 network-panel">
+                        <h3>Rede e Conexão</h3>
+                        <div class="network-chart-container">
+                            <div id="networkChart"></div>
+                        </div>
+                        <div class="network-info">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                <div id="netStatusDot" class="status-dot"></div>
+                                <div class="metric" id="valNetStatus" style="font-size: 24px; margin-bottom: 0;">--</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="sub-metric" id="valNetSpeed">Download: --</div>
+                                <div class="sub-metric" id="valConnType" style="color: #2dd4bf; font-weight: 500;">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel span-2 uptime-panel">
+                        <h3>Ciclo de Atividade</h3>
+                        <div class="uptime-container">
+                            <div id="uptimeChart"></div>
+                            <div class="uptime-center-info">
+                                <div class="metric" id="valUptime">--</div>
+                                <div class="sub-metric">Tempo sem reiniciar</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel span-2 sensors-panel">
+                        <h3>Sensores Térmicos</h3>
+                        <div class="sensors-gauges">
+                            <!-- Medidor 1: Temperatura da CPU -->
+                            <div class="sensor-gauge">
+                                <div id="tempChart"></div>
+                                <div class="sensor-center-info">
+                                    <div class="sensor-value" id="valCpuTemp">--</div>
+                                    <div class="sensor-label" id="valCpuTempStatus">Aguardando</div>
+                                </div>
+                                <div class="sensor-title">Temperatura CPU</div>
+                            </div>
+                            <!-- Medidor 2: Temperatura do Armazenamento -->
+                            <div class="sensor-gauge">
+                                <div id="diskTempChart"></div>
+                                <div class="sensor-center-info">
+                                    <div class="sensor-value" id="valDiskTemp">--</div>
+                                    <div class="sensor-label" id="valDiskTempStatus">Aguardando</div>
+                                </div>
+                                <div class="sensor-title">Armazenamento</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel span-2 errors-panel">
+                        <h3>Erros do Sistema (24h)</h3>
+                        <div id="errorsStatus" class="health-status">Aguardando diagnóstico...</div>
+                        <div id="errorsDetails" class="health-details"></div>
+                    </div>
+
+                    <div class="glass-panel span-2 security-panel">
+                        <h3>Segurança do Sistema</h3>
+                        <div id="securityDetails" class="security-details">
+                            <div class="security-loading">Coletando informações de segurança...</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="glass-panel span-2 errors-panel">
-                <h3>Erros do Sistema (24h)</h3>
-                <div id="errorsStatus" class="health-status">Aguardando diagnóstico...</div>
-                <div id="errorsDetails" class="health-details"></div>
-            </div>
+                <!-- PÁGINA 2: HISTÓRICO (DOIS GRÁFICOS) -->
+                <div class="dashboard-grid page-view" id="historicoPage" style="display: none;">
+                    
+                    <div class="glass-panel" style="display: flex; flex-direction: column; min-height: 280px; padding: 15px 25px;">
+                        <h3 style="margin-bottom: -10px; z-index: 10;">Desempenho Bruto (CPU vs RAM)</h3>
+                        <div id="cpuRamChart" style="flex-grow: 1; width: 100%;"></div>
+                    </div>
 
-            <div class="glass-panel span-2 security-panel">
-                <h3>Segurança do Sistema</h3>
-                <div id="securityDetails" class="security-details">
-                    <div class="security-loading">Coletando informações de segurança...</div>
+                    <div class="glass-panel" style="display: flex; flex-direction: column; min-height: 280px; padding: 15px 25px;">
+                        <h3 style="margin-bottom: -10px; z-index: 10;">Linha do Tempo de Alertas e Incidentes</h3>
+                        <div id="pingHealthChart" style="flex-grow: 1; width: 100%;"></div>
+                    </div>
+
                 </div>
-            </div>
 
+            </div>
         </div>
+
     </div>
     
     <div id="loadingOverlay" class="loading-overlay hidden">
