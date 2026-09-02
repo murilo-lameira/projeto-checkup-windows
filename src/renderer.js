@@ -640,34 +640,277 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === SISTEMA DE MODAL DE MANUTENÇÃO COM STEPPER (PROGRESSO EM TEMPO REAL) ===
+    const maintenanceModal = document.getElementById('maintenanceModal');
+    const maintTimer = document.getElementById('maintTimer');
+    const maintStepCounter = document.getElementById('maintStepCounter');
+    const maintPercentText = document.getElementById('maintPercentText');
+    const maintProgressBar = document.getElementById('maintProgressBar');
+    const maintTipText = document.getElementById('maintTipText');
+    const maintFooter = document.getElementById('maintFooter');
+    const maintSummaryText = document.getElementById('maintSummaryText');
+    const btnCloseMaintenance = document.getElementById('btnCloseMaintenance');
+
+    let maintTimerInterval = null;
+    let maintStatusWatcher = null;
+    let maintElapsedSeconds = 0;
+
+    const maintStepDefinitions = {
+        1: { name: 'Otimização de Rede e DNS', tip: 'Liberando cache DNS e redefinindo sockets para otimizar conexões de rede.' },
+        2: { name: 'Limpeza de Arquivos Temporários', tip: 'Eliminando caches residuais e arquivos temporários do usuário e sistema.' },
+        3: { name: 'Integridade de Arquivos (SFC)', tip: 'O comando SFC examina e repara arquivos protegidos do Windows. Essa etapa costuma levar de 3 a 8 minutos. O sistema está respondendo normalmente.' },
+        4: { name: 'Restauração de Imagem (DISM)', tip: 'O DISM consulta o repositório de componentes do Windows para reparar a imagem do sistema. Isso pode demorar alguns minutos. Não feche a janela.' },
+        5: { name: 'Otimização de Armazenamento (TRIM)', tip: 'Enviando comando ReTrim ao drive C: para otimizar blocos de armazenamento e velocidade do SSD.' },
+        6: { name: 'Atualizações de Programas (Winget)', tip: 'Verificando se há atualizações de segurança e novas versões para os programas instalados via Winget.' }
+    };
+
+    function formatTimerDisplay(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function resetMaintenanceUI() {
+        if (maintTimerInterval) { clearInterval(maintTimerInterval); maintTimerInterval = null; }
+        if (maintStatusWatcher) { clearInterval(maintStatusWatcher); maintStatusWatcher = null; }
+
+        maintElapsedSeconds = 0;
+        if (maintTimer) maintTimer.innerText = '00:00';
+        if (maintStepCounter) maintStepCounter.innerText = 'Etapa 1 de 6';
+        if (maintPercentText) maintPercentText.innerText = '0%';
+        if (maintProgressBar) maintProgressBar.style.width = '0%';
+        if (maintFooter) maintFooter.style.display = 'none';
+
+        for (let i = 1; i <= 6; i++) {
+            const stepEl = document.getElementById(`maintStep${i}`);
+            if (stepEl) {
+                stepEl.className = 'maint-step-item step-state-pending';
+                const badge = stepEl.querySelector('.maint-step-badge');
+                if (badge) {
+                    badge.className = 'maint-step-badge badge-pending';
+                    badge.innerText = 'Pendente';
+                }
+                const iconNum = stepEl.querySelector('.step-num');
+                if (iconNum) iconNum.innerText = String(i);
+            }
+        }
+
+        if (maintTipText) maintTipText.innerText = maintStepDefinitions[1].tip;
+    }
+
+    function startMaintenanceUI() {
+        resetMaintenanceUI();
+        isAppPaused = true;
+        [btnCheckup, btnFullMaintenance, btnSchedule].forEach(btn => { if (btn) btn.disabled = true; });
+
+        if (maintenanceModal) maintenanceModal.classList.remove('hidden');
+
+        maintTimerInterval = setInterval(() => {
+            maintElapsedSeconds++;
+            if (maintTimer) maintTimer.innerText = formatTimerDisplay(maintElapsedSeconds);
+        }, 1000);
+
+        applyStepState(1, 'running');
+    }
+
+    function applyStepState(stepNumber, state, customMessage) {
+        const step = Number(stepNumber);
+        if (step < 1 || step > 6) return;
+
+        // Marca todas as etapas anteriores como concluídas
+        for (let i = 1; i < step; i++) {
+            const prevEl = document.getElementById(`maintStep${i}`);
+            if (prevEl && !prevEl.classList.contains('step-state-done')) {
+                prevEl.className = 'maint-step-item step-state-done';
+                const badge = prevEl.querySelector('.maint-step-badge');
+                if (badge) { badge.className = 'maint-step-badge badge-done'; badge.innerText = 'Concluído'; }
+                const iconNum = prevEl.querySelector('.step-num');
+                if (iconNum) iconNum.innerText = '✓';
+            }
+        }
+
+        const currentEl = document.getElementById(`maintStep${step}`);
+        if (currentEl) {
+            const badge = currentEl.querySelector('.maint-step-badge');
+            const iconNum = currentEl.querySelector('.step-num');
+
+            if (state === 'running') {
+                currentEl.className = 'maint-step-item step-state-running';
+                if (badge) { badge.className = 'maint-step-badge badge-running'; badge.innerText = 'Em curso...'; }
+                if (iconNum) iconNum.innerText = '⚡';
+            } else if (state === 'done') {
+                currentEl.className = 'maint-step-item step-state-done';
+                if (badge) { badge.className = 'maint-step-badge badge-done'; badge.innerText = 'Concluído'; }
+                if (iconNum) iconNum.innerText = '✓';
+            } else if (state === 'error') {
+                currentEl.className = 'maint-step-item step-state-error';
+                if (badge) { badge.className = 'maint-step-badge badge-error'; badge.innerText = 'Aviso'; }
+                if (iconNum) iconNum.innerText = '!';
+            }
+        }
+
+        if (maintStepCounter) maintStepCounter.innerText = `Etapa ${step} de 6`;
+
+        // Cálculo gradual da porcentagem
+        const basePercent = Math.round(((step - 1) / 6) * 100);
+        const runningBonus = state === 'running' ? 10 : Math.round(100 / 6);
+        const currentPercent = Math.min(basePercent + runningBonus, 98);
+
+        if (maintProgressBar) maintProgressBar.style.width = `${currentPercent}%`;
+        if (maintPercentText) maintPercentText.innerText = `${currentPercent}%`;
+
+        if (maintStepDefinitions[step] && maintTipText) {
+            maintTipText.innerText = customMessage || maintStepDefinitions[step].tip;
+        }
+    }
+
+    function finishMaintenanceUI(success = true, errorMessage = '') {
+        if (maintTimerInterval) { clearInterval(maintTimerInterval); maintTimerInterval = null; }
+        if (maintStatusWatcher) { clearInterval(maintStatusWatcher); maintStatusWatcher = null; }
+
+        for (let i = 1; i <= 6; i++) {
+            const stepEl = document.getElementById(`maintStep${i}`);
+            if (stepEl) {
+                stepEl.className = 'maint-step-item step-state-done';
+                const badge = stepEl.querySelector('.maint-step-badge');
+                if (badge) { badge.className = 'maint-step-badge badge-done'; badge.innerText = 'Concluído'; }
+                const iconNum = stepEl.querySelector('.step-num');
+                if (iconNum) iconNum.innerText = '✓';
+            }
+        }
+
+        if (maintStepCounter) maintStepCounter.innerText = 'Etapas Finalizadas (6 de 6)';
+        if (maintPercentText) maintPercentText.innerText = '100%';
+        if (maintProgressBar) maintProgressBar.style.width = '100%';
+
+        if (maintTipText) {
+            maintTipText.innerText = success 
+                ? 'Todos os módulos de otimização e verificação foram concluídos com sucesso!' 
+                : `A manutenção foi finalizada com observações: ${errorMessage}`;
+        }
+
+        if (maintSummaryText) {
+            maintSummaryText.innerText = success
+                ? `Manutenção concluída em ${formatTimerDisplay(maintElapsedSeconds)}! Sistema 100% verificado.`
+                : 'Rotina finalizada. Verifique o status detalhado no histórico.';
+        }
+
+        if (maintFooter) maintFooter.style.display = 'flex';
+    }
+
+    if (btnCloseMaintenance) {
+        btnCloseMaintenance.addEventListener('click', () => {
+            if (maintenanceModal) maintenanceModal.classList.add('hidden');
+            isAppPaused = false;
+            [btnCheckup, btnFullMaintenance, btnSchedule].forEach(btn => { if (btn) btn.disabled = false; });
+            document.body.style.cursor = 'default';
+        });
+    }
+
     if (btnFullMaintenance) {
         btnFullMaintenance.addEventListener('click', () => {
-            setAppLockState(true, 'Executando Manutenção Completa...');
-            setStatus('warning', 'Manutenção em Andamento', 'Executando limpeza, SFC e DISM. O computador pode apresentar lentidão temporária.');
+            startMaintenanceUI();
+            setStatus('warning', 'Manutenção em Andamento', 'Executando otimizações, SFC e DISM. Acompanhe as etapas no painel central.');
 
+            const statusFile = path.join(os.tmpdir(), 'checkup_maint_status.json');
+            if (fs.existsSync(statusFile)) {
+                try { fs.unlinkSync(statusFile); } catch(_) {}
+            }
+
+            // Script PowerShell que atualiza o arquivo de status a cada etapa
             const psScriptPath = path.join(os.homedir(), 'checkup_manutencao_manual.ps1');
-            const psScriptContent = [
-                "ipconfig /flushdns | Out-Null",
-                "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue",
-                "sfc /scannow",
-                "DISM /Online /Cleanup-Image /RestoreHealth",
-                "Optimize-Volume -DriveLetter C -ReTrim",
-                "winget upgrade --all --silent --accept-package-agreements --accept-source-agreements"
-            ].join('\n');
+            const psScriptContent = `
+$statusFile = "$env:TEMP\\checkup_maint_status.json"
+
+function Write-MaintStatus($step, $status, $msg) {
+    try {
+        $data = [PSCustomObject]@{
+            step = $step
+            status = $status
+            msg = $msg
+            time = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        }
+        $json = $data | ConvertTo-Json -Compress
+        [System.IO.File]::WriteAllText($statusFile, $json, [System.Text.Encoding]::UTF8)
+    } catch {}
+}
+
+# 1. Rede e Cache DNS
+Write-MaintStatus 1 "running" "Liberando cache DNS e redefinindo sockets..."
+ipconfig /flushdns | Out-Null
+Write-MaintStatus 1 "done" "Cache de rede liberado com sucesso."
+
+# 2. Arquivos Temporários
+Write-MaintStatus 2 "running" "Limpando arquivos temporários e caches de aplicativos..."
+Remove-Item -Path "$env:TEMP\\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "C:\\Windows\\Temp\\*" -Recurse -Force -ErrorAction SilentlyContinue
+Write-MaintStatus 2 "done" "Arquivos temporários eliminados."
+
+# 3. Integridade do Windows (SFC)
+Write-MaintStatus 3 "running" "Executando SFC /scannow (Verificação de integridade dos arquivos)..."
+sfc /scannow | Out-Null
+Write-MaintStatus 3 "done" "Varredura do SFC concluída."
+
+# 4. Imagem do Windows (DISM)
+Write-MaintStatus 4 "running" "Executando DISM /RestoreHealth (Reparo da imagem do sistema)..."
+DISM /Online /Cleanup-Image /RestoreHealth | Out-Null
+Write-MaintStatus 4 "done" "Reparo de imagem DISM concluído."
+
+# 5. Otimização de Disco (TRIM)
+Write-MaintStatus 5 "running" "Executando comando ReTrim e otimizando armazenamento no drive C:..."
+Optimize-Volume -DriveLetter C -ReTrim -ErrorAction SilentlyContinue | Out-Null
+Write-MaintStatus 5 "done" "Otimização de volume finalizada."
+
+# 6. Atualização de Softwares (Winget)
+Write-MaintStatus 6 "running" "Verificando e aplicando atualizações via Winget..."
+winget upgrade --all --silent --accept-package-agreements --accept-source-agreements --disable-interactivity | Out-Null
+Write-MaintStatus 6 "done" "Programas verificados e atualizados."
+
+# Conclusão
+Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
+`;
             fs.writeFileSync(psScriptPath, psScriptContent, 'utf8');
 
             const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "${psScriptPath}"\n`;
             const tempBat = path.join(os.tmpdir(), 'RunMaintenanceTask.bat');
             fs.writeFileSync(tempBat, batContent, 'utf8');
 
+            // Monitor de status em tempo real
+            maintStatusWatcher = setInterval(() => {
+                if (fs.existsSync(statusFile)) {
+                    try {
+                        const raw = fs.readFileSync(statusFile, 'utf8');
+                        if (raw.trim()) {
+                            const data = JSON.parse(raw.trim());
+                            if (data.status === 'finished') {
+                                finishMaintenanceUI(true);
+                            } else {
+                                applyStepState(data.step, data.status, data.msg);
+                            }
+                        }
+                    } catch (_) {}
+                }
+            }, 400);
+
             const command = `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
             
             exec(command, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
-                setAppLockState(false); 
+                if (fs.existsSync(statusFile)) {
+                    try { fs.unlinkSync(statusFile); } catch(_) {}
+                }
+
                 if (error) {
-                    setStatus('error', 'Erro na Manutenção', `Falha ao executar rotina de reparo: ${error.message}`);
+                    if (maintElapsedSeconds < 5) {
+                        finishMaintenanceUI(false, 'Permissão de Administrador recusada ou processo interrompido.');
+                        setStatus('error', 'Manutenção Cancelada', 'Permissão de Administrador negada no prompt UAC.');
+                    } else {
+                        finishMaintenanceUI(false, error.message);
+                        setStatus('error', 'Erro na Manutenção', `Falha na rotina de reparo: ${error.message}`);
+                    }
                     return;
                 }
+
+                finishMaintenanceUI(true);
                 setStatus('success', 'Manutenção Concluída', 'Rotinas de limpeza e reparo finalizadas com sucesso.');
             });
         });

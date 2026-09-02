@@ -9,3 +9,6 @@ core/historico/
 *.tmp
 *.bak
 .VSCode/
+
+# Obsidian workspace cache
+**/.obsidian/workspace*.json

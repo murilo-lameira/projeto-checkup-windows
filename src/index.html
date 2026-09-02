@@ -198,10 +198,142 @@
 
     </div>
     
+    <!-- OVERLAY PADRÃO (Para operações rápidas como Diagnóstico) -->
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="spinner"></div>
         <h2 id="loadingText">Processando...</h2>
-        <p>Por favor, aguarde enquanto a operação é concluída.</p>
+        <p id="loadingSubtext">Por favor, aguarde enquanto a operação é concluída.</p>
+    </div>
+
+    <!-- MODAL DE MANUTENÇÃO AVANÇADA COM STEPPER EM TEMPO REAL -->
+    <div id="maintenanceModal" class="maintenance-modal-overlay hidden">
+        <div class="maintenance-modal-card">
+            <!-- Cabeçalho -->
+            <div class="maint-header">
+                <div class="maint-header-left">
+                    <div class="maint-badge">CENTRAL DE MANUTENÇÃO</div>
+                    <h2>Otimização e Reparo do Sistema</h2>
+                    <p>Otimizando integridade, arquivos essenciais e desempenho do Windows.</p>
+                </div>
+                <div class="maint-timer-box">
+                    <span class="maint-timer-label">TEMPO DECORRIDO</span>
+                    <span id="maintTimer" class="maint-timer-val">00:00</span>
+                </div>
+            </div>
+
+            <!-- Progresso Geral -->
+            <div class="maint-progress-wrap">
+                <div class="maint-progress-labels">
+                    <span id="maintStepCounter" class="maint-step-count">Etapa 1 de 6</span>
+                    <span id="maintPercentText" class="maint-percent">0%</span>
+                </div>
+                <div class="maint-progress-bar-bg">
+                    <div id="maintProgressBar" class="maint-progress-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Checklist das 6 Etapas -->
+            <div class="maint-stepper" id="maintStepper">
+                <!-- Etapa 1 -->
+                <div class="maint-step-item" id="maintStep1" data-step="1">
+                    <div class="maint-step-icon">
+                        <span class="step-num">1</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Otimização de Rede e DNS</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Liberação de cache DNS e redefinição de sockets TCP/IP</span>
+                    </div>
+                </div>
+
+                <!-- Etapa 2 -->
+                <div class="maint-step-item" id="maintStep2" data-step="2">
+                    <div class="maint-step-icon">
+                        <span class="step-num">2</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Limpeza de Arquivos Temporários</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Eliminação de caches residuais em %TEMP% e lixeiras</span>
+                    </div>
+                </div>
+
+                <!-- Etapa 3 -->
+                <div class="maint-step-item" id="maintStep3" data-step="3">
+                    <div class="maint-step-icon">
+                        <span class="step-num">3</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Integridade de Arquivos (SFC)</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Varredura e reparo de arquivos protegidos do Windows (sfc /scannow)</span>
+                    </div>
+                </div>
+
+                <!-- Etapa 4 -->
+                <div class="maint-step-item" id="maintStep4" data-step="4">
+                    <div class="maint-step-icon">
+                        <span class="step-num">4</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Restauração de Imagem (DISM)</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Reparo de componentes da imagem do Windows (/RestoreHealth)</span>
+                    </div>
+                </div>
+
+                <!-- Etapa 5 -->
+                <div class="maint-step-item" id="maintStep5" data-step="5">
+                    <div class="maint-step-icon">
+                        <span class="step-num">5</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Otimização de Armazenamento (TRIM)</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Comando ReTrim para otimização de velocidade do SSD (C:)</span>
+                    </div>
+                </div>
+
+                <!-- Etapa 6 -->
+                <div class="maint-step-item" id="maintStep6" data-step="6">
+                    <div class="maint-step-icon">
+                        <span class="step-num">6</span>
+                    </div>
+                    <div class="maint-step-body">
+                        <div class="maint-step-row">
+                            <span class="maint-step-name">Atualizações de Programas (Winget)</span>
+                            <span class="maint-step-badge badge-pending">Pendente</span>
+                        </div>
+                        <span class="maint-step-sub">Verificação de versões recentes para softwares instalados</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Caixa de Dica Contextual -->
+            <div class="maint-tip-box" id="maintTipBox">
+                <span class="maint-tip-icon">💡</span>
+                <span id="maintTipText" class="maint-tip-text">Iniciando tarefas de manutenção do sistema. O computador continuará operacional.</span>
+            </div>
+
+            <!-- Rodapé com Conclusão -->
+            <div class="maint-footer" id="maintFooter" style="display: none;">
+                <div class="maint-finish-summary">
+                    <span class="finish-icon">✨</span>
+                    <span id="maintSummaryText">Manutenção concluída com êxito! Todas as etapas foram finalizadas.</span>
+                </div>
+                <button id="btnCloseMaintenance" class="btn-copper btn-finish-maint">Concluir e Voltar</button>
+            </div>
+        </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

@@ -658,6 +658,382 @@ body {
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* =========================================================
+   === MODAL DE MANUTENÇÃO COM STEPPER (CENTRAL DE REPARO) ===
+   ========================================================= */
+.maintenance-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 4, 7, 0.82);
+    backdrop-filter: blur(14px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 20px;
+}
+
+.maintenance-modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.maintenance-modal-card {
+    background: rgba(13, 11, 15, 0.95);
+    border: 1px solid rgba(207, 102, 63, 0.28);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(207, 102, 63, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 660px;
+    max-height: calc(100vh - 40px);
+    padding: 22px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: modalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+    overflow-y: auto;
+}
+
+@keyframes modalPopIn {
+    from { transform: scale(0.95) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Brilho superior sutil em cobre metálico */
+.maintenance-modal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #cf663f, #fbbf24, transparent);
+    opacity: 0.8;
+}
+
+/* Cabeçalho */
+.maint-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.maint-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.maint-badge {
+    align-self: flex-start;
+    background: rgba(207, 102, 63, 0.14);
+    border: 1px solid rgba(207, 102, 63, 0.35);
+    color: #ff9364;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.maint-header-left h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #f4f4f5;
+    letter-spacing: -0.3px;
+}
+
+.maint-header-left p {
+    margin: 0;
+    font-size: 12px;
+    color: #8a888c;
+    line-height: 1.4;
+}
+
+/* Cronômetro decorrido */
+.maint-timer-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.maint-timer-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8a888c;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.maint-timer-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2dd4bf;
+    font-family: 'Consolas', 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+/* Seção da Barra de Progresso */
+.maint-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.maint-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.maint-step-count {
+    color: #d7d9dd;
+    font-weight: 500;
+}
+
+.maint-percent {
+    color: #ff9364;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.maint-progress-bar-bg {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.maint-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #cf663f 0%, #fbbf24 65%, #2dd4bf 100%);
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(207, 102, 63, 0.7);
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Stepper / Checklist de Etapas */
+.maint-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-height: 290px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.maint-step-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.maint-step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.maint-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.maint-step-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.maint-step-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f4f4f5;
+    transition: color 0.3s ease;
+}
+
+.maint-step-sub {
+    font-size: 11px;
+    color: #767a82;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.maint-step-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* Estados do Step: PENDENTE */
+.maint-step-item.step-state-pending .maint-step-icon {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #71717a;
+}
+.maint-step-item.step-state-pending .maint-step-name {
+    color: #9ca3af;
+}
+.badge-pending {
+    background: rgba(255, 255, 255, 0.03);
+    color: #71717a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Estados do Step: EM EXECUÇÃO */
+.maint-step-item.step-state-running {
+    background: rgba(207, 102, 63, 0.08);
+    border-color: rgba(207, 102, 63, 0.35);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(207, 102, 63, 0.05);
+    transform: translateX(3px);
+}
+.maint-step-item.step-state-running .maint-step-icon {
+    background: rgba(207, 102, 63, 0.2);
+    border: 1px solid #cf663f;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(207, 102, 63, 0.6);
+    animation: pulseStep 1.5s infinite alternate;
+}
+.maint-step-item.step-state-running .maint-step-name {
+    color: #ffffff;
+}
+.badge-running {
+    background: rgba(207, 102, 63, 0.2);
+    color: #ff9364;
+    border: 1px solid rgba(207, 102, 63, 0.45);
+    animation: shimmerBadge 2s infinite ease-in-out;
+}
+
+@keyframes pulseStep {
+    0% { transform: scale(1); box-shadow: 0 0 8px rgba(207, 102, 63, 0.4); }
+    100% { transform: scale(1.08); box-shadow: 0 0 16px rgba(207, 102, 63, 0.85); }
+}
+
+@keyframes shimmerBadge {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; }
+}
+
+/* Estados do Step: CONCLUÍDO */
+.maint-step-item.step-state-done {
+    background: rgba(45, 212, 191, 0.03);
+    border-color: rgba(45, 212, 191, 0.15);
+}
+.maint-step-item.step-state-done .maint-step-icon {
+    background: rgba(45, 212, 191, 0.15);
+    border: 1px solid #2dd4bf;
+    color: #2dd4bf;
+}
+.maint-step-item.step-state-done .maint-step-name {
+    color: #d1d5db;
+}
+.badge-done {
+    background: rgba(45, 212, 191, 0.1);
+    color: #2dd4bf;
+    border: 1px solid rgba(45, 212, 191, 0.25);
+}
+
+/* Estados do Step: ERRO / AVISO */
+.maint-step-item.step-state-error {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.25);
+}
+.maint-step-item.step-state-error .maint-step-icon {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+.badge-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Caixa de Dica Contextual */
+.maint-tip-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(207, 102, 63, 0.06);
+    border: 1px solid rgba(207, 102, 63, 0.18);
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+}
+
+.maint-tip-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.maint-tip-text {
+    font-size: 11.5px;
+    color: #d7d9dd;
+    line-height: 1.4;
+}
+
+/* Rodapé Final */
+.maint-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.maint-finish-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #34d399;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.btn-finish-maint {
+    width: auto !important;
+    padding: 9px 24px !important;
+    font-size: 12.5px !important;
+}
+
 /* === PONTO DE STATUS DA REDE === */
 .status-dot {
     width: 12px;
