@@ -1,102 +1,182 @@
-# ⚡ CheckUP Windows - Dashboard
+# ⚡ CheckUP Windows - Dashboard de Diagnóstico & Otimização
 
-![Electron](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://gemini.google.com/)
-[![Download CheckUP](https://img.shields.io/badge/Download_Executável-2dd4bf?style=for-the-badge&logo=windows)](https://github.com/murilo-lameira/projeto-checkup-windows/releases/latest)
+[![Squad Multi-Agentes](https://img.shields.io/badge/Squad-Multi--Agentes-cf663f?style=for-the-badge&logo=anthropic&logoColor=white)](Check%20Up/Squad%20Multi-Agentes.md)
+[![Pixel Agents](https://img.shields.io/badge/Pixel%20Agents-Integrado-F59E0B?style=for-the-badge)](scripts/pixel_agents_bridge.js)
+[![Electron](https://img.shields.io/badge/Electron-44.0.0-47848F?style=for-the-badge&logo=electron&logoColor=white)](https://electronjs.org/)
+[![PowerShell Nativo](https://img.shields.io/badge/PowerShell-Zero%20Third--Party%20.exe-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](core/checkup.ps1)
+[![Obsidian](https://img.shields.io/badge/Obsidian-Documentado-7C3AED?style=for-the-badge&logo=obsidian&logoColor=white)](Check%20Up/Home.md)
+[![Download CheckUP](https://img.shields.io/badge/Download-Executável%20Portable-22c55e?style=for-the-badge&logo=windows)](https://github.com/murilo-lameira/projeto-checkup-windows/releases/latest)
 
-Aplicativo desktop para diagnóstico, monitoramento e manutenção de computadores Windows. O CheckUP conta com uma interface de duas abas integradas (**Dashboard** e **Histórico**) com navegação fluida e design *Glassmorphism* escuro aprimorado com acentos e iluminação em cobre metálico. Desenvolvido com Electron e rotinas nativas do sistema operacional via PowerShell, ele permite acompanhar a saúde do computador em tempo real e analisar séries temporais de diagnósticos passados em painéis responsivos e intuitivos. O desenvolvimento contou com o uso ativo de IA (Google Gemini / Claude), focado na prototipagem visual, resolução de sensores WMI/CIM e DLLs de baixo nível, estruturação do CSS (Grid/Flexbox) e refinamento do design no padrão Glassmorphism.
+Aplicativo desktop profissional de diagnóstico, monitoramento contínuo e manutenção profunda para sistemas operacionais **Windows 10 e 11**. O CheckUP integra quatro ambientes em uma interface responsiva: **Dashboard**, **Histórico de Performance**, **Gestor de Programas** e **Central de Otimização**.
+
+Construído sob a estética **Dark Glassmorphism** com acentos em Cobre metálico (`#cf663f`), o aplicativo é **100% Offline-First**, consome **~0% de CPU em segundo plano** e segue a rigorosa premissa de **Zero Executáveis de Terceiros**, utilizando exclusivamente as ferramentas e APIs que acompanham nativamente o Windows.
+
+---
 
 ## 📸 Telas do Aplicativo
 
-<img width="2557" height="1389" alt="image" src="https://github.com/user-attachments/assets/0da5dfa9-039d-4a19-bb35-48b759e1536c" />
+<img width="2557" height="1389" alt="Dashboard CheckUP" src="https://github.com/user-attachments/assets/0da5dfa9-039d-4a19-bb35-48b759e1536c" />
 
-<img width="2551" height="1387" alt="image" src="https://github.com/user-attachments/assets/013670fc-d3d2-44ea-81e0-1cbc22d98aa3" />
+<img width="2551" height="1387" alt="Histórico de Performance" src="https://github.com/user-attachments/assets/013670fc-d3d2-44ea-81e0-1cbc22d98aa3" />
 
-## ✨ Funcionalidades
+---
 
-* **Monitoramento em Tempo Real:** Acompanhamento do uso de CPU, memória RAM, armazenamento e tráfego de rede (Mbps) renderizados via ApexCharts e suavizados matematicamente na interface em ciclos de 2 segundos.
-* **Sensores Térmicos Dinâmicos:** Novos medidores semicirculares dinâmicos (estilo velocímetro) para CPU (compatível com arquiteturas AMD Ryzen e Intel) e Armazenamento (SSDs NVMe/SATA e HDDs), integrados à telemetria de baixo nível via `LibreHardwareMonitorLib`.
-* **Aba de Histórico e Telemetria Temporal:**
-  * **Janela Rotativa:** Histórico dedicado com persistência automática travada nos 50 diagnósticos mais recentes.
-  * **Gráfico de Desempenho Bruto:** Cruzamento visual e correlação de carga de CPU vs uso de Memória RAM ao longo do tempo.
-  * **Linha do Tempo de Alertas e Incidentes:** Cards flutuantes interativos que explicam detalhadamente a causa raiz das anomalias no *hover* (picos de CPU, saturação de RAM, perda de pacotes e erros de sistema do Windows).
-* **Diagnóstico Profundo:** Varredura detalhada de hardware (GPU, placas-mãe, discos, bateria), sistema operacional, licença, processos ativos de maior consumo e tempo exato de boot utilizando WMI/CIM.
-* **Saúde do Sistema e S.M.A.R.T:** Classificação do computador em Saudável, Alerta ou Problema Crítico, com recomendações contextualizadas. Inclui leitura do desgaste físico de HDDs/SSDs com gráficos *sparkline* dedicados.
-* **Auditoria de Segurança:** Rastreamento do Antivírus, Firewall, alertas críticos do Event Viewer (últimas 24h) e softwares de acesso remoto residentes em memória.
-* **Manutenção e Otimização:** Interface para limpeza de arquivos temporários, otimização do sistema (Winget) e reparo autônomo da imagem do Windows com `SFC /scannow` e `DISM /RestoreHealth`.
-* **Agendamento:** Instalação e controle de tarefas mensais do Windows para executar o checkup automaticamente em segundo plano.
-* **Alertas Remotos:** Sistema de webhook para envio de notificações automáticas via Discord caso componentes críticos apresentem falhas graves.
+## 👥 Desenvolvimento por Squad Multi-Agentes
 
-## 📂 Estrutura do Projeto
+O projeto é mantido e evoluído de forma colaborativa por um **Squad de Agentes Autônomos de IA**, com governança descrita em [`AGENTS.md`](AGENTS.md) e documentada no Obsidian em [`Check Up/Squad Multi-Agentes.md`](Check%20Up/Squad%20Multi-Agentes.md):
+
+| Agente | ID de Sessão | Especialidade Principal | Foco Primário |
+| :--- | :--- | :--- | :--- |
+| **Dev** | `checkup_dev` | Backend & Sistemas | Node.js, Electron, PowerShell nativo (`.ps1`), WMI/CIM e Registro do Windows |
+| **UI/UX** | `checkup_ui_ux` | Design System & Frontend | Dark Glassmorphism, ApexCharts, paleta Cobre (`#cf663f`), Grid adaptativo |
+| **QA** | `checkup_qa` | Testes & Resiliência | Validação funcional, casos de borda do Windows, UAC e `npm run validate` |
+| **Revisor** | `checkup_reviewer` | Arquitetura & Segurança | Auditoria contra `memory.md`, segurança contra injeção e integridade |
+| **Documentador** | `checkup_doc` | Obsidian & Conhecimento | Gestão contínua do cofre (`Check Up/`), wikilinks e `backlog.md` |
+
+### 🏢 Escritório Virtual em Tempo Real (Pixel Agents)
+O time conta com integração ao **Pixel Agents**, permitindo visualizar e monitorar o squad operando no escritório virtual com avatares animados durante as sessões de desenvolvimento:
+
+```bash
+# Iniciar a simulação dinâmica contínua do squad
+npm run agents:pixel
+
+# Instanciar todos os agentes no escritório
+node scripts/pixel_agents_bridge.js --spawn-only
+
+# Encerrar expediente e limpar o escritório
+npm run agents:pixel:clear
+```
+
+---
+
+## ✨ Funcionalidades Principais
+
+### 1. 🖥️ Dashboard em Tempo Real
+* **Telemetria Ultraleve (0% CPU):** Métricas de CPU calculadas via delta de ticks de `os.cpus()`, memória física via `os.totalmem()`/`os.freemem()` e tráfego de rede via utilitário nativo `netstat -e` (~30ms), eliminando processos pesados contínuos de PowerShell.
+* **ApexCharts Offline Local:** Gráficos interativos empacotados localmente (`src/assets/vendor/apexcharts.min.js`), garantindo funcionamento sem internet e sem CDN externo.
+* **Sensores Térmicos:** Velocímetros dinâmicos para processadores (Intel / AMD Ryzen) e unidades de armazenamento (NVMe, SATA e HDD) via `LibreHardwareMonitorLib.dll`.
+* **Saúde Física & S.M.A.R.T.:** Monitoramento preventivo de desgaste de discos com sparklines dedicados.
+* **Limpeza Rápida com Gráfico Donut:** Monitoramento de caches temporários (`%TEMP%`, navegador, DNS) e liberação com um clique.
+
+### 2. 📊 Histórico de Performance
+* **Janela Rotativa dos 50 Últimos Diagnósticos:** Persistência incremental em JSON local.
+* **Correlação CPU vs RAM:** Gráficos de alta resolução para identificação de gargalos ao longo do tempo.
+* **Linha do Tempo de Incidentes:** Cards interativos que explicam causas de anomalias (picos térmicos, esgotamento de memória e erros do Event Viewer).
+
+### 3. 🗑️ Gestor & Desinstalador de Softwares
+* **Auditoria Completa de Instalados:** Extração direta do Registro do Windows (HKLM/HKCU, 32 e 64 bits) e catálogo Winget.
+* **Busca Indexada Instantânea:** Filtragem dinâmica por nome, versão e editor.
+* **Desinstalação Silenciosa com Elevação (`RunAs`):** Execução assíncrona de rotinas desinstaladoras sem congelar a interface.
+
+### 4. 🚀 Central de Otimização
+* **Gestor de Inicialização:** Ativação/desativação ágil de aplicativos iniciados com o Windows.
+* **Benchmark Nativo de SSD/HDD:** Medição de velocidade sequencial de leitura e gravação em MB/s via streams assíncronas do .NET (`System.IO.FileStream` e `Stopwatch`), **sem binários ou instaladores de terceiros**.
+* **Otimização ReTrim & Defrag:** Detecção automática do tipo de mídia (SSD -> `Optimize-Volume -ReTrim`; HDD -> `Defrag`).
+* **Escudo de Segurança Responsivo:** Detecção de antivírus de terceiros via WMI SecurityCenter2, status do Defender em tempo real, proteção em nuvem e isolamento de núcleo.
+* **Reparador de Sistema Integrado:** Execução imediata de reparo profundo com `SFC /scannow` e `DISM /RestoreHealth`.
+
+### 5. 📑 Exportação de Relatório Técnico (HTML + PDF)
+* Botão com ícone vetorial dedicado de PDF na sidebar.
+* Compilação automática de auditoria completa em documento HTML autocontido com CSS responsivo embutido, tabelas de hardware, volumes e portas de rede.
+* Botão nativo para salvar/imprimir em PDF (`window.print()`).
+
+### 6. 🛠️ Central de Manutenção com Stepper Animado
+* Processo automatizado em 6 fases com acompanhamento em tempo real, cronômetro e checklist interativo:
+  1. *Otimização de Rede e DNS* (`ipconfig /flushdns`)
+  2. *Limpeza de Arquivos Temporários*
+  3. *Integridade de Arquivos Protegidos* (`SFC`)
+  4. *Restauração da Imagem do Windows* (`DISM`)
+  5. *Otimização de Armazenamento* (`TRIM / Defrag`)
+  6. *Atualização de Aplicativos* (`Winget`)
+
+### 7. 🔔 Sistema de Modais Glassmorphism
+* Substituição de alertas e confirmações bloqueantes do navegador (`alert()`, `confirm()`) por caixas de diálogo modais assíncronas (`showConfirm`, `showAlert`) com visual Dark Glassmorphism.
+
+---
+
+## 📂 Estrutura do Repositório
 
 ```text
 checkup-windows/
-├── main.js                      # Processo principal do Electron
-├── src/
-│   ├── index.html               # Estrutura da interface (Dashboard e Histórico)
-│   ├── style.css                # Estilos da interface (Glassmorphism e acentos cobre)
-│   ├── renderer.js              # Telemetria, gráficos e interações do painel
-│   └── assets/icons/            # Ícones dos controles
-├── core/
-│   ├── lib/                     # Dependências de baixo nível (LibreHardwareMonitorLib.dll, etc.)
-│   ├── checkup.ps1              # Diagnóstico e geração dos dados (WMI/CIM e LHM)
-│   ├── Ferramenta_Reparo.bat    # Limpeza e reparo avançado
-│   ├── Instalar_Rotina.ps1      # Agendamento mensal do sistema
-│   ├── CriarTarefa.bat          # Criação da tarefa agendada
-│   └── ExecutarCheckup.bat      # Execução independente do diagnóstico
-├── historico/                   # Histórico gerado localmente (JSON)
-└── relatorios/                  # Snapshot atual dos dados gerados
+├── Check Up/                  # Cofre oficial do Obsidian (Documentação interligada)
+│   ├── Home.md                # Ponto de entrada do cofre
+│   ├── Arquitetura.md         # Modelo de telemetria, IPC e segurança
+│   ├── Design System.md       # Dark Glassmorphism, paleta Cobre e Grid 6 colunas
+│   ├── Estrutura de Pastas.md # Mapeamento completo de diretórios
+│   ├── Funcionalidades.md     # Documentação detalhada de cada módulo
+│   ├── Manutenção e Scripts.md# Lógica PowerShell, elevação UAC e Benchmark
+│   └── Squad Multi-Agentes.md # Governança dos agentes e integração Pixel Agents
+├── core/                      # Módulos nativos e scripts do Windows
+│   ├── lib/                   # DLLs .NET de leitura de baixo nível (LHM, CPU, Discos)
+│   ├── checkup.ps1            # Script mestre de diagnóstico WMI/CIM
+│   ├── Ferramenta_Reparo.bat  # Rotinas batch auxiliares
+│   ├── CriarTarefa.bat        # Automatizador do Agendador de Tarefas do Windows
+│   ├── ExecutarCheckup.bat    # Execução autônoma do diagnóstico
+│   └── Instalar_Rotina.ps1    # Configuração de rotina agendada mensal
+├── scripts/                   # Automações de desenvolvimento e build
+│   ├── convert-icon.js        # Utilitário de conversão de ícone (.ico)
+│   └── pixel_agents_bridge.js # Bridge WebSocket para o escritório Pixel Agents
+├── src/                       # Frontend da aplicação (Electron Renderer)
+│   ├── assets/                # Ícones vetoriais SVG (PDF, hardware, badges)
+│   ├── assets/vendor/         # Bibliotecas locais (apexcharts.min.js offline)
+│   ├── index.html             # Estrutura DOM das 4 abas e modais
+│   ├── renderer.js            # Telemetria, gráficos, benchmark e eventos
+│   └── style.css              # Design System em Dark Glassmorphism responsivo
+├── main.js                    # Processo principal (Main Process) do Electron
+├── package.json               # Configurações do projeto e scripts npm
+├── backlog.md                 # Rastreamento de demandas e fases
+├── memory.md                  # Memória técnica e regras do projeto
+└── README.md                  # Esta documentação
 ```
 
-## 📥 Como Baixar e Usar (Usuário Final)
+---
 
-Não é necessário instalar nada ou ter conhecimento em programação para usar o CheckUP.
+## 📥 Como Usar (Usuário Final)
 
-1. Acesse a página de [Releases](../../releases/latest).
-2. Baixe o arquivo `.exe` mais recente disponível na seção *Assets*.
-3. ⚠️ **IMPORTANTE:** Clique com o botão direito no arquivo baixado e selecione **"Executar como Administrador"**. Isso é obrigatório para que o painel consiga ler os sensores térmicos, discos físicos e rodar os reparos do Windows nativamente.
-   
-## ⚙️ Requisitos
+Não é necessário configurar ambientes de programação para executar o CheckUP:
 
-* **Sistema:** Windows 10 ou superior.
-* **Ambiente de Dev:** Node.js 22 ou superior e npm.
-* **Permissões:** PowerShell com acesso aos comandos nativos. Algumas rotinas de manutenção e coleta exigem privilégios de Administrador.
+1. Baixe o executável mais recente na aba [Releases](https://github.com/murilo-lameira/projeto-checkup-windows/releases/latest).
+2. Clique com o botão direito no arquivo baixado e selecione **"Executar como Administrador"**. *(Necessário para permitir a leitura de sensores de hardware e acionamento das rotinas de reparo do sistema).*
+3. Ao abrir, o CheckUP apresentará a tela de carregamento suave enquanto inicializa a telemetria e o dashboard.
 
-## 🚀 Como Executar Localmente
+---
 
-1. Instale as dependências:
-`npm install`
+## 💻 Desenvolvimento Local
 
-2. Inicie a aplicação:
-`npm start`
+### Pré-requisitos
+* **Sistema:** Windows 10 ou 11 (64-bit).
+* **Node.js:** Versão 20 ou superior recomendada.
+* **PowerShell:** Versão 5.1 ou PowerShell 7.
 
-O aplicativo inicia o diagnóstico automaticamente ao abrir. O botão "Diagnóstico" executa um novo checkup completo; os demais controles iniciam rotinas isoladas de manutenção.
+### Instalação & Execução
+```bash
+# 1. Instalar dependências
+npm install
 
-## 📦 Validação e Compilação
+# 2. Executar validação sintática estática
+npm run validate
 
-Validação de sintaxe dos processos Electron:
-`npm run validate`
+# 3. Iniciar o aplicativo em ambiente de desenvolvimento
+npm start
+```
 
-Gerar o instalador/executável Windows:
-`npm run build`
+### Compilação do Executável (.exe Portátil)
+```bash
+npm run build
+```
+O artefato final será gerado no diretório `dist/` como um executável portátil otimizado (`CheckUP Windows.exe`).
 
-O build utiliza o electron-builder e cria a saída em .exe portátil nativo (exigindo highestAvailable para elevação de privilégio) na pasta dist/. Esse diretório é um artefato local e está no .gitignore.
+---
 
-## 📊 Dados Gerados (Ignorados no Git)
+## 🛡️ Regras Invioláveis do Projeto
 
-* `relatorios/dados_atuais.json`: Snapshot usado ativamente pelo painel para injetar as informações de hardware e saúde na interface.
-* `historico/historico_checkup.json`: Registros incrementais dos últimos 50 diagnósticos executados, armazenando métricas detalhadas de integridade, contagem de erros de sistema (`Erros_Qtd`) do Event Viewer, carga térmica e estabilidade de rede.
-(Nota: Esses arquivos contêm informações sensíveis de hardware e rede da máquina host e não devem ser versionados).
+1. **Zero Executáveis de Terceiros:** É proibido incluir binários compilados externos (.exe). Toda a automação se apoia em utilitários legítimos do ecossistema Microsoft Windows (`DISM`, `sfc`, `winget`, `Get-CimInstance`, `defrag`, `netstat`, etc.).
+2. **Escapes e Codificação Segura:** Comandos PowerShell acionados a partir do Node.js utilizam codificação Base64 UTF-16LE (`-EncodedCommand`) para prevenir interpretação indevida pelo `cmd.exe` e ataques de injeção de parâmetros.
+3. **Identidade Visual Dark Glassmorphism:** Todos os componentes respeitam estritamente a paleta carvão/cobre (`#cf663f`), fundos translúcidos com `backdrop-filter: blur(16px)` e grid CSS responsivo.
+4. **Sincronia com o Obsidian:** Qualquer alteração no código acompanha atualização imediata nas notas do cofre Obsidian (`Check Up/*.md`) com wikilinks `[[...]]`.
 
-## 🏗️ Observações de Arquitetura e Empacotamento
-
-Para garantir que o Node.js e os scripts do PowerShell comuniquem-se corretamente no ambiente de produção, o empacotador mantém os scripts de recursos isolados da blindagem padrão. Configurado via `extraResources` no `package.json`, o artefato final extrai a pasta `core/` para que o PowerShell consiga ler, executar rotinas de administrador e gravar arquivos em diretórios externos sem bloqueios de permissão do arquivo `app.asar`.
+---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Sinta-se livre para usar, modificar e distribuir conforme necessário.
+Este projeto é distribuído sob a licença **MIT**.

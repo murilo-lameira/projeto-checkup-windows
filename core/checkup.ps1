@@ -1,4 +1,4 @@
-﻿$OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $reportsDir = "$PSScriptRoot\..\relatorios"
@@ -333,15 +333,19 @@ if ($internetStatus) {
         $client = New-Object System.Net.WebClient
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
         $client.DownloadData("https://speed.cloudflare.com/__down?bytes=5000000") | Out-Null
+        $client.DownloadData("https://speed.cloudflare.com/__down?bytes=1000000") | Out-Null
         $sw.Stop()
         $speedText = "$([math]::Round((40 / $sw.Elapsed.TotalSeconds), 1)) Mbps"
+        $speedText = "$([math]::Round((8 / $sw.Elapsed.TotalSeconds), 1)) Mbps"
         $client.Dispose()
     } catch { $speedText = "Falha no teste" }
 
     $pingTest = Test-Connection -ComputerName "8.8.8.8" -Count 10 -ErrorAction SilentlyContinue
+    $pingTest = Test-Connection -ComputerName "8.8.8.8" -Count 2 -ErrorAction SilentlyContinue
     if ($pingTest) {
         $received = ($pingTest | Where-Object { $_.Status -eq 'Success' -or $_.ReplySize -gt 0 -or $_.ResponseTime -ge 0 }).Count
         $loss = ((10 - $received) / 10) * 100
+        $loss = ((2 - $received) / 2) * 100
         $avgLatency = [math]::Round(($pingTest | Measure-Object -Property ResponseTime -Average -ErrorAction SilentlyContinue).Average, 0)
     }
 }
@@ -373,6 +377,7 @@ $healthWarnings = @()
 
 try {
     $latestHotFix = Get-HotFix -ErrorAction SilentlyContinue | Where-Object InstalledOn | Sort-Object InstalledOn -Descending | Select-Object -First 1
+    $latestHotFix = Get-CimInstance -ClassName Win32_QuickFixEngineering -ErrorAction SilentlyContinue | Where-Object InstalledOn | Sort-Object InstalledOn -Descending | Select-Object -First 1
     if (-not $latestHotFix -or ((Get-Date) - [datetime]$latestHotFix.InstalledOn).Days -gt 45) {
         $healthWarnings += "Atualizações do Windows podem estar pendentes. Verifique o Windows Update."
     }
@@ -445,7 +450,7 @@ while ($historyList.Count -gt 50) {
 
 $historyList | ConvertTo-Json -Depth 5 | Out-File $jsonHistoryPath -Encoding utf8
 
-$discordWebhookUrl = "https://discord.com/api/webhooks/1539265722264453171/sxaVx1PBCs-QXceSuyYjtG-U2L5tzdZaIACHBiFAZ5O2hGuJyfCEg2x0PXdEPJowiUKN" 
+$discordWebhookUrl = if ($env:CHECKUP_DISCORD_WEBHOOK) { $env:CHECKUP_DISCORD_WEBHOOK } else { "" }
 if ($discordWebhookUrl -ne "" -and $healthIssues.Count -gt 0) {
     $alertBody = @{ content = "🚨 **ALERTA CRÍTICO DE SISTEMA - $computerName** 🚨`n" + ($healthIssues -join "`n") } | ConvertTo-Json
     try { Invoke-RestMethod -Uri $discordWebhookUrl -Method Post -Body $alertBody -ContentType 'application/json' -ErrorAction SilentlyContinue } catch {}
@@ -458,6 +463,7 @@ foreach ($p in $topProcs) {
 }
 
 $discos = Get-WmiObject Win32_LogicalDisk -Filter "DriveType=3"
+$discos = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3"
 $diskArray = @()
 foreach ($d in $discos) {
     $livre = [math]::Round($d.FreeSpace / 1GB, 1)
@@ -467,11 +473,13 @@ foreach ($d in $discos) {
 }
 
 $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object -First 1
+$gpuInfo = Get-CimInstance Win32_VideoController | Select-Object -First 1
 $gpuDetails = $gpus | Select-Object -First 1
 
 $dashboardPayload = [PSCustomObject]@{
     Sistema = [PSCustomObject]@{ 
         OS = (Get-WmiObject Win32_OperatingSystem).Caption.Replace("Microsoft ", "") 
+        OS = if ($os.Caption) { $os.Caption.Replace("Microsoft ", "") } else { "Windows" } 
         Uptime = $uptimeStr
         Licenca = $licenseInfo
         Bateria = $batteryInfo 

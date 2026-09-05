@@ -14,6 +14,7 @@
             <div class="card side-card">
                 <button id="btnCheckup" class="btn-copper"><img class="button-icon" src="assets/icons/lupa.png" alt="">Diagnóstico</button>
                 <button id="btnFullMaintenance" class="btn-copper"><img class="button-icon" src="assets/icons/ferramentas.png" alt="">Manutenção Completa</button>
+                <button id="btnExportReport" class="btn-copper"><img class="button-icon" src="assets/icons/pdf.svg" alt="PDF">Exportar Relatório</button>
                 
                 <div class="status-box" id="logArea">
                     <div class="status-message status-info">
@@ -50,6 +51,8 @@
             <nav class="top-nav">
                 <button class="nav-tab active" data-target="dashboardPage">Dashboard</button>
                 <button class="nav-tab" data-target="historicoPage">Histórico</button>
+                <button class="nav-tab" data-target="programasPage">Programas</button>
+                <button class="nav-tab" data-target="otimizacaoPage">Otimização</button>
             </nav>
 
             <div class="page-container">
@@ -91,13 +94,69 @@
                         </div>
                     </div>
                     
+                    <div class="glass-panel span-2 deepclean-panel">
+                        <div class="deepclean-header-row">
+                            <div class="deepclean-title-group">
+                                <h3>Limpeza Profunda</h3>
+                                <span id="deepCleanBadge" class="deepclean-badge badge-clean">Analisando...</span>
+                            </div>
+                            <button id="btnDeepClean" class="btn-copper btn-deepclean-action" title="Eliminar Caches e Arquivos Temporários">
+                                <span>🧹</span> Limpar
+                            </button>
+                        </div>
+
+                        <div class="deepclean-body">
+                            <!-- Donut Chart com Ícone Central -->
+                            <div class="deepclean-chart-container">
+                                <div id="deepCleanChart"></div>
+                                <div class="deepclean-chart-center">
+                                    <span class="deepclean-center-icon">🗑️</span>
+                                    <span class="deepclean-center-sub">Cache</span>
+                                </div>
+                            </div>
+
+                            <!-- Métricas Detalhadas (Usuário vs Sistema) -->
+                            <div class="deepclean-metrics-col">
+                                <div class="deepclean-metric-card">
+                                    <div class="deepclean-metric-top">
+                                        <span class="deepclean-dot dot-user"></span>
+                                        <span class="deepclean-metric-title">Cache de Apps (%TEMP%)</span>
+                                    </div>
+                                    <strong id="userTempSizeText" class="deepclean-metric-val">-- MB</strong>
+                                </div>
+
+                                <div class="deepclean-metric-card">
+                                    <div class="deepclean-metric-top">
+                                        <span class="deepclean-dot dot-system"></span>
+                                        <span class="deepclean-metric-title">Sistema (Windows Temp)</span>
+                                    </div>
+                                    <strong id="systemTempSizeText" class="deepclean-metric-val">-- MB</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rodapé com Total e Dica Contextual -->
+                        <div class="deepclean-footer-row">
+                            <div class="deepclean-total-wrap">
+                                <span class="deepclean-footer-label">Espaço Ocupado:</span>
+                                <strong id="wastedSpaceText" class="deepclean-total-value">Calculando...</strong>
+                            </div>
+                            <span id="deepCleanAdvice" class="deepclean-advice">Aguardando telemetria...</span>
+                        </div>
+                    </div>
+                    
                     <div class="glass-panel span-2 disks-panel">
                         <h3>Discos e Armazenamento</h3>
                         <div id="valDisksArea" class="table-container">Aguardando leitura de discos...</div>
                     </div>
 
                     <div class="glass-panel span-2 ram-panel">
-                        <h3>Maior Consumo de RAM</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h3 style="margin: 0;">Maior Consumo de RAM</h3>
+                            <button id="btnRefreshProcesses" class="btn-copper" title="Atualizar Processos" style="width: auto; padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+                                <span>🔄</span> Atualizar
+                            </button>
+                        </div>
                         <div id="valProcessesArea" class="table-container">Aguardando análise de processos...</div>
                     </div>
 
@@ -192,17 +251,179 @@
                     </div>
 
                 </div>
+ 
+                <!-- PÁGINA 3: GESTOR E DESINSTALADOR DE PROGRAMAS -->
+                <div class="dashboard-grid page-view" id="programasPage" style="display: none;">
+                    <div class="glass-panel programs-panel" style="grid-column: 1 / -1; min-height: 580px; padding: 20px 24px;">
+                        <div class="programs-header-row">
+                            <div class="programs-title-block">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 18px;">📦</span>
+                                    <h3 style="margin: 0; font-size: 14px; color: #f4f4f5; text-transform: uppercase; letter-spacing: 0.8px;">Gestor de Aplicativos Instalados</h3>
+                                </div>
+                                <p style="margin: 4px 0 0 0; font-size: 12px; color: #8a888c;">Localize programas instalados no Windows e execute desinstalações limpas e silenciosas.</p>
+                            </div>
+                            <div class="programs-search-wrapper">
+                                <div class="search-input-box">
+                                    <span class="search-icon">🔍</span>
+                                    <input type="text" id="programSearchInput" class="glass-input" placeholder="Buscar por software, editor ou versão...">
+                                </div>
+                                <button id="btnRefreshPrograms" class="btn-copper btn-refresh-programs" title="Recarregar Lista">
+                                    <span>🔄</span> Atualizar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="programs-summary-bar">
+                            <span id="programsCountText" class="programs-count">Carregando lista de softwares...</span>
+                            <span class="programs-subhint">Dica: clique em Desinstalar para remover silenciosamente via PowerShell</span>
+                        </div>
+
+                        <div class="programs-table-container custom-scrollbar">
+                            <table class="programs-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 44%;">Nome do Aplicativo</th>
+                                        <th style="width: 28%;">Editor / Fornecedor</th>
+                                        <th style="width: 14%;">Versão</th>
+                                        <th style="width: 14%; text-align: center;">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="programsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="programs-empty-cell">Carregando programas instalados...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PÁGINA 4: OTIMIZAÇÃO -->
+                <div class="dashboard-grid page-view" id="otimizacaoPage" style="display: none;">
+                    <!-- Smart Startup -->
+                    <div class="glass-panel opt-startup-panel" style="min-height: 280px; padding: 20px 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #f4f4f5;">Gestor de Inicialização</h3>
+                                <p style="margin: 4px 0 0 0; font-size: 11px; color: #8a888c;">Ative ou desative aplicativos que iniciam com o Windows para acelerar o boot.</p>
+                            </div>
+                            <button id="btnRefreshStartup" class="btn-copper" style="width: auto; padding: 6px 12px; font-size: 11px;">
+                                <span>🔄</span> Atualizar
+                            </button>
+                        </div>
+                        <div class="programs-table-container custom-scrollbar">
+                            <table class="programs-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%;">Programa</th>
+                                        <th style="width: 30%;">Comando / Status</th>
+                                        <th style="width: 20%; text-align: center;">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="startupTableBody">
+                                    <tr>
+                                        <td colspan="3" class="programs-empty-cell">Carregando itens de inicialização...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Otimização de Disco (TRIM + S.M.A.R.T.) -->
+                    <div class="glass-panel opt-disk-panel" style="min-height: 280px; padding: 20px 24px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                            <h3 style="margin: 0; color: #f4f4f5;">Otimização de Disco</h3>
+                            <span id="diskSmartBadge" class="smart-badge badge-healthy">● Analisando...</span>
+                        </div>
+                        <p style="margin: 0 0 12px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Integridade física S.M.A.R.T. e comando ReTrim para blocos ociosos do SSD.</p>
+                        
+                        <div class="ssd-info-box" id="ssdInfoBox">
+                            <div class="ssd-info-row">
+                                <span class="ssd-info-label">Unidade:</span>
+                                <strong id="ssdModelText" class="ssd-info-val">Detectando...</strong>
+                            </div>
+                            <div class="ssd-info-row">
+                                <span class="ssd-info-label">Tipo de Mídia:</span>
+                                <strong id="ssdMediaTypeText" class="ssd-info-val">--</strong>
+                            </div>
+                            <div class="ssd-info-row">
+                                <span class="ssd-info-label">Saúde S.M.A.R.T.:</span>
+                                <strong id="ssdHealthText" class="ssd-info-val" style="color: #2dd4bf;">--</strong>
+                            </div>
+                            <div class="ssd-info-row" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px; margin-top: 4px;">
+                                <span class="ssd-info-label">Leitura Seq.:</span>
+                                <strong id="ssdReadSpeedText" class="ssd-info-val" style="color: #2dd4bf;">-- MB/s</strong>
+                            </div>
+                            <div class="ssd-info-row">
+                                <span class="ssd-info-label">Gravação Seq.:</span>
+                                <strong id="ssdWriteSpeedText" class="ssd-info-val" style="color: #ff9364;">-- MB/s</strong>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: auto;">
+                            <button id="btnBenchmarkDisk" class="btn-copper" style="flex: 1; padding: 10px; font-size: 12px;" title="Executar teste de leitura e gravação em bloco temporário">
+                                ⚡ Benchmark
+                            </button>
+                            <button id="btnOptimizeSSD" class="btn-copper" style="flex: 1; padding: 10px; font-size: 12px;">
+                                🚀 ReTrim (C:)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Escudo de Segurança Integrado -->
+                    <div class="glass-panel opt-shield-panel" style="min-height: 280px; padding: 20px 24px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <h3 style="margin: 0; color: #f4f4f5;">Escudo de Segurança</h3>
+                            <span id="shieldActiveAvBadge" class="smart-badge badge-healthy" style="font-size: 10px;">Verificando...</span>
+                        </div>
+                        <p style="margin: 0 0 15px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Status de proteção do sistema e detecção avançada de antivírus.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; flex: 1;">
+                            <div class="shield-status-row">
+                                <span>Solução de Proteção</span>
+                                <strong id="statusAntivirusName" style="color: #2dd4bf;">Detectando...</strong>
+                            </div>
+                            <div class="shield-status-row">
+                                <span>Windows Defender (Tempo Real)</span>
+                                <strong id="statusDefenderRealTime">Aguardando...</strong>
+                            </div>
+                            <div class="shield-status-row">
+                                <span>Proteção de Nuvem</span>
+                                <strong id="statusDefenderCloud">Aguardando...</strong>
+                            </div>
+                            <div class="shield-status-row">
+                                <span>Isolamento de Núcleo (Memória)</span>
+                                <strong id="statusCoreIsolation">Aguardando...</strong>
+                            </div>
+                        </div>
+
+                        <button id="btnRestoreShield" class="btn-copper" style="padding: 12px; font-size: 13px;">
+                            🛡️ Restaurar Todas as Defesas
+                        </button>
+                    </div>
+
+                    <!-- Reparador de Sistema (One-Click SFC/DISM) -->
+                    <div class="glass-panel opt-repair-panel" style="min-height: 280px; padding: 20px 24px; display: flex; flex-direction: column;">
+                        <h3 style="margin: 0 0 5px 0; color: #f4f4f5;">Reparador de Sistema</h3>
+                        <p style="margin: 0 0 15px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Corrige erros graves, telas azuis e lentidão usando ferramentas nativas da Microsoft (SFC & DISM).</p>
+                        
+                        <div style="background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; flex: 1;">
+                            <span style="font-size: 12px; color: #2dd4bf; font-weight: 500;">✓ Restaura arquivos do Windows</span><br>
+                            <span style="font-size: 12px; color: #2dd4bf; font-weight: 500;">✓ Repara a imagem do sistema</span><br><br>
+                            <span style="font-size: 11px; color: #8a888c;">Este processo usa a mesma central de manutenção já integrada ao CheckUP, focando exclusivamente no reparo profundo.</span>
+                        </div>
+
+                        <button id="btnTriggerReparo" class="btn-copper" style="margin-top: auto; padding: 12px; font-size: 13px;">
+                            🔧 Iniciar Reparo Profundo
+                        </button>
+                    </div>
+
+                </div>
 
             </div>
         </div>
 
-    </div>
-    
-    <!-- OVERLAY PADRÃO (Para operações rápidas como Diagnóstico) -->
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="spinner"></div>
-        <h2 id="loadingText">Processando...</h2>
-        <p id="loadingSubtext">Por favor, aguarde enquanto a operação é concluída.</p>
     </div>
 
     <!-- MODAL DE MANUTENÇÃO AVANÇADA COM STEPPER EM TEMPO REAL -->
@@ -336,7 +557,29 @@
         </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- OVERLAY DE CARREGAMENTO (Dark Glassmorphism) -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-card">
+            <div class="spinner"></div>
+            <h2 id="loadingText">Iniciando CheckUP...</h2>
+            <p id="loadingSubtext">Carregando telemetria e integridade do sistema...</p>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOMIZADO (Dark Glassmorphism Alert & Confirm) -->
+    <div id="customDialogModal" class="custom-dialog-overlay hidden">
+        <div class="custom-dialog-card">
+            <div class="custom-dialog-icon" id="dialogIcon">🔔</div>
+            <h3 class="custom-dialog-title" id="dialogTitle">Confirmação</h3>
+            <p class="custom-dialog-message" id="dialogMessage">Tem certeza que deseja executar esta ação?</p>
+            <div class="custom-dialog-actions">
+                <button id="btnDialogCancel" class="btn-dialog-cancel">Cancelar</button>
+                <button id="btnDialogConfirm" class="btn-copper btn-dialog-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/vendor/apexcharts.min.js"></script>
     <script src="renderer.js"></script>
 </body>
 </html>

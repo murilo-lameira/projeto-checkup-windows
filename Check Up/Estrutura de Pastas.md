@@ -1,68 +1,69 @@
-# Estrutura de Pastas
+# 📂 Estrutura de Pastas & Arquivos
 
-Visão geral da organização de diretórios e arquivos do **Projeto CheckUP**.
+Visão detalhada e atualizada da organização de diretórios e arquivos do **Projeto CheckUP Windows**.
 
 ```text
 Projeto CheckUP/
-├── Check Up/                  # Vault do Obsidian contendo toda a documentação
-│   ├── Home.md
-│   ├── Arquitetura.md
-│   ├── Design System.md
-│   ├── Estrutura de Pastas.md
-│   ├── Funcionalidades.md
-│   └── Manutenção e Scripts.md
+├── .agents/                   # Configuração e transcripts do time de agentes autônomos
+├── Check Up/                  # Cofre oficial do Obsidian (Documentação interligada)
+│   ├── Home.md                # Ponto de entrada do cofre
+│   ├── Arquitetura.md         # Modelo de telemetria, IPC e segurança
+│   ├── Design System.md       # Dark Glassmorphism, paleta Cobre e Grid 6 colunas
+│   ├── Estrutura de Pastas.md # Este documento
+│   ├── Funcionalidades.md     # Documentação detalhada de cada módulo
+│   ├── Manutenção e Scripts.md# Lógica PowerShell, elevação UAC e Benchmark
+│   └── Squad Multi-Agentes.md # Governança dos agentes e integração Pixel Agents
 ├── core/                      # Scripts do sistema operacional e rotinas nativas
-│   ├── lib/                   # DLLs .NET de baixo nível para diagnóstico de hardware
-│   ├── checkup.ps1            # Script mestre de diagnóstico em PowerShell
+│   ├── lib/                   # DLLs .NET de leitura de baixo nível (LHM, CPU, Discos)
+│   ├── checkup.ps1            # Script mestre de diagnóstico WMI/CIM
 │   ├── Ferramenta_Reparo.bat  # Rotinas batch de reparo de arquivos e disco
 │   ├── CriarTarefa.bat        # Automatizador de agendamento de tarefas do Windows
-│   ├── ExecutarCheckup.bat    # Launcher rápido de execução de checagem
+│   ├── ExecutarCheckup.bat    # Launcher de execução autônoma do diagnóstico
 │   └── Instalar_Rotina.ps1    # Script de setup e automação periódica
-├── dist/                      # Arquivos executáveis e builds de distribuição
-├── historico/                 # Histórico de logs de manutenções e verificações anteriores
-├── relatorios/                # Relatórios detalhados gerados após os diagnósticos
-├── scripts/                   # Scripts auxiliares de desenvolvimento e build
-│   └── convert-icon.js        # Utilitário para conversão/geração de ícones da aplicação
+├── dist/                      # Arquivos executáveis e builds de distribuição (.exe portátil)
+├── historico/                 # Histórico incremental dos últimos 50 diagnósticos (JSON)
+├── relatorios/                # Relatórios técnicos gerados pelo exportador (HTML autocontido)
+├── scripts/                   # Automações de desenvolvimento e build
+│   ├── convert-icon.js        # Utilitário para conversão e geração de ícones (.ico)
+│   └── pixel_agents_bridge.js # Bridge de integração com o escritório virtual Pixel Agents
 ├── src/                       # Frontend da aplicação desktop (Electron Renderer)
-│   ├── assets/                # Recursos estáticos (ícones, logos, ilustrações)
-│   ├── index.html             # Estrutura DOM do dashboard, cards e modais
-│   ├── renderer.js            # Lógica interativa, gráficos e polling de scripts
-│   └── style.css              # Estilos visuais em Dark Glassmorphism
+│   ├── assets/                # Recursos estáticos
+│   │   ├── icons/             # Ícones vetoriais SVG (pdf.svg, hardware, status)
+│   │   └── vendor/            # Dependências locais offline (apexcharts.min.js)
+│   ├── index.html             # Estrutura DOM das 4 abas, modais e overlays
+│   ├── renderer.js            # Telemetria 0% CPU, benchmark, gráficos e eventos
+│   └── style.css              # Design System em Dark Glassmorphism responsivo
+├── AGENTS.md                  # Definição e regras invioláveis do Squad Multi-Agentes
+├── backlog.md                 # Rastreamento de demandas por fase
 ├── main.js                    # Processo principal (Main Process) do Electron
-├── package.json               # Configurações do projeto Node.js e dependências
-├── package-lock.json          # Trava de versões exatas das dependências
-└── README.md                  # Apresentação geral do repositório
+├── memory.md                  # Memória técnica persistente e lições aprendidas
+├── package.json               # Configurações do projeto Node.js, dependências e scripts
+├── package-lock.json          # Trava de versões das dependências npm
+└── README.md                  # Apresentação do repositório no GitHub com badges
 ```
 
 ---
 
-## Detalhamento dos Diretórios
+## 🔎 Papel dos Diretórios Principais
 
-### 1. `Check Up/` (Documentação)
-O cofre (vault) do Obsidian contendo toda a documentação estruturada com nós interligados:
-- Ponto de partida na [[Home]].
-- Conexões entre os módulos do sistema, padrões de código e guia de design.
+### 1. `Check Up/` (Cofre Obsidian)
+Armazena a base de conhecimento do projeto com links bidirecionais no formato `[[...]]`:
+- Entrada pela [[Home]].
+- Conexões com a [[Arquitetura]], o [[Design System]], as [[Funcionalidades]] e o [[Squad Multi-Agentes]].
 
-### 2. `core/` (Mecanismos de Baixo Nível)
-Centraliza toda a lógica pesada de inspeção do Windows:
-- **`checkup.ps1`**: Coleta dados de CPU, GPU, RAM, temperaturas, discos e integridade de arquivos.
-- **`lib/`**: Conjunto de bibliotecas .NET compiladas (como `LibreHardwareMonitorLib.dll`, `DiskInfoToolkit.dll`, `RAMSPDToolkit-NDD.dll`), permitindo que os scripts leiam sensores de hardware com precisão cirúrgica sem ferramentas externas pesadas.
-- Saiba mais sobre a execução e privilégios em [[Manutenção e Scripts]].
+### 2. `core/` (Lógica Nativa do Windows)
+Contém os módulos de diagnóstico profundo e scripts de elevação:
+- **`checkup.ps1`:** Extrai dados de hardware, licença, discos e processos usando CIM e a `LibreHardwareMonitorLib.dll`.
+- **`lib/`:** DLLs .NET de baixo nível (`LibreHardwareMonitorLib.dll`, `DiskInfoToolkit.dll`, `RAMSPDToolkit-NDD.dll`), permitindo leitura de sensores térmicos e saúde S.M.A.R.T. sem instalar programas pesados de terceiros.
+- Veja os detalhes de execução em [[Manutenção e Scripts]].
 
-### 3. `src/` (Interface & Experiência do Usuário)
-A camada visual que roda na janela do Electron:
-- **`index.html`**: Contém a marcação da dashboard, métricas e o modal de manutenção em etapas.
-- **`style.css`**: Toda a camada estética com efeitos de blur, bordas metálicas e temas escuros (detalhado em [[Design System]]).
-- **`renderer.js`**: Monitora os estados do sistema, cria e gerencia o polling de scripts em segundo plano, e manipula gráficos via ApexCharts. Veja os detalhes na [[Arquitetura]].
+### 3. `src/` (Interface do Usuário - Electron Renderer)
+- **`index.html`:** Layout estruturado das 4 páginas (`#dashboardPage`, `#historicoPage`, `#programasPage`, `#otimizacaoPage`), central de manutenção com steppers e modais assíncronos.
+- **`style.css`:** Folhas de estilo em Dark Glassmorphism, paleta Cobre (`#cf663f`) e Grid adaptativo de 6 colunas com proteção de cards (`min-width: 0`).
+- **`renderer.js`:** Executa telemetria com processos nativos do Node.js, benchmark sequencial de disco, despacha rotinas assíncronas do PowerShell e gerencia os gráficos locais via ApexCharts.
 
-### 4. `historico/` & `relatorios/`
-- Guardam arquivos de auditoria, logs de texto e resultados de diagnósticos anteriores para consulta do usuário, integrando-se com as rotinas de [[Funcionalidades]].
-
-### 5. `main.js` (Raiz)
-- Ponto de entrada do Electron. Cria a janela do navegador (`BrowserWindow`), define o tamanho inicial, ícone e configurações de segurança/integração (`nodeIntegration: true`).
+### 4. `relatorios/` & `historico/`
+- Armazenam localmente snapshots de auditoria (`dados_atuais.json`), relatórios autocontidos com atalho para PDF (`relatorio_checkup_<timestamp>.html`) e registros históricos (`historico_checkup.json`).
 
 ---
-**Navegação:**
-- Voltar para a [[Home]]
-- Conhecer a [[Arquitetura]]
-
+**Navegação:** Voltar para a [[Home]] | Conhecer a [[Arquitetura]] | Ver [[Funcionalidades]] | Ver [[Squad Multi-Agentes]]

@@ -5,10 +5,12 @@
   "author": "Murilo Lameira",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; const cp = require('child_process'); const p = cp.spawn(require('electron'), ['.'], { stdio: 'inherit', env: process.env }); p.on('close', code => process.exit(code ?? 0));\"",
     "build": "npm run icon:build && electron-builder --win",
     "validate": "node --check main.js && node --check src/renderer.js",
-    "icon:build": "node scripts/convert-icon.js"
+    "icon:build": "node scripts/convert-icon.js",
+    "agents:pixel": "node scripts/pixel_agents_bridge.js",
+    "agents:pixel:clear": "node scripts/pixel_agents_bridge.js --clean"
   },
   "dependencies": {
     "systeminformation": "^5.23.0"

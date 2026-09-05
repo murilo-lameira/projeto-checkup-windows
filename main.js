@@ -1,5 +1,32 @@
-const { app, BrowserWindow } = require('electron');
+const electron = require('electron');
+
+if (typeof electron === 'string') {
+  // Previne erro caso o terminal/ambiente tenha ELECTRON_RUN_AS_NODE=1
+  const { spawn } = require('child_process');
+  const env = { ...process.env };
+  delete env.ELECTRON_RUN_AS_NODE;
+  const child = spawn(electron, process.argv.slice(1), { stdio: 'inherit', env });
+  child.on('close', (code) => process.exit(code ?? 0));
+  return;
+}
+
+var { app, BrowserWindow, ipcMain } = electron;
 const path = require('path');
+
+if (ipcMain) {
+  ipcMain.removeHandler('get-file-icon');
+  ipcMain.handle('get-file-icon', async (event, filePath) => {
+    try {
+      if (!filePath) return null;
+      const icon = await app.getFileIcon(filePath, { size: 'small' });
+      return icon.toDataURL();
+    } catch (_) {
+      return null;
+    }
+  });
+}
+
+
 try {
   require('electron-reloader')(module, {
     ignore: [/relatorios/, /historico/, /core/]
