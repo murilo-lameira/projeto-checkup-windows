@@ -10,8 +10,8 @@ O desenvolvimento, testes e documentação contínua do projeto são operados po
 
 | Agente | ID da Sessão | Especialidade | Papel Primário no Pipeline |
 | :--- | :--- | :--- | :--- |
-| **Dev** | `checkup_dev` | Backend & Sistemas | [[Manutenção e Scripts\|PowerShell nativo]], WMI/CIM, Registro do Windows, Node.js e Electron |
-| **UI/UX** | `checkup_ui_ux` | Frontend & Design System | [[Design System\|Dark Glassmorphism]], paleta Cobre (`#cf663f`), ApexCharts e microinterações |
+| **Dev** | `checkup_dev` | Backend & Sistemas | [[Manutenção e Scripts|PowerShell nativo]], WMI/CIM, Registro do Windows, Node.js e Electron |
+| **UI/UX** | `checkup_ui_ux` | Frontend & Design System | [[Design System|Dark Glassmorphism]], paleta Cobre (`#cf663f`), ApexCharts e microinterações |
 | **QA** | `checkup_qa` | Qualidade & Resiliência | Validação funcional, sintática (`npm run validate`), casos de borda e privilégios UAC |
 | **Revisor** | `checkup_reviewer` | Arquitetura & Segurança | Auditoria contra `memory.md`, segurança contra injeção e conformidade técnica |
 | **Documentador** | `checkup_doc` | Obsidian & Conhecimento | Gestão contínua do cofre (`Check Up/`), notas interligadas, `backlog.md` e `README.md` |
