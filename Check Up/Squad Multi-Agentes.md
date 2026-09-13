@@ -80,16 +80,16 @@ npm run agents:pixel:clear
 2. **Imunidade de Escapes:** Comandos PowerShell disparados via `child_process.exec` utilizam codificação Base64 UTF-16LE (`-EncodedCommand`) para blindagem total contra interpolação indevida do `cmd.exe`.
 3. **Consistência Visual:** Todos os novos componentes devem seguir rigorosamente o [[Design System]] em tons de carvão escuro com acabamento metálico em cobre.
 4. **Sincronia do Conhecimento:** Nenhuma funcionalidade é considerada concluída sem que a documentação correspondente no cofre Obsidian e no `backlog.md` esteja atualizada.
-5. **Presença Ativa no Antigravity:** O Squad possui a skill formal `.agents/skills/checkup-squad/SKILL.md` que garante que todos os 5 agentes (`checkup_dev`, `checkup_ui_ux`, `checkup_qa`, `checkup_reviewer`, `checkup_doc`) permaneçam instanciados e operacionais na sidebar *Subagents* do Antigravity IDE durante todo o ciclo de desenvolvimento.
+5. **Presença Ativa no Antigravity (Slidebar):** Em conformidade com a [[Squad Multi-Agentes|Skill Global de Agentes]] (`agents-md`), o agente orquestrador DEVE sempre manter todos os subagentes do Squad instanciados via `invoke_subagent` (`checkup_dev`, `checkup_ui_ux`, `checkup_qa`, `checkup_reviewer`, `checkup_doc`) para que o painel lateral *Subagents* do Antigravity sempre reflita a equipe completa (`Subagents (5) >`) e ativa.
 
 ---
 
-## 🧩 Skill Antigravity (`.agents/skills/checkup-squad/`)
+## 🌐 Skill Global de Agentes (`~/.agents/skills/agents-md/`)
 
-A skill **`checkup-squad`** automatiza a carga e prontidão de todo o time:
-- **Descoberta:** O Antigravity carrega a pasta `.agents/skills/checkup-squad/` como extensão nativa do workspace.
-- **Instanciação Automática:** Aciona `define_subagent` e `invoke_subagent` para os 5 agentes, mantendo as conversas paralelas ativas e prontas para receber tarefas em lote.
-- **Sidebar Subagents (5):** Garante visibilidade constante do progresso de cada especialidade no painel lateral do IDE.
+A governança do squad é regida pela **Skill Global de Agentes (`agents-md`)**, localizada no repositório de skills globais do usuário (`C:\Users\muril\.agents\skills\agents-md\SKILL.md`), aplicável a qualquer projeto:
+- **Abrangência Universal:** A skill é global e padroniza a orquestração em todos os projetos do desenvolvedor.
+- **Instanciação Obrigatória (Etapa 7):** Determina formalmente que o orquestrador instancie e mantenha todos os agentes do time ativos via `invoke_subagent`.
+- **Slidebar Antigravity:** Elimina o problema de subagentes ausentes (`Subagents 0 >`), garantindo que tanto os agentes de código (Dev, UI) quanto os de governança (Reviewer, Doc e QA) estejam sempre disponíveis no painel lateral do IDE.
 
 ---
 **Navegação:** Voltar para a [[Home]] | Ver [[Funcionalidades]] | Ver [[Arquitetura]] | Ver [[Design System]]

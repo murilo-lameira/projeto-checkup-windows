@@ -37,7 +37,7 @@ O projeto é mantido e evoluído de forma colaborativa por um **Squad de Agentes
 ### 🏢 Escritório Virtual em Tempo Real (Pixel Agents) & Antigravity Skill
 O time conta com integração dupla:
 - **Pixel Agents:** Permite visualizar e monitorar o squad operando no escritório virtual com avatares animados durante as sessões de desenvolvimento.
-- **Antigravity Skill (`.agents/skills/checkup-squad/`):** Skill nativa do Antigravity que garante que todos os 5 subagentes permaneçam automaticamente instanciados e visíveis no painel lateral (*Subagents*) do IDE.
+- **Antigravity Skill Global (`~/.agents/skills/agents-md/`):** Skill global do ecossistema de agentes que assegura que todos os 5 subagentes permaneçam obrigatoriamente instanciados e visíveis no painel lateral (*Subagents*) do IDE via `invoke_subagent`.
 
 ```bash
 # Iniciar a simulação dinâmica contínua do squad
