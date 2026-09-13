@@ -34,8 +34,10 @@ O projeto é mantido e evoluído de forma colaborativa por um **Squad de Agentes
 | **Revisor** | `checkup_reviewer` | Arquitetura & Segurança | Auditoria contra `memory.md`, segurança contra injeção e integridade |
 | **Documentador** | `checkup_doc` | Obsidian & Conhecimento | Gestão contínua do cofre (`Check Up/`), wikilinks e `backlog.md` |
 
-### 🏢 Escritório Virtual em Tempo Real (Pixel Agents)
-O time conta com integração ao **Pixel Agents**, permitindo visualizar e monitorar o squad operando no escritório virtual com avatares animados durante as sessões de desenvolvimento:
+### 🏢 Escritório Virtual em Tempo Real (Pixel Agents) & Antigravity Skill
+O time conta com integração dupla:
+- **Pixel Agents:** Permite visualizar e monitorar o squad operando no escritório virtual com avatares animados durante as sessões de desenvolvimento.
+- **Antigravity Skill (`.agents/skills/checkup-squad/`):** Skill nativa do Antigravity que garante que todos os 5 subagentes permaneçam automaticamente instanciados e visíveis no painel lateral (*Subagents*) do IDE.
 
 ```bash
 # Iniciar a simulação dinâmica contínua do squad
@@ -47,6 +49,7 @@ node scripts/pixel_agents_bridge.js --spawn-only
 # Encerrar expediente e limpar o escritório
 npm run agents:pixel:clear
 ```
+
 
 ---
 

@@ -54,3 +54,5 @@ Este documento formaliza os papéis, responsabilidades e o fluxo de trabalho col
 2. **Escapes de PowerShell e CMD:** Em chamadas via `child_process.exec`, atentar para variáveis PowerShell consumidas indevidamente pelo `cmd.exe`. Use scripts `.ps1` dedicados ou aspas simples.
 3. **Identidade Visual Consistente:** Seguir estritamente o Dark Glassmorphism (`rgba(24, 24, 27, 0.82)` com `backdrop-filter: blur(16px)`), acentos em Cobre (`.btn-copper`) e feedback com toasts e steppers animados.
 4. **Sincronia com o Obsidian:** Código sem documentação atualizada é considerado incompleto. O agente `checkup_doc` deve manter `Check Up/Funcionalidades.md` e demais notas com wikilinks `[[...]]` perfeitamente alinhadas com cada release.
+5. **Presença Ativa no Antigravity (Slidebar):** O orquestrador DEVE sempre manter todos os subagentes do Squad instanciados via `invoke_subagent` (`checkup_dev`, `checkup_ui_ux`, `checkup_qa`, `checkup_reviewer`, `checkup_doc`) para que o painel lateral *Subagents* do Antigravity sempre reflita a equipe completa e ativa. Em caso de reinicialização ou tarefas em lote, re-instanciar imediatamente os agentes ausentes.
+

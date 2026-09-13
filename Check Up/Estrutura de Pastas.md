@@ -5,6 +5,14 @@ Visão detalhada e atualizada da organização de diretórios e arquivos do **Pr
 ```text
 Projeto CheckUP/
 ├── .agents/                   # Configuração e transcripts do time de agentes autônomos
+│   ├── skills/                # Skills customizadas do Antigravity
+│   │   └── checkup-squad/     # Skill nativa de instanciação automática do Squad
+│   │       └── SKILL.md       # Definição e runbook do Squad no Antigravity
+│   ├── checkup_dev.md         # Perfil do Engenheiro de Backend
+│   ├── checkup_ui_ux.md       # Perfil do Designer de Interface
+│   ├── checkup_qa.md          # Perfil de Qualidade e Casos de Borda
+│   ├── checkup_reviewer.md    # Perfil do Revisor Arquitetural
+│   └── checkup_doc.md         # Perfil do Documentador Obsidian
 ├── Check Up/                  # Cofre oficial do Obsidian (Documentação interligada)
 │   ├── Home.md                # Ponto de entrada do cofre
 │   ├── Arquitetura.md         # Modelo de telemetria, IPC e segurança
