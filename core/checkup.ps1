@@ -462,7 +462,6 @@ foreach ($p in $topProcs) {
     $procArray += [PSCustomObject]@{ Nome = $p.Name; PID = $p.Id; RAM = [math]::Round($p.WorkingSet / 1MB, 1) }
 }
 
-$discos = Get-WmiObject Win32_LogicalDisk -Filter "DriveType=3"
 $discos = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3"
 $diskArray = @()
 foreach ($d in $discos) {
@@ -472,13 +471,11 @@ foreach ($d in $discos) {
     $diskArray += [PSCustomObject]@{ Drive = $d.DeviceID; Uso = "$usoPercent%"; Livre = "$livre GB"; Total = "$total GB" }
 }
 
-$gpuInfo = Get-WmiObject Win32_VideoController | Select-Object -First 1
 $gpuInfo = Get-CimInstance Win32_VideoController | Select-Object -First 1
 $gpuDetails = $gpus | Select-Object -First 1
 
 $dashboardPayload = [PSCustomObject]@{
     Sistema = [PSCustomObject]@{ 
-        OS = (Get-WmiObject Win32_OperatingSystem).Caption.Replace("Microsoft ", "") 
         OS = if ($os.Caption) { $os.Caption.Replace("Microsoft ", "") } else { "Windows" } 
         Uptime = $uptimeStr
         Licenca = $licenseInfo

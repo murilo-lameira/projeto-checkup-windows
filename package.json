@@ -1,6 +1,6 @@
 {
   "name": "checkup-windows",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Dashboard Central de Monitoramento e Manutenção",
   "author": "Murilo Lameira",
   "main": "main.js",
@@ -24,14 +24,20 @@
   "build": {
     "appId": "com.checkup.dashboard",
     "productName": "CheckUP Windows",
+    "executableName": "CheckUP",
+    "artifactName": "${productName} ${version}.${ext}",
     "asar": true,
     "win": {
       "target": "portable",
-      "requestedExecutionLevel": "highestAvailable",
+      "requestedExecutionLevel": "asInvoker",
       "icon": "src/assets/icon.ico"
     },
     "extraResources": [
-      "core/checkup.ps1"
-    ]
+      "core/**"
+    ],
+    "portable": {
+      "unpackDirName": "checkup-windows",
+      "useZip": true
+    }
   }
 }
