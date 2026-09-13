@@ -608,13 +608,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const healthStatus = document.getElementById('healthStatus');
             if (healthStatus && (!healthStatus.innerText || healthStatus.innerText.includes('Aguardando'))) {
-                healthStatus.className = 'health-status health-success';
-                healthStatus.innerText = 'SISTEMA OPERACIONAL SAUDÁVEL';
+                healthStatus.innerText = 'Sistema Estável & Seguro';
             }
 
             const healthDetails = document.getElementById('healthDetails');
             if (healthDetails && (!healthDetails.innerHTML || healthDetails.innerHTML.trim() === '')) {
-                healthDetails.innerHTML = '<div class="health-item health-item-success">OK Telemetria base ativa. Execute o Diagnóstico para varredura completa do Registro e SMART.</div>';
+                healthDetails.innerText = '0 erros críticos detectados nas últimas 48h.';
             }
 
             const errorsStatus = document.getElementById('errorsStatus');
@@ -849,9 +848,40 @@ window.addEventListener('DOMContentLoaded', () => {
                 const recommendationText = document.getElementById('healthRecommendationText');
                 const recommendationStatus = document.getElementById('healthRecommendationStatus');
                 
+                const healthBadgeStatus = document.getElementById('healthBadgeStatus');
+                const healthPillText = document.getElementById('healthPillText');
+
+                if (healthBadgeStatus) {
+                    if (healthIssues.length > 0) {
+                        healthBadgeStatus.className = 'health-badge-status badge-danger';
+                        healthBadgeStatus.innerText = '● Crítico';
+                    } else if (healthWarnings.length > 0) {
+                        healthBadgeStatus.className = 'health-badge-status badge-warning';
+                        healthBadgeStatus.innerText = '● Atenção';
+                    } else {
+                        healthBadgeStatus.className = 'health-badge-status badge-success';
+                        healthBadgeStatus.innerText = '● Excelente';
+                    }
+                }
+
                 if (healthStatus) {
-                    healthStatus.className = 'health-status ' + (healthIssues.length ? 'health-danger' : healthWarnings.length ? 'health-warning' : 'health-success');
-                    healthStatus.innerText = health.Status || 'SISTEMA SAUDÁVEL';
+                    if (healthIssues.length > 0) {
+                        healthStatus.innerText = 'Problemas Detectados';
+                    } else if (healthWarnings.length > 0) {
+                        healthStatus.innerText = 'Alertas de Atenção';
+                    } else {
+                        healthStatus.innerText = 'Sistema Estável & Seguro';
+                    }
+                }
+
+                if (healthPillText) {
+                    if (healthIssues.length > 0) {
+                        healthPillText.innerText = 'Índice de Telemetria Crítico';
+                    } else if (healthWarnings.length > 0) {
+                        healthPillText.innerText = 'Índice de Telemetria em Atenção';
+                    } else {
+                        healthPillText.innerText = 'Índice de Telemetria Ótimo';
+                    }
                 }
 
                 // Atualizar Score Circular de Saúde e Timestamp do Stitch
@@ -876,7 +906,13 @@ window.addEventListener('DOMContentLoaded', () => {
                     const mm = String(now.getMinutes()).padStart(2, '0');
                     healthTs.innerText = `Hoje às ${hh}:${mm}`;
                 }
-                if (healthDetails) healthDetails.innerHTML = '';
+                if (healthDetails) {
+                    if (healthIssues.length > 0 || healthWarnings.length > 0) {
+                        healthDetails.innerText = `${healthIssues.length} erro(s)/aviso(s) detectado(s). Verifique as recomendações.`;
+                    } else {
+                        healthDetails.innerText = '0 erros críticos detectados nas últimas 48h.';
+                    }
+                }
 
                 let recommendation = 'O sistema está estável. Execute um novo diagnóstico periodicamente para acompanhar a saúde do computador.';
                 if (healthIssues.length) recommendation = 'Há problemas críticos. Execute o Reparo Profundo para verificar e restaurar componentes do Windows.';

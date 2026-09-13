@@ -17,6 +17,7 @@ O CheckUP é um ecossistema desktop profissional em [[Arquitetura|Electron]] e [
 | **🎨 Estética & UX** | [[Design System]] | Dark Glassmorphism, paleta Cobre (`#cf663f`), Grid adaptativo de 6 colunas e modais assíncronos. |
 | **🛠️ Scripts & Privilégios** | [[Manutenção e Scripts]] | Rotinas PowerShell (CIM puro), comunicação via `%TEMP%`, elevação UAC (`RunAs`) e benchmark nativo. |
 | **📂 Diretórios & Código** | [[Estrutura de Pastas]] | Organização do repositório, mapeamento de DLLs .NET, ícones vetoriais, logs e build portátil v1.2.0. |
+| **🚀 Otimização de Tokens** | [[RTK Token Killer]] | Proxy CLI em Rust para compactação de saídas de terminal e economia de 80%+ de tokens no Antigravity. |
 
 ---
 

@@ -13,8 +13,8 @@ Visão executiva em tempo real com telemetria contínua da máquina, estruturada
 #### 1. 🎯 Widget Saúde Hero com Gauge Circular (Saúde Geral do Sistema)
 - **Score Dinâmico de 0 a 100:** Exibição central de índice de saúde na tipografia [[Design System#tipografia-tríade-de-alta-precisão|Space Grotesk]] (`#healthScoreNumber`), contextualizado pelo divisor `/100` em `JetBrains Mono`.
 - **Anel SVG com Gradiente:** Anel circular vetorial (`#healthScoreCircle`) com stroke animado (`stroke-dasharray: 264` e offset dinâmico), refletindo o nível de integridade da máquina de acordo com a detecção de erros e vulnerabilidades.
-- **Status Heurístico e Beacon:** Indicador visual com beacon verde pulsante (`.status-beacon-emerald`), mensagem de conformidade ("SISTEMA ESTÁVEL & SEGURO") e contagem de incidentes nas últimas 48 horas.
-- **Ação Rápida "Reavaliar":** Botão microinterativo (`#btnRetest`) embutido no rodapé do card que reexecuta o ciclo diagnóstico sob demanda sem a necessidade de navegar por outras telas.
+- **Status Heurístico e Badge:** Indicador visual com badge dinâmico (`#healthBadgeStatus`: `● Excelente`, `● Atenção` ou `● Crítico`), título padronizado (`Sistema Estável & Seguro`) e contagem de incidentes nas últimas 48 horas.
+- **Selo de Telemetria e Ação Rápida "Reavaliar":** Rodapé com o selo verificado `Índice de Telemetria Ótimo` (`#healthPillText`) e botão microinterativo (`#btnRetest`) embutido para reexecução diagnóstica sob demanda sem sair do dashboard.
 
 #### 2. ⚡ Widget Sensores em Tempo Real (Live Load)
 - **Amostragem Rápida (1s):** Monitoramento assíncrono síncrono ultra-leve com atualização contínua sem consumir recursos de processamento.

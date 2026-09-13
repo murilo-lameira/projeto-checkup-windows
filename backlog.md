@@ -102,3 +102,11 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
   - Sincronização e cobertura de falhas no checklist da Manutenção em 6 etapas.
 - [x] **Sincronização da Documentação e Obsidian Vault:**
   - Atualização completa de `Check Up/Design System.md`, `Check Up/Funcionalidades.md` e `backlog.md` com total fidelidade aos wikilinks (`[[...]]`).
+
+---
+### 11. Governança Multi-Agentes & Otimização de Tokens (RTK)
+- [x] **Integração do Proxy RTK (Rust Token Killer):**
+  - Adoção das regras operacionais globais e locais (`.agents/rules/antigravity-rtk-rules.md`) para compressão de saída de terminal (`git`, `npm`, `ls`, etc.) com redução de 80-90% de consumo de tokens no contexto do Antigravity.
+- [x] **Documentação & Rastreabilidade no Obsidian:**
+  - Criação da nota técnica dedicada `Check Up/RTK Token Killer.md` (< 200 linhas) com wikilinks para `Home.md` e `Squad Multi-Agentes.md`.
+  - Atualização do mapa central em `Check Up/Home.md` e das diretrizes de governança em `Check Up/Squad Multi-Agentes.md`.

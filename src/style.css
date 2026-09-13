@@ -571,24 +571,12 @@ body {
     margin-bottom: 12px;
 }
 
-/* Posição dos Cards no Desktop Widescreen */
-.insights-panel { 
-    grid-column: 1 / span 2; 
-    grid-row: 1 / span 1; 
-    min-height: 250px; 
-}
-
 .panel-title-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.hardware-panel { 
-    grid-column: 1 / span 2; 
-    grid-row: 2 / span 2; 
-    min-height: 250px; 
-} 
 /* --- CARD 1: SAÚDE GERAL DO SISTEMA --- */
 .health-hero-panel {
     min-height: 220px;
@@ -649,6 +637,44 @@ body {
     flex-direction: column;
     gap: 4px;
 }
+.health-badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    width: fit-content;
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+}
+.health-badge-status.badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.health-badge-status.badge-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.health-badge-status.badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.health-status-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.health-details-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
 .health-card-footer {
     display: flex;
     justify-content: space-between;
@@ -678,14 +704,55 @@ body {
     color: #ffffff;
 }
 
-.disks-panel    { grid-column: 3 / span 2; grid-row: 1 / span 1; min-height: 180px; }
-.ram-panel      { grid-column: 5 / span 2; grid-row: 1 / span 1; min-height: 180px; }
-.health-panel   { grid-column: 3 / span 2; grid-row: 2 / span 1; min-height: 200px; }
-.network-panel  { grid-column: 5 / span 2; grid-row: 2 / span 1; min-height: 200px; }
-.uptime-panel   { grid-column: 3 / span 2; grid-row: 3 / span 1; min-height: 170px; }
-.sensors-panel  { grid-column: 5 / span 2; grid-row: 3 / span 1; min-height: 200px; }
-.errors-panel   { grid-column: 3 / span 2; grid-row: 4 / span 1; min-height: 180px; }
-.security-panel { grid-column: 5 / span 2; grid-row: 4 / span 1; min-height: 180px; }
+/* Coluna Direita da Linha 3: Sensores Térmicos e Uptime */
+.thermals-uptime-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+.thermals-uptime-col .glass-panel {
+    flex: 1;
+    min-height: 0;
+}
+.thermals-panel {
+    min-height: 135px;
+}
+.uptime-panel {
+    min-height: 115px;
+}
+.uptime-body {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 4px 0;
+}
+.uptime-icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.uptime-icon-wrap .material-symbols-outlined {
+    font-size: 22px;
+}
+.uptime-metric {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.uptime-reboot-badge {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
 /* --- CARD 2: SENSORES EM TEMPO REAL --- */
 .live-load-panel {
     min-height: 220px;
@@ -1052,9 +1119,7 @@ body {
    === PAINEL DE LIMPEZA PROFUNDA (REDESIGN GLASSMORPHISM) ===
    ========================================================= */
 .deepclean-panel {
-    grid-column: 1 / span 2;
-    grid-row: 4 / span 1;
-    min-height: 195px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1981,35 +2046,15 @@ body {
         padding: 16px 20px 36px 20px;
     }
     
-    .insights-panel { 
-        grid-column: span 2; 
-        grid-row: auto; 
-        min-height: 230px; 
-    }
     .health-hero-panel     { grid-column: span 2; }
     .live-load-panel       { grid-column: span 2; }
     .network-hero-panel    { grid-column: span 4; }
     .deepclean-panel       { grid-column: span 4; }
     .recommendations-panel { grid-column: span 4; }
     .hardware-panel        { grid-column: span 4; }
-    .thermals-uptime-panel { grid-column: span 4; }
+    .thermals-uptime-col   { grid-column: span 4; }
     .ram-panel             { grid-column: span 2; }
     .disks-panel           { grid-column: span 2; }
-    
-    .hardware-panel { 
-        grid-column: span 2; 
-        grid-row: auto; 
-        min-height: auto; 
-    }
-    
-    .disks-panel    { grid-column: span 2; grid-row: auto; }
-    .ram-panel      { grid-column: span 2; grid-row: auto; }
-    .health-panel   { grid-column: span 2; grid-row: auto; }
-    .network-panel  { grid-column: span 2; grid-row: auto; }
-    .uptime-panel   { grid-column: span 2; grid-row: auto; min-height: 180px; }
-    .sensors-panel  { grid-column: span 2; grid-row: auto; }
-    .errors-panel   { grid-column: span 2; grid-row: auto; }
-    .security-panel { grid-column: span 2; grid-row: auto; }
     
     .opt-startup-panel { grid-column: span 4; }
     .opt-disk-panel    { grid-column: span 4; }
@@ -2052,37 +2097,17 @@ body {
         gap: 14px;
         padding: 14px 16px 36px 16px;
     }
-    
-    .insights-panel, 
-    .hardware-panel {
-        grid-column: span 2;
-        grid-row: auto;
-    }
     .health-hero-panel,
     .live-load-panel,
     .network-hero-panel,
     .deepclean-panel,
     .recommendations-panel,
     .hardware-panel,
-    .thermals-uptime-panel,
+    .thermals-uptime-col,
     .ram-panel,
-    .disks-panel,
-    .insights-panel {
+    .disks-panel {
         grid-column: span 2 !important;
         grid-row: auto !important;
-        min-height: auto;
-    }
-    
-    .disks-panel, 
-    .ram-panel, 
-    .health-panel, 
-    .network-panel, 
-    .uptime-panel, 
-    .sensors-panel, 
-    .errors-panel, 
-    .security-panel {
-        grid-column: span 1;
-        grid-row: auto;
         min-height: auto;
     }
     
@@ -2150,12 +2175,9 @@ body {
         padding: 14px 14px 40px 14px;
     }
     
-    .insights-panel, .hardware-panel, .disks-panel, .ram-panel, 
-    .health-panel, .network-panel, .uptime-panel, .sensors-panel, 
-    .errors-panel, .security-panel,
     .health-hero-panel, .live-load-panel, .network-hero-panel, .deepclean-panel,
-    .recommendations-panel, .hardware-panel, .thermals-uptime-panel,
-    .ram-panel, .disks-panel, .insights-panel,
+    .recommendations-panel, .hardware-panel, .thermals-uptime-col,
+    .ram-panel, .disks-panel,
     .opt-startup-panel, .opt-disk-panel, .opt-shield-panel, .opt-repair-panel {
         grid-column: span 1 !important;
         grid-row: auto !important;

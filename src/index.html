@@ -157,15 +157,16 @@
                             </div>
 
                             <div class="health-hero-info">
-                                <div id="healthStatus" class="health-status health-success">SISTEMA ESTÁVEL &amp; SEGURO</div>
-                                <div id="healthDetails" class="health-details">0 erros críticos detectados nas últimas 48h.</div>
+                                <span id="healthBadgeStatus" class="health-badge-status badge-success">● Excelente</span>
+                                <div id="healthStatus" class="health-status-title font-display">Sistema Estável &amp; Seguro</div>
+                                <div id="healthDetails" class="health-details-sub font-body">0 erros críticos detectados nas últimas 48h.</div>
                             </div>
                         </div>
 
                         <div class="health-card-footer">
                             <span class="health-telemetry-pill">
                                 <span class="material-symbols-outlined text-emerald" style="font-size: 16px;">verified</span>
-                                <span>Índice Nominal Ótimo</span>
+                                <span id="healthPillText">Índice de Telemetria Ótimo</span>
                             </span>
                             <button id="btnRetest" class="btn-retest-link font-mono" type="button">Reavaliar</button>
                         </div>
@@ -261,8 +262,8 @@
                     </div>
 
                     <!-- LINHA 2: OPERACIONAL & RECOMENDAÇÕES -->
-                    <!-- Card 4: Limpeza Profunda & Cache (span 3) -->
-                    <div class="glass-panel span-3 deepclean-panel">
+                    <!-- Card 4: Limpeza Profunda & Cache (span 2) -->
+                    <div class="glass-panel span-2 deepclean-panel">
                         <div class="deepclean-header-row">
                             <div class="deepclean-title-group">
                                 <span class="caption-caps">Limpeza Profunda &amp; Cache</span>
@@ -315,13 +316,14 @@
                         <span id="deepCleanAdvice" class="deepclean-advice">Aguardando telemetria...</span>
                     </div>
 
-                    <!-- Card 5: Recomendações e Ações Sugeridas (span 3) -->
-                    <div class="glass-panel span-3 recommendations-panel">
+                    <!-- Card 5: Recomendações e Ações Sugeridas (span 4) -->
+                    <div class="glass-panel span-4 recommendations-panel">
                         <div class="recommendations-header">
                             <div class="panel-title-wrap">
                                 <span class="caption-caps">Recomendações e Otimizações Sugeridas</span>
                                 <span class="recs-count-badge font-mono">3 Ações Disponíveis</span>
                             </div>
+                            <span class="font-mono text-muted text-xs">Ignorar Todas</span>
                         </div>
                         
                         <div class="recommendations-list">
@@ -448,42 +450,48 @@
                         </div>
                     </div>
 
-                    <!-- Card 7: Sensores Térmicos & Fans / Uptime (span 2) -->
-                    <div class="glass-panel span-2 thermals-uptime-panel sensors-panel">
-                        <div class="panel-header-row">
-                            <span class="caption-caps">Sensores Térmicos &amp; Fans</span>
-                            <span class="thermals-status-ok font-mono">Faixa Ideal</span>
+                    <!-- Coluna Direita da Linha 3: Sensores Térmicos & Uptime (span 2) -->
+                    <div class="thermals-uptime-col span-2">
+                        <!-- Card 7: Sensores Térmicos & Fans -->
+                        <div class="glass-panel thermals-panel">
+                            <div class="panel-header-row">
+                                <span class="caption-caps">Sensores Térmicos &amp; Fans</span>
+                                <span class="thermals-status-ok font-mono">Dentro da Faixa Ideal</span>
+                            </div>
+
+                            <div class="sensors-gauges">
+                                <!-- Medidor 1: Temperatura da CPU -->
+                                <div class="sensor-gauge">
+                                    <div id="tempChart"></div>
+                                    <div class="sensor-center-info">
+                                        <div class="sensor-value font-display" id="valCpuTemp">--</div>
+                                        <div class="sensor-label font-mono" id="valCpuTempStatus">CPU DIE</div>
+                                    </div>
+                                    <div class="sensor-title font-mono">Temp. CPU</div>
+                                </div>
+                                <!-- Medidor 2: Temperatura do Armazenamento -->
+                                <div class="sensor-gauge">
+                                    <div id="diskTempChart"></div>
+                                    <div class="sensor-center-info">
+                                        <div class="sensor-value font-display" id="valDiskTemp">--</div>
+                                        <div class="sensor-label font-mono" id="valDiskTempStatus">NVMe</div>
+                                    </div>
+                                    <div class="sensor-title font-mono">SSD / NVMe</div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="sensors-gauges">
-                            <!-- Medidor 1: Temperatura da CPU -->
-                            <div class="sensor-gauge">
-                                <div id="tempChart"></div>
-                                <div class="sensor-center-info">
-                                    <div class="sensor-value font-display" id="valCpuTemp">--</div>
-                                    <div class="sensor-label font-mono" id="valCpuTempStatus">CPU DIE</div>
-                                </div>
-                                <div class="sensor-title font-mono">Temp. CPU</div>
+                        <!-- Card 8: Ciclo de Atividade (Uptime) -->
+                        <div class="glass-panel uptime-panel">
+                            <div class="panel-header-row">
+                                <span class="caption-caps">Ciclo de Atividade (Uptime)</span>
+                                <span id="valUptimeReboot" class="uptime-reboot-badge font-mono text-muted text-xs">Último Reinício</span>
                             </div>
-                            <!-- Medidor 2: Temperatura do Armazenamento -->
-                            <div class="sensor-gauge">
-                                <div id="diskTempChart"></div>
-                                <div class="sensor-center-info">
-                                    <div class="sensor-value font-display" id="valDiskTemp">--</div>
-                                    <div class="sensor-label font-mono" id="valDiskTempStatus">NVMe</div>
-                                </div>
-                                <div class="sensor-title font-mono">SSD / NVMe</div>
-                            </div>
-                        </div>
-
-                        <!-- Ciclo de Atividade / Uptime -->
-                        <div class="uptime-section">
-                            <div class="uptime-top">
+                            <div class="uptime-body">
                                 <div class="uptime-icon-wrap">
                                     <span class="material-symbols-outlined icon-cyan">timer</span>
                                 </div>
                                 <div class="uptime-text">
-                                    <span class="caption-caps">Ciclo de Atividade (Uptime)</span>
                                     <div class="uptime-metric font-display" id="valUptime">--</div>
                                 </div>
                             </div>

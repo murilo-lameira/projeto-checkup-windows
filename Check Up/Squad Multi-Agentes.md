@@ -90,6 +90,7 @@ A governança do squad é regida pela **Skill Global de Agentes (`agents-md`)**,
 - **Abrangência Universal:** A skill é global e padroniza a orquestração em todos os projetos do desenvolvedor.
 - **Instanciação Obrigatória (Etapa 7):** Determina formalmente que o orquestrador instancie e mantenha todos os agentes do time ativos via `invoke_subagent`.
 - **Slidebar Antigravity:** Elimina o problema de subagentes ausentes (`Subagents 0 >`), garantindo que tanto os agentes de código (Dev, UI) quanto os de governança (Reviewer, Doc e QA) estejam sempre disponíveis no painel lateral do IDE.
+- **Otimização de Contexto:** Comandos de terminal executados pelo squad utilizam a regra global do **[[RTK Token Killer]]** para reduzir em até 90% a carga de tokens na janela de contexto.
 
 ---
-**Navegação:** Voltar para a [[Home]] | Ver [[Funcionalidades]] | Ver [[Arquitetura]] | Ver [[Design System]]
+**Navegação:** Voltar para a [[Home]] | Ver [[Funcionalidades]] | Ver [[Arquitetura]] | Ver [[Design System]] | Ver [[RTK Token Killer]]

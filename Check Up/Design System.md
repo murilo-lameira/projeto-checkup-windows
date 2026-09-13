@@ -70,13 +70,14 @@ O layout do Dashboard adota uma arquitetura em **CSS Grid de 6 colunas fracioná
 │ [ 1. Saúde Hero: span 2 ]   │ [ 2. Live Load: span 2 ]    │ [ 3. Rede & Conexão: span 2 ]  │
 ├─────────────────────────────┴─────────────────────────────┴────────────────────────────────┤
 │ Linha 2: OPERACIONAL & RECOMENDAÇÕES                                                       │
-│ [ 4. Limpeza Profunda: span 3 ]             │ [ 5. Recomendações Sugeridas: span 3 ]       │
-├─────────────────────────────────────────────┴──────────────────────────────────────────────┤
+│ [ 4. Limpeza Profunda: span 2 ] │ [ 5. Recomendações Sugeridas: span 4 ]                   │
+├─────────────────────────────────┴──────────────────────────────────────────────────────────┤
 │ Linha 3: HARDWARE & SENSORES                                                               │
-│ [ 6. Hardware Detectado & Specs: span 4 ]                 │ [ 7. Sensores & Uptime: span 2]│
+│ [ 6. Hardware Detectado & Specs: span 4 ]                 │ [ 7. Sensores Térmicos: span 2]│
+│                                                           │ [ 8. Uptime Atividade: span 2 ]│
 ├───────────────────────────────────────────────────────────┴────────────────────────────────┤
-│ Linha 4: DRILLDOWN DE RECURSOS                                                             │
-│ [ 8. Consumo de RAM: span 3 ]               │ [ 9. Discos & Partições: span 3 ]            │
+│ Linha 4: DRILLDOWN DE TELEMETRIA AVANÇADA                                                  │
+│ [ 9. Consumo de RAM: span 3 ]               │ [ 10. Discos & Partições: span 3 ]           │
 └─────────────────────────────────────────────┴──────────────────────────────────────────────┘
 ```
 
@@ -85,10 +86,10 @@ O layout do Dashboard adota uma arquitetura em **CSS Grid de 6 colunas fracioná
 1. **Monitores Amplos e Ultrawide (`> 1440px`):** Grid de 6 colunas completo, permitindo visualização de todos os subsistemas sem rolagem vertical excessiva.
 2. **Notebooks Padrão (`<= 1200px`):**
    - Cards Hero (`health-hero-panel`, `live-load-panel`): ocupam `span 2`.
-   - Cards Operacionais e Hardware (`network-hero-panel`, `deepclean-panel`, `recommendations-panel`, `hardware-panel`, `thermals-uptime-panel`): expandem para `span 4`.
+   - Cards Operacionais e Hardware (`network-hero-panel`, `deepclean-panel`, `recommendations-panel`, `hardware-panel`, `thermals-uptime-col`): expandem para `span 4`.
    - Cards de detalhamento (`ram-panel`, `disks-panel`): dividem a linha em `span 2`.
 3. **Displays Compactos (`<= 950px` e `<= 768px`):**
-   - Transição automática para `span 1` ou `span 2` em coluna única com scroll vertical fluido.
+   - Transição automática para `span 1` em coluna única com scroll vertical fluido.
    - Preservação da regra `min-width: 0` em todos os painéis, impedindo overflow horizontal e esmagamento de tipografia monospaçada.
 
 ---
@@ -96,9 +97,11 @@ O layout do Dashboard adota uma arquitetura em **CSS Grid de 6 colunas fracioná
 ## 🧩 Componentes de Interface Notáveis (Stitch Components)
 
 ### 1. 🎯 Widget Saúde Hero com Gauge Circular SVG
-- Gráfico circular vetorial customizado (`#healthScoreCircle`) com cálculo de circunferência (`stroke-dasharray: 264`) e preenchimento animado em Cobre/Esmeralda.
+- Gráfico circular vetorial customizado (`#healthScoreCircle`) com cálculo de circunferência (`stroke-dasharray: 264`) e preenchimento dinâmico em Esmeralda (`#10b981`), Âmbar ou Vermelho.
 - Score central em destaque na fonte `Space Grotesk` (`#healthScoreNumber`) com base `/100` em `JetBrains Mono`.
-- Botão de microação "Reavaliar" (`#btnRetest`) acoplado ao rodapé do card para re-diagnóstico instantâneo.
+- Badge de integridade no cabeçalho interno (`#healthBadgeStatus`) exibindo `● Excelente`, `● Atenção` ou `● Crítico`.
+- Título descritivo em Title Case (`#healthStatus`: `Sistema Estável & Seguro`) e subtítulo de eventos (`#healthDetails`: `0 erros críticos detectados nas últimas 48h.`).
+- Rodapé com selo de verificação `Índice de Telemetria Ótimo` (`#healthPillText`) e botão de microação "Reavaliar" (`#btnRetest`) para diagnóstico instantâneo.
 
 ### 2. ⚡ Live Load Sensors (Tempo Real)
 - Gráfico multi-anel radial [[Design System|ApexCharts]] (`#radialChart`) integrado com amostragem dinâmica a cada 1 segundo.
