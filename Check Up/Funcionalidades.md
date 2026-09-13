@@ -9,8 +9,10 @@ A interface principal adota o padrão [[Design System|Glassmorphism]] e é segme
 
 ### 🖥️ Dashboard Integrada
 Visão executiva em tempo real com telemetria contínua da máquina:
+- **Resiliência e Fallback Nativo (v1.2.0):** Ao inicializar a aplicação pela primeira vez ou antes da execução do diagnóstico completo, o dashboard não exibe telas em branco nem erros de "Dados Ausentes". Ele aciona a função `populateBasicHardwareFallback()`, lendo CPU (`os.cpus()`), RAM total (`os.totalmem()`), versão/build do Windows (`os.release()`), licença digital e discos de A: a Z: via `fs.statfsSync()` síncrono com mini-gráficos radiais [[Design System|ApexCharts]], definindo o status como *Telemetria Básica Ativa* de forma transparente e amigável.
+- **Resolução Multi-Diretório de Telemetria:** Implementação da função `resolveDadosAtuaisJsonPath()`, que busca `dados_atuais.json` em múltiplos locais tolerantes a ambientes portáteis (`dist/`), raiz do projeto, `core/relatorios/`, diretório do executável, `%USERPROFILE%/checkup_relatorios` e `%TEMP%/checkup_relatorios`.
 - **Insights do Sistema:** Gráfico radial em loop contínuo medindo CPU, Memória RAM e Disco (C:).
-- **Hardware Instalado:** Mapeamento de Processador, Memória, Placa de Vídeo, Placa-Mãe, Sistema Operacional e status da Licença Windows via WMI/CIM.
+- **Hardware Instalado:** Mapeamento de Processador, Memória, Placa de Vídeo, Placa-Mãe, Sistema Operacional e status da Licença Windows via consultas modernizadas `Get-CimInstance` e fallback nativo.
 - **Sensores Térmicos Dinâmicos:** Medidores semicirculares estilo velocímetro com monitoramento em tempo real da temperatura da CPU (Intel/AMD) e Armazenamento (NVMe/SATA/HDD), alimentados pela `LibreHardwareMonitorLib.dll`.
 - **Discos e Armazenamento:** Lista particionada de unidades com taxa de ocupação, tipo de mídia e leitura de integridade física S.M.A.R.T com sparklines.
 - **Maior Consumo de RAM:** Tabela com os processos mais pesados residentes na memória, com botão de encerramento forçado individual (`taskkill`).
@@ -67,7 +69,7 @@ Um hub expandido focado em dar ao usuário a sensação de "PC recém-formatado"
 
 ### 🔍 Diagnóstico e Exportação de Relatórios
 - **Inicialização Suave com Loading Overlay:** Ao abrir o aplicativo, uma tela de transição Dark Glassmorphism com spinner em Cobre/Teal (`#loadingOverlay`) é exibida cobrindo o painel durante a carga dos dados em cache e renderização dos gráficos, ocultando-se suavemente por fade-out para evitar que o usuário visualize o dashboard vazio ou com métricas incompletas. A varredura profunda com privilégios de Administrador ocorre sob demanda. O envio de alertas para o Discord (caso configurado) lê de forma segura a variável `$env:CHECKUP_DISCORD_WEBHOOK` sem expor credenciais no código.
-- **Exportação de Relatório Diagnóstico (HTML / PDF):** Botão estilizado com o ícone vetorial de PDF na barra lateral que compila a auditoria técnica completa em um arquivo HTML autocontido com CSS responsivo embutido, tabelas de hardware, armazenamento e conectividade, salvando em `relatorios/relatorio_checkup_<timestamp>.html` e abrindo-o automaticamente no navegador padrão via Electron `shell.openPath`. Inclui botão direto para salvar/imprimir em PDF nativo (`window.print()`).
+- **Exportação de Relatório Diagnóstico (HTML / PDF):** Botão estilizado com o ícone vetorial de PDF na barra lateral que compila a auditoria técnica completa em um arquivo HTML autocontido com CSS responsivo embutido, tabelas de hardware, armazenamento e conectividade, localizando os dados via `resolveDadosAtuaisJsonPath()`, salvando em `relatorios/relatorio_checkup_<timestamp>.html` e abrindo-o automaticamente no navegador padrão via Electron `shell.openPath`. Inclui botão direto para salvar/imprimir em PDF nativo (`window.print()`).
 - **Sistema de Diálogos Modais (Glassmorphism):** Substituição completa dos diálogos bloqueantes `alert()` e `confirm()` do navegador por modais assíncronos baseados em Promises (`showConfirm`, `showAlert`), com cartões translúcidos, ícones contextuais e botões estilizados no padrão Cobre (`#cf663f`).
 
 ### 🛠️ Manutenção Completa

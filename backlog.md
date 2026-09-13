@@ -57,3 +57,23 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
   - Checagem preventiva se o comando `winget` existe no sistema antes da rotina de atualização da manutenção em 6 etapas.
   - Verificação inteligente do tipo de mídia do Drive C: (executa `ReTrim` para SSDs ou `Defrag` para HDDs tradicionais).
   - Sanitização de argumentos e blindagem completa contra injeção de comandos em desinstalação e processos.
+
+---
+### 9. Fase 4 / Versão 1.2.0: Resiliência do Dashboard, Fallback Nativo e Ciclo de Vida Robusto
+- [x] **Resolução Dinâmica Multi-Caminho de Telemetria:**
+  - Criação da função centralizada `resolveDadosAtuaisJsonPath()` cobrindo pastas relativas e absolutas (`relatorios/`, `core/relatorios/`, `process.cwd()`, diretório do executável portátil, `%USERPROFILE%/checkup_relatorios` e `%TEMP%/checkup_relatorios`).
+  - Unificação da leitura tanto na atualização do dashboard quanto na exportação de relatórios HTML/PDF.
+- [x] **Fallback Nativo de Hardware (Zero Broken State):**
+  - Implementação de `populateBasicHardwareFallback()` acionada instantaneamente quando nenhum relatório prévio existe em disco.
+  - Coleta nativa sem subprocessos: CPU com modelo e contagem de threads (`os.cpus()`), memória RAM total em GB (`os.totalmem()`), identificação Windows 10 vs 11 por build (`os.release()`) e licença digital do sistema.
+  - Varredura de volumes A: a Z: via `fs.statfsSync()` com cálculo de capacidade/uso e renderização de mini-gráficos radiais ApexCharts.
+  - Transição de status da interface para informativo ("Telemetria Básica Ativa") orientando a varredura completa sob demanda sem mensagens de erro vermelhas.
+- [x] **Modernização Integral para CIM no PowerShell:**
+  - Substituição de todas as consultas residuais `Get-WmiObject` por `Get-CimInstance` em `core/checkup.ps1` para dados de sistema operacional, discos e controladora de vídeo, acelerando a extração e prevenindo timeouts no Windows 11.
+- [x] **Blindagem do Main Process do Electron (`main.js`):**
+  - Detecção e reinicialização limpa contra injeção de `ELECTRON_RUN_AS_NODE=1` em terminais e IDEs.
+  - Implementação de trava de instância única (`app.requestSingleInstanceLock()`) com restauração e foco na janela ativa ao abrir cópias concorrentes.
+  - Log persistente de ciclo de vida e exceções não tratadas em `%USERPROFILE%/checkup_app.log`.
+  - Timeout de fallback (1500ms) para forçar `win.show()` caso o evento `ready-to-show` sofra lentidão na GPU.
+- [x] **Empacotamento e Distribuição da Versão 1.2.0:**
+  - Build portátil gerada com sucesso em `dist/CheckUP Windows 1.2.0.exe` com validação de scripts (`npm run validate`).

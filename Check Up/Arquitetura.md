@@ -41,6 +41,36 @@ Para garantir que o aplicativo permaneça responsivo sem onerar o computador do 
 
 ---
 
+## 🔄 Resiliência de Telemetria & Fallback Nativo (v1.2.0)
+
+Na versão **1.2.0**, o CheckUP adotou o princípio de tolerância total a dados transitórios ausentes, garantindo que o dashboard nunca seja apresentado com valores em branco ou alertas falsos de erro:
+
+1. **Resolução Multi-Caminho (`resolveDadosAtuaisJsonPath`):**
+   - O aplicativo portátil e o ambiente de desenvolvimento podem residir em caminhos variados. A resolução varre uma cadeia de diretórios ordenada:
+     - `relatorios/` e `core/relatorios/` no diretório raiz do projeto;
+     - `process.cwd()/relatorios` e diretório do executável (`path.dirname(process.execPath)/relatorios`);
+     - `~/.checkup_relatorios` e `%TEMP%/checkup_relatorios`;
+     - `core/` e raiz da aplicação.
+2. **Fallback Nativo Instantâneo (`populateBasicHardwareFallback`):**
+   - Quando nenhum snapshot prévio de diagnóstico estiver disponível em disco, o dashboard entra em modo de **Telemetria Básica Ativa** sem travar a interface:
+     - **Processador:** Mapeado instantaneamente via `os.cpus()` (modelo comercial e contagem de threads).
+     - **Memória RAM:** Capacidade total calculada em GB via `os.totalmem()`.
+     - **Sistema Operacional & Licença:** Identificação de Windows 10 vs 11 por build (`os.release()`) e exibição de licença digital ativa.
+     - **Varredura Rápida de Discos (A-Z):** Consulta direta por letra de drive usando a API nativa síncrona `fs.statfsSync(letter + '\\')`, calculando espaço total, livre e percentual de ocupação, com renderização imediata dos mini-gráficos radiais [[Design System|ApexCharts]].
+     - **Status Heurístico Base:** Inicializa saúde, monitoramento e segurança com cards informativos, sinalizando que a varredura completa do Registro e SMART está a um clique no botão "Diagnóstico".
+
+---
+
+## 🚀 Blindagem de Inicialização & Ciclo de Vida (`main.js`)
+
+Para suportar empacotamento portátil (`dist/CheckUP Windows 1.2.0.exe`) e execução em ambientes corporativos ou terminais de IDEs:
+1. **Isolamento de `ELECTRON_RUN_AS_NODE`:** Caso o ambiente (como VS Code ou subshell) injete essa variável de ambiente, o processo reinicia transparentemente uma nova instância desacoplada sem a flag, evitando encerramentos silenciosos.
+2. **Single Instance Lock:** O método `app.requestSingleInstanceLock()` impede a concorrência de múltiplas instâncias do aplicativo. Ao tentar abrir uma segunda cópia, a janela existente é automaticamente restaurada e colocada em foco.
+3. **Log Diagnóstico em `%USERPROFILE%`:** Erros não tratados (`uncaughtException`, `unhandledRejection`) e passos de inicialização são gravados de forma contínua em `~/checkup_app.log`.
+4. **Exibição Garantida da Janela:** A janela é renderizada com `show: false` e ativada no evento `ready-to-show`. Um temporizador de segurança de 1.5s força a exibição caso o evento atrase, eliminando casos onde a janela permaneceria oculta na barra de tarefas.
+
+---
+
 ## 🛡️ Elevação Administrativa (UAC) & Segurança
 
 1. **UAC Assíncrono com Polling em `%TEMP%`:**
@@ -49,6 +79,8 @@ Para garantir que o aplicativo permaneça responsivo sem onerar o computador do 
    - O progresso de cada etapa é gravado em um arquivo de estado transitório em `$env:TEMP\checkup_maint_status.json`, monitorado via `setInterval` no frontend a cada 400ms.
 2. **Blindagem contra Injeção de Código:**
    - Comandos com parâmetros dinâmicos utilizam a flag `-EncodedCommand` com strings codificadas em Base64 UTF-16LE, eliminando riscos de interpretação indevida pelo `cmd.exe`.
+3. **Modernização CIM Total no PowerShell:**
+   - Substituição completa de comandos legados `Get-WmiObject` por `Get-CimInstance` no `core/checkup.ps1` para dados de sistema operacional, discos e controladoras gráficas, proporcionando alta velocidade de consulta e eliminando falhas em builds modernas do Windows 11.
 
 ---
 

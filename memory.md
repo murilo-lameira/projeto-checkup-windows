@@ -27,7 +27,14 @@ Deve ser extremamene rápido, responsivo e passar confiança e modernidade.
 O Dashboard (`.dashboard-grid`) baseia-se num CSS Grid de 6 colunas (`grid-template-columns: repeat(6, 1fr)`). Os painéis (Cards) ocupam espaços específicos, frequentemente usando a classe auxiliar `span-2` (`grid-column: span 2;`). 
 Ao reorganizar, considere sempre o fluxo de leitura e não quebre a hierarquia visual (Hardware > Otimização > Rede/Segurança).
 
-## 6. Lembretes para Próximas Atualizações
+## 6. Resiliência de Telemetria & Ciclo de Vida (v1.2.0)
+- **Zero Broken State:** O dashboard NUNCA deve ser exibido com campos em branco ou com banner vermelho de "Dados Ausentes" caso o arquivo de diagnóstico ainda não exista. Deve ser acionada a função `populateBasicHardwareFallback()`, lendo CPU (`os.cpus()`), RAM total (`os.totalmem()`), identificador de Windows e volumes de disco A: a Z: via chamada síncrona `fs.statfsSync()`, mantendo o status em "Telemetria Básica Ativa".
+- **Resolução Multi-Caminho:** Utilize sempre a função centralizada `resolveDadosAtuaisJsonPath()` para localizar `dados_atuais.json`, permitindo execução transparente em modo de desenvolvimento, empacotamento portátil (`dist/`), diretório do usuário ou `%TEMP%`.
+- **Blindagem do Main Process:** Tratar injeções de `ELECTRON_RUN_AS_NODE=1`, garantir trava de instância única (`app.requestSingleInstanceLock()`), gravar logs em `%USERPROFILE%\checkup_app.log` e usar timeout preventivo de 1.5s no `ready-to-show` para que a janela nunca fique invisível.
+- **Modernização CIM Total:** Abolir completamente o uso de `Get-WmiObject` no `core/checkup.ps1` e demais scripts; utilizar exclusivamente `Get-CimInstance` para evitar travamentos e incompatibilidades em versões modernas do Windows 11.
+
+## 7. Lembretes para Próximas Atualizações
 - Sempre verifique o `backlog.md` antes de codar novas features.
-- Atualize sempre a documentação no Obsidian (`Check Up/Funcionalidades.md`) assim que um novo módulo WMI/PowerShell for implementado e testado.
+- Atualize sempre a documentação no Obsidian (`Check Up/Funcionalidades.md`) assim que um novo módulo PowerShell/CIM for implementado e testado.
+- Execute sempre `npm run validate` antes de submeter alterações de código.
 

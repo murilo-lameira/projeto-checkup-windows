@@ -20,9 +20,9 @@ Projeto CheckUP/
 │   ├── CriarTarefa.bat        # Automatizador de agendamento de tarefas do Windows
 │   ├── ExecutarCheckup.bat    # Launcher de execução autônoma do diagnóstico
 │   └── Instalar_Rotina.ps1    # Script de setup e automação periódica
-├── dist/                      # Arquivos executáveis e builds de distribuição (.exe portátil)
+├── dist/                      # Arquivos executáveis e builds de distribuição (CheckUP Windows 1.2.0.exe)
 ├── historico/                 # Histórico incremental dos últimos 50 diagnósticos (JSON)
-├── relatorios/                # Relatórios técnicos gerados pelo exportador (HTML autocontido)
+├── relatorios/                # Relatórios técnicos e snapshots de telemetria (dados_atuais.json)
 ├── scripts/                   # Automações de desenvolvimento e build
 │   ├── convert-icon.js        # Utilitário para conversão e geração de ícones (.ico)
 │   └── pixel_agents_bridge.js # Bridge de integração com o escritório virtual Pixel Agents

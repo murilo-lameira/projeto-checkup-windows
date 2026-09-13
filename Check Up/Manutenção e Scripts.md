@@ -6,8 +6,8 @@ Grande parte do poder e confiabilidade do **Projeto CheckUP Windows** reside em 
 
 ## 📜 Scripts do Diretório `core/`
 
-1. **`checkup.ps1`:** Script mestre de auditoria. Coleta hardware via `Get-CimInstance`, sensores térmicos através da `LibreHardwareMonitorLib.dll`, licença do Windows e processos pesados.
-2. **`Ferramenta_Reparo.bat` / `ExecutarCheckup.bat`:** Launchers rápidos e rotinas de suporte em batch.
+1. **`checkup.ps1`:** Script mestre de auditoria. 100% modernizado com `Get-CimInstance` (eliminando dependências do legado `Get-WmiObject`), garantindo compatibilidade estrita com Windows 10/11 sem travamentos em chamadas WMI. Coleta hardware, discos lógicos, controladora de vídeo, sensores térmicos através da `LibreHardwareMonitorLib.dll`, licença digital do Windows e processos pesados em memória.
+2. **`Ferramenta_Reparo.bat` / `ExecutarCheckup.bat`:** Launchers rápidos e rotinas de suporte em batch com bypass de política de execução.
 3. **`Instalar_Rotina.ps1` / `CriarTarefa.bat`:** Automatizadores do Agendador de Tarefas do Windows para auditorias mensais sem intervenção manual.
 
 ---
