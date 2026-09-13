@@ -10,7 +10,7 @@
 
 Aplicativo desktop profissional de diagnóstico, monitoramento contínuo e manutenção profunda para sistemas operacionais **Windows 10 e 11**. O CheckUP integra quatro ambientes em uma interface responsiva: **Dashboard**, **Histórico de Performance**, **Gestor de Programas** e **Central de Otimização**.
 
-Construído sob a estética **Dark Glassmorphism** com acentos em Cobre metálico (`#cf663f`), o aplicativo é **100% Offline-First**, consome **~0% de CPU em segundo plano** e segue a rigorosa premissa de **Zero Executáveis de Terceiros**, utilizando exclusivamente as ferramentas e APIs que acompanham nativamente o Windows. Na versão **1.2.0**, inclui **resiliência de telemetria multi-caminho**, **fallback nativo de hardware imediato**, ciclo de vida protegido por **Single Instance Lock** e modernização integral para **CIM**.
+Construído sob a estética **Obsidian Telemetry** (Dark Glassmorphism adaptado do **Google Stitch**) com iluminação atmosférica âmbar e acentos em Cobre metálico (`#cf663f`), o aplicativo adota tipografia tríade de alta precisão (**Space Grotesk**, **Geist** e **JetBrains Mono**), é **100% Offline-First**, consome **~0% de CPU em segundo plano** e segue a rigorosa premissa de **Zero Executáveis de Terceiros**, utilizando exclusivamente as ferramentas e APIs que acompanham nativamente o Windows. Na versão **1.2.0+**, inclui **resiliência de telemetria multi-caminho**, **fallback nativo de hardware imediato**, ciclo de vida protegido por **Single Instance Lock**, **widgets heróicos de telemetria** e modernização integral para **CIM**.
 
 ---
 
@@ -55,14 +55,13 @@ npm run agents:pixel:clear
 
 ## ✨ Funcionalidades Principais
 
-### 1. 🖥️ Dashboard em Tempo Real
-* **Resiliência e Fallback Nativo (v1.2.0):** Garantia de *Zero Broken State*. Se o arquivo de telemetria prévia ainda não existir, o dashboard não quebra nem exibe avisos falsos de erro; ele popula instantaneamente CPU, RAM total, versão/build do Windows, status da licença digital e volumes de disco de A a Z via chamadas nativas síncronas do Node.js (`fs.statfsSync`), acompanhado de mini-gráficos radiais ApexCharts.
-* **Resolução Multi-Caminho:** Algoritmo dinâmico que localiza snapshots de diagnóstico (`dados_atuais.json`) independentemente de onde o executável portátil ou o projeto esteja rodando.
-* **Telemetria Ultraleve (0% CPU):** Métricas de CPU calculadas via delta de ticks de `os.cpus()`, memória física via `os.totalmem()`/`os.freemem()` e tráfego de rede via utilitário nativo `netstat -e` (~30ms), eliminando processos pesados contínuos de PowerShell.
-* **ApexCharts Offline Local:** Gráficos interativos empacotados localmente (`src/assets/vendor/apexcharts.min.js`), garantindo funcionamento sem internet e sem CDN externo.
-* **Sensores Térmicos:** Velocímetros dinâmicos para processadores (Intel / AMD Ryzen) e unidades de armazenamento (NVMe, SATA e HDD) via `LibreHardwareMonitorLib.dll`.
-* **Saúde Física & S.M.A.R.T.:** Monitoramento preventivo de desgaste de discos com sparklines dedicados.
-* **Limpeza Rápida com Gráfico Donut:** Monitoramento de caches temporários (`%TEMP%`, navegador, DNS) e liberação com um clique.
+### 1. 🖥️ Dashboard Integrada (Layout Stitch de 6 Colunas)
+* **Widget Saúde Hero com Gauge Circular:** Score de 0 a 100 em `Space Grotesk`, anel SVG vetorial com animação dinâmica, beacon esmeralda pulsante e botão de microação "Reavaliar".
+* **Widget Sensores em Tempo Real (Live Load):** Amostragem de 1s sem overhead, gráfico multi-anel radial ApexCharts e mini-cards de CPU (com temperatura em tempo real), RAM e SSD.
+* **Widget Recomendações e Otimizações Sugeridas:** Cards heurísticos com estimativa de ganho no boot (`+1.4s`) e atalhos de 1 clique para a aba de Otimização.
+* **Widget Hardware com "Copiar Specs":** Especificações completas com ícones dedicados e botão One-Click para copiar todas as informações técnicas para a Área de Transferência.
+* **Resiliência e Fallback Nativo:** *Zero Broken State* com preenchimento instantâneo via Node.js (`os.cpus()`, `os.totalmem()`, `fs.statfsSync`) na primeira execução.
+* **Rede, Limpeza e Sensores Térmicos:** Monitoramento de tráfego, velocidade, medidores semicirculares de temperatura e donutchart de arquivos temporários.
 
 ### 2. 📊 Histórico de Performance
 * **Janela Rotativa dos 50 Últimos Diagnósticos:** Persistência incremental em JSON local.

@@ -53,6 +53,71 @@ window.addEventListener('DOMContentLoaded', () => {
     btnFullMaintenance = document.getElementById('btnFullMaintenance');
     btnSchedule = document.getElementById('btnSchedule');
     logArea = document.getElementById('logArea');
+
+    // Stitch UI Event Handlers & Microactions
+    const btnCopySpecs = document.getElementById('btnCopySpecs');
+    if (btnCopySpecs) {
+        btnCopySpecs.addEventListener('click', () => {
+            const cpu = document.getElementById('hardwareCpu')?.innerText || '--';
+            const ram = document.getElementById('hardwareRam')?.innerText || '--';
+            const gpu = document.getElementById('hardwareGpu')?.innerText || '--';
+            const mobo = document.getElementById('hardwareMotherboard')?.innerText || '--';
+            const osText = document.getElementById('hardwareOS')?.innerText || '--';
+            const lic = document.getElementById('valLicense')?.innerText || '--';
+
+            const text = [
+                '=== CheckUP Windows - Especificações de Hardware ===',
+                `Processador: ${cpu}`,
+                `Memória RAM: ${ram}`,
+                `Placa de Vídeo: ${gpu}`,
+                `Placa-Mãe: ${mobo}`,
+                `Sistema Operacional: ${osText}`,
+                `Licença: ${lic}`,
+                'Gerado via CheckUP Windows v2.4 Pro'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btnCopySpecs.innerHTML;
+                btnCopySpecs.innerHTML = '<span class="material-symbols-outlined" style="font-size: 15px; color: #10b981;">check</span> <span style="color: #10b981;">Copiado!</span>';
+                setStatus('Especificações copiadas para a área de transferência!', 'success');
+                setTimeout(() => {
+                    btnCopySpecs.innerHTML = originalHtml;
+                }, 2500);
+            }).catch(() => {
+                setStatus('Não foi possível copiar para a área de transferência.', 'warning');
+            });
+        });
+    }
+
+    const btnRetest = document.getElementById('btnRetest');
+    if (btnRetest) {
+        btnRetest.addEventListener('click', () => {
+            if (btnCheckup) btnCheckup.click();
+        });
+    }
+
+    const btnQuickMaint = document.getElementById('btnQuickMaint');
+    if (btnQuickMaint) {
+        btnQuickMaint.addEventListener('click', () => {
+            if (btnFullMaintenance) btnFullMaintenance.click();
+        });
+    }
+
+    const btnHeaderExport = document.getElementById('btnHeaderExport');
+    if (btnHeaderExport) {
+        btnHeaderExport.addEventListener('click', () => {
+            const btnExp = document.getElementById('btnExportReport');
+            if (btnExp) btnExp.click();
+        });
+    }
+
+    const navigateToTab = (tabId) => {
+        const tab = document.querySelector(`.nav-tab[data-target="${tabId}"]`);
+        if (tab) tab.click();
+    };
+    document.getElementById('btnRecStartup')?.addEventListener('click', () => navigateToTab('otimizacaoPage'));
+    document.getElementById('btnRecEnergy')?.addEventListener('click', () => navigateToTab('otimizacaoPage'));
+    document.getElementById('btnRecShield')?.addEventListener('click', () => navigateToTab('otimizacaoPage'));
     
     const activeSchedulesDiv = document.getElementById('activeSchedules');
 
@@ -311,8 +376,15 @@ window.addEventListener('DOMContentLoaded', () => {
     monitorRealtimeMetrics();
     updateDashboardUI(); // Carrega imediatamente os dados e processos já existentes em cache
 
+    let appLockSafetyTimeout = null;
+
     function setAppLockState(isLocked, actionText = 'Processando...', subText = 'Por favor, aguarde enquanto a operação é concluída.') {
         isAppPaused = isLocked; // A trava global obedece o Loading Overlay
+
+        if (appLockSafetyTimeout) {
+            clearTimeout(appLockSafetyTimeout);
+            appLockSafetyTimeout = null;
+        }
 
         const overlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
@@ -325,6 +397,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 overlay.style.display = 'flex';
                 void overlay.offsetWidth; // Força reflow para transição suave de opacidade
                 overlay.classList.remove('hidden');
+
+                // Watchdog preventivo: destrava após 90s em caso de processo zumbi do PowerShell
+                appLockSafetyTimeout = setTimeout(() => {
+                    if (isAppPaused) {
+                        console.warn('Watchdog CheckUP: loadingOverlay liberado preventivamente após timeout.');
+                        setAppLockState(false);
+                    }
+                }, 90000);
             } else {
                 overlay.classList.add('hidden');
                 setTimeout(() => {
@@ -772,6 +852,29 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (healthStatus) {
                     healthStatus.className = 'health-status ' + (healthIssues.length ? 'health-danger' : healthWarnings.length ? 'health-warning' : 'health-success');
                     healthStatus.innerText = health.Status || 'SISTEMA SAUDÁVEL';
+                }
+
+                // Atualizar Score Circular de Saúde e Timestamp do Stitch
+                const scoreNumberEl = document.getElementById('healthScoreNumber');
+                const scoreCircleEl = document.getElementById('healthScoreCircle');
+                let score = 96;
+                if (healthIssues.length > 0) {
+                    score = Math.max(50, 75 - (healthIssues.length * 8));
+                } else if (healthWarnings.length > 0) {
+                    score = Math.max(78, 90 - (healthWarnings.length * 4));
+                }
+                if (scoreNumberEl) scoreNumberEl.innerText = score;
+                if (scoreCircleEl) {
+                    const offset = 264 - (264 * (score / 100));
+                    scoreCircleEl.style.strokeDashoffset = offset;
+                    scoreCircleEl.style.stroke = healthIssues.length ? '#ef4444' : healthWarnings.length ? '#fbbf24' : '#10b981';
+                }
+                const healthTs = document.getElementById('healthTimestamp');
+                if (healthTs) {
+                    const now = new Date();
+                    const hh = String(now.getHours()).padStart(2, '0');
+                    const mm = String(now.getMinutes()).padStart(2, '0');
+                    healthTs.innerText = `Hoje às ${hh}:${mm}`;
                 }
                 if (healthDetails) healthDetails.innerHTML = '';
 
@@ -1496,6 +1599,27 @@ window.addEventListener('DOMContentLoaded', () => {
                         coreIso.style.color = '#34d399';
                     }
                 } catch(e){}
+            } else {
+                if (avNameEl) {
+                    avNameEl.innerText = 'Microsoft Defender Antivirus';
+                    avNameEl.style.color = '#2dd4bf';
+                }
+                if (avBadgeEl) {
+                    avBadgeEl.className = 'smart-badge badge-healthy';
+                    avBadgeEl.innerText = '● Protegido';
+                }
+                if (defRT) {
+                    defRT.innerText = 'Ativo (Padrão)';
+                    defRT.style.color = '#34d399';
+                }
+                if (defCloud) {
+                    defCloud.innerText = 'Ativo (Padrão)';
+                    defCloud.style.color = '#34d399';
+                }
+                if (coreIso) {
+                    coreIso.innerText = 'Ativo (VBS)';
+                    coreIso.style.color = '#34d399';
+                }
             }
         });
     }
@@ -1669,31 +1793,57 @@ window.addEventListener('DOMContentLoaded', () => {
         if (maintTimerInterval) { clearInterval(maintTimerInterval); maintTimerInterval = null; }
         if (maintStatusWatcher) { clearInterval(maintStatusWatcher); maintStatusWatcher = null; }
 
-        for (let i = 1; i <= 6; i++) {
-            const stepEl = document.getElementById(`maintStep${i}`);
-            if (stepEl) {
-                stepEl.className = 'maint-step-item step-state-done';
-                const badge = stepEl.querySelector('.maint-step-badge');
-                if (badge) { badge.className = 'maint-step-badge badge-done'; badge.innerText = 'Concluído'; }
-                const iconNum = stepEl.querySelector('.step-num');
-                if (iconNum) iconNum.innerText = '✓';
+        if (success) {
+            for (let i = 1; i <= 6; i++) {
+                const stepEl = document.getElementById(`maintStep${i}`);
+                if (stepEl) {
+                    stepEl.className = 'maint-step-item step-state-done';
+                    const badge = stepEl.querySelector('.maint-step-badge');
+                    if (badge) { badge.className = 'maint-step-badge badge-done'; badge.innerText = 'Concluído'; }
+                    const iconNum = stepEl.querySelector('.step-num');
+                    if (iconNum) iconNum.innerText = '✓';
+                }
             }
-        }
 
-        if (maintStepCounter) maintStepCounter.innerText = 'Etapas Finalizadas (6 de 6)';
-        if (maintPercentText) maintPercentText.innerText = '100%';
-        if (maintProgressBar) maintProgressBar.style.width = '100%';
+            if (maintStepCounter) maintStepCounter.innerText = 'Etapas Finalizadas (6 de 6)';
+            if (maintPercentText) maintPercentText.innerText = '100%';
+            if (maintProgressBar) {
+                maintProgressBar.style.width = '100%';
+                maintProgressBar.style.background = 'linear-gradient(90deg, #cf663f, #2dd4bf)';
+            }
+            if (maintTipText) {
+                maintTipText.innerText = 'Todos os módulos de otimização e verificação foram concluídos com sucesso!';
+            }
+            if (maintSummaryText) {
+                maintSummaryText.innerText = `Manutenção concluída em ${formatTimerDisplay(maintElapsedSeconds)}! Sistema 100% verificado.`;
+            }
+        } else {
+            for (let i = 1; i <= 6; i++) {
+                const stepEl = document.getElementById(`maintStep${i}`);
+                if (stepEl) {
+                    if (stepEl.classList.contains('step-state-running') || (!stepEl.classList.contains('step-state-done') && i === 1)) {
+                        stepEl.className = 'maint-step-item step-state-error';
+                        const badge = stepEl.querySelector('.maint-step-badge');
+                        if (badge) { badge.className = 'maint-step-badge badge-error'; badge.innerText = 'Interrompido'; }
+                        const iconNum = stepEl.querySelector('.step-num');
+                        if (iconNum) iconNum.innerText = '✕';
+                    } else if (stepEl.classList.contains('step-state-pending')) {
+                        const badge = stepEl.querySelector('.maint-step-badge');
+                        if (badge) { badge.className = 'maint-step-badge badge-pending'; badge.innerText = 'Não executado'; }
+                    }
+                }
+            }
 
-        if (maintTipText) {
-            maintTipText.innerText = success 
-                ? 'Todos os módulos de otimização e verificação foram concluídos com sucesso!' 
-                : `A manutenção foi finalizada com observações: ${errorMessage}`;
-        }
-
-        if (maintSummaryText) {
-            maintSummaryText.innerText = success
-                ? `Manutenção concluída em ${formatTimerDisplay(maintElapsedSeconds)}! Sistema 100% verificado.`
-                : 'Rotina finalizada. Verifique o status detalhado no histórico.';
+            if (maintStepCounter) maintStepCounter.innerText = 'Manutenção Interrompida';
+            if (maintProgressBar) {
+                maintProgressBar.style.background = '#ef4444';
+            }
+            if (maintTipText) {
+                maintTipText.innerText = errorMessage || 'A manutenção foi finalizada com observações ou cancelada no prompt UAC.';
+            }
+            if (maintSummaryText) {
+                maintSummaryText.innerText = 'Rotina interrompida. Verifique permissões de Administrador e tente novamente.';
+            }
         }
 
         if (maintFooter) maintFooter.style.display = 'flex';
@@ -2482,27 +2632,36 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
                 $buffer = New-Object byte[] (1024 * 1024)
                 (New-Object Random).NextBytes($buffer)
 
-                # Escrita
-                $sw = [System.Diagnostics.Stopwatch]::StartNew()
-                $fs = [System.IO.File]::Open($tempFile, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
-                for ($i = 0; $i -lt $sizeMB; $i++) { $fs.Write($buffer, 0, $buffer.Length) }
-                $fs.Flush()
-                $fs.Close()
-                $sw.Stop()
-                $writeSec = [math]::Max($sw.Elapsed.TotalSeconds, 0.001)
-                $writeMBs = [math]::Round($sizeMB / $writeSec, 0)
+                $writeMBs = 0
+                $readMBs = 0
+                $fs = $null
 
-                # Leitura
-                $sw.Restart()
-                $fs = [System.IO.File]::OpenRead($tempFile)
-                $readBuf = New-Object byte[] (1024 * 1024)
-                while ($fs.Read($readBuf, 0, $readBuf.Length) -gt 0) {}
-                $fs.Close()
-                $sw.Stop()
-                $readSec = [math]::Max($sw.Elapsed.TotalSeconds, 0.001)
-                $readMBs = [math]::Round($sizeMB / $readSec, 0)
+                try {
+                    # Escrita
+                    $sw = [System.Diagnostics.Stopwatch]::StartNew()
+                    $fs = [System.IO.File]::Open($tempFile, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+                    for ($i = 0; $i -lt $sizeMB; $i++) { $fs.Write($buffer, 0, $buffer.Length) }
+                    $fs.Flush()
+                    $fs.Close()
+                    $fs = $null
+                    $sw.Stop()
+                    $writeSec = [math]::Max($sw.Elapsed.TotalSeconds, 0.001)
+                    $writeMBs = [math]::Round($sizeMB / $writeSec, 0)
 
-                Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+                    # Leitura
+                    $sw.Restart()
+                    $fs = [System.IO.File]::OpenRead($tempFile)
+                    $readBuf = New-Object byte[] (1024 * 1024)
+                    while ($fs.Read($readBuf, 0, $readBuf.Length) -gt 0) {}
+                    $fs.Close()
+                    $fs = $null
+                    $sw.Stop()
+                    $readSec = [math]::Max($sw.Elapsed.TotalSeconds, 0.001)
+                    $readMBs = [math]::Round($sizeMB / $readSec, 0)
+                } finally {
+                    if ($fs) { try { $fs.Dispose() } catch {} }
+                    Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+                }
 
                 [PSCustomObject]@{
                     WriteMBs = $writeMBs

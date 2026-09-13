@@ -350,7 +350,17 @@ if ($internetStatus) {
     }
 }
 
-$antivirus = try { (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntivirusProduct -ErrorAction SilentlyContinue).displayName } catch { "Windows Defender" }
+$antivirus = try {
+    $avQuery = (Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntivirusProduct -ErrorAction SilentlyContinue).displayName
+    if ($avQuery -is [array]) {
+        $thirdParty = $avQuery | Where-Object { $_ -and $_ -notlike '*Windows Defender*' } | Select-Object -First 1
+        if ($thirdParty) { $thirdParty } else { $avQuery[0] }
+    } elseif ($avQuery) {
+        $avQuery
+    } else {
+        "Windows Defender"
+    }
+} catch { "Windows Defender" }
 if (-not $antivirus) { $antivirus = "Windows Defender" }
 $firewall = if ((Get-NetFirewallProfile -ErrorAction SilentlyContinue | Where-Object Enabled -eq $true)) { "Ativo" } else { "Inativo" }
 

@@ -77,3 +77,28 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
   - Timeout de fallback (1500ms) para forçar `win.show()` caso o evento `ready-to-show` sofra lentidão na GPU.
 - [x] **Empacotamento e Distribuição da Versão 1.2.0:**
   - Build portátil gerada com sucesso em `dist/CheckUP Windows 1.2.0.exe` com validação de scripts (`npm run validate`).
+
+---
+### 10. Convergência Visual & UI/UX com Google Stitch (Obsidian Telemetry)
+- [x] **Identidade Visual Obsidian Telemetry:**
+  - Implantação do fundo industrial em gradiente angular escuro com iluminação radial atmosférica âmbar/cobre (Stitch Ambient Glow).
+  - Tokens de cores modernos Stitch (`--bg-obsidian`, `--surface-card`, `--surface-card-hover`, `--surface-container-low`, `--surface-container-high`, `--copper-bright`, `--copper-glow`, `--emerald-healthy`, `--cyan-telemetry`, etc.).
+- [x] **Tipografia Tríade de Alta Precisão:**
+  - Integração das famílias tipográficas `Space Grotesk` (métricas de destaque/display), `Geist` (corpo e interface de usuário) e `JetBrains Mono` (telemetria e clocks).
+- [x] **Grid System de 6 Colunas Aprimorado no Dashboard:**
+  - Reestruturação hierárquica em 4 linhas lógicas: Telemetria Hero, Operacional/Recomendações, Hardware/Sensores e Drilldown de Recursos.
+  - Breakpoints responsivos para 1200px (4 colunas) e 950px/768px (coluna única) com proteção contra esmagamento de tipografia (`min-width: 0`).
+- [x] **Widget Saúde Hero com Gauge Circular SVG:**
+  - Score numérico 0-100 centralizado na fonte `Space Grotesk`, anel SVG dinâmico (`#healthScoreCircle`) com animação vetorial, beacon verde pulsante e botão de microação "Reavaliar" (`#btnRetest`).
+- [x] **Widget Sensores em Tempo Real (Live Load):**
+  - Amostragem contínua de 1s, gráfico multi-anel radial ApexCharts, mini cards com sensor dots temáticos (CPU com badge de temperatura em tempo real, RAM e SSD).
+- [x] **Widget Recomendações e Otimizações Sugeridas:**
+  - Cartões inteligentes com estimativa de impacto no boot (`+1.4s`), latência de CPU e integridade de memória/HVCI, conectados com navegação contextual direta para a aba Otimização (`#btnRecStartup`, `#btnRecEnergy`, `#btnRecShield`).
+- [x] **Widget Hardware Detectado com Ação One-Click "Copiar Specs":**
+  - Grid com ícones temáticos para CPU, RAM, GPU, Motherboard, SO e Licença Digital com beacon esmeralda.
+  - Botão "Copiar Specs" (`#btnCopySpecs`) com exportação instantânea para o clipboard do Windows e feedback visual dinâmico ("Copiado!").
+- [x] **Blindagem e Resiliência Operacional:**
+  - Tratamento `try/finally` com descarte forçado de handles de arquivo (`fs.Dispose()`) no teste sequencial de benchmark de disco no PowerShell.
+  - Sincronização e cobertura de falhas no checklist da Manutenção em 6 etapas.
+- [x] **Sincronização da Documentação e Obsidian Vault:**
+  - Atualização completa de `Check Up/Design System.md`, `Check Up/Funcionalidades.md` e `backlog.md` com total fidelidade aos wikilinks (`[[...]]`).

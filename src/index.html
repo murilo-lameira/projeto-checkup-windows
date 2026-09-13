@@ -4,18 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CheckUP Windows</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400,0..1,0&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-layout">
         
+        <!-- SIDEBAR LATERAL ESQUERDA -->
         <div class="sidebar">
             <div class="card side-card">
-                <button id="btnCheckup" class="btn-copper"><img class="button-icon" src="assets/icons/lupa.png" alt="">Diagnóstico</button>
-                <button id="btnFullMaintenance" class="btn-copper"><img class="button-icon" src="assets/icons/ferramentas.png" alt="">Manutenção Completa</button>
-                <button id="btnExportReport" class="btn-copper"><img class="button-icon" src="assets/icons/pdf.svg" alt="PDF">Exportar Relatório</button>
+                <!-- Branding Header Stitch -->
+                <div class="sidebar-brand">
+                    <div class="brand-badge">
+                        <span class="material-symbols-outlined brand-icon">verified_user</span>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title font-display">CheckUP</span>
+                        <span class="brand-subtitle font-mono">TUNING &amp; DIAG</span>
+                    </div>
+                </div>
+
+                <!-- Ações Principais -->
+                <button id="btnCheckup" class="btn-copper btn-hero-action">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    <span>Executar Diagnóstico</span>
+                </button>
+                <button id="btnFullMaintenance" class="btn-copper">
+                    <span class="material-symbols-outlined">build</span>
+                    <span>Manutenção Completa</span>
+                </button>
+                <button id="btnExportReport" class="btn-copper">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Exportar Relatório</span>
+                </button>
                 
+                <!-- Feedback e Status de Telemetria -->
                 <div class="status-box" id="logArea">
                     <div class="status-message status-info">
                         <div class="status-icon">ℹ️</div>
@@ -26,8 +53,12 @@
                     </div>
                 </div>
 
+                <!-- Painel de Agendamento Automático -->
                 <div class="schedule-box">
-                    <h3>Automação Mensal</h3>
+                    <div class="schedule-header-row">
+                        <span class="caption-caps">Automação Mensal</span>
+                        <span class="status-beacon-emerald"></span>
+                    </div>
                     <div id="activeSchedules" class="active-schedules-container">
                         <span class="schedule-empty">Carregando status...</span>
                     </div>
@@ -41,68 +72,203 @@
                         </select>
                         <input type="time" id="scheduleTime" class="glass-input" value="09:00">
                     </div>
-                    <button id="btnSchedule" class="btn-copper" style="width: 100%;">Agendar CheckUP</button>
+                    <button id="btnSchedule" class="btn-copper" style="width: 100%;">
+                        <span class="material-symbols-outlined" style="font-size: 15px; margin-right: 4px;">schedule</span>
+                        Agendar CheckUP
+                    </button>
                 </div>
             </div>
         </div>
 
+        <!-- CONTEÚDO PRINCIPAL -->
         <div class="main-content">
             
+            <!-- Top Header & Navigation -->
+            <header class="top-header">
+                <div class="header-left">
+                    <span class="material-symbols-outlined header-app-icon">speed</span>
+                    <span class="header-title font-mono">CheckUP Windows</span>
+                    <span class="header-divider">|</span>
+                    <span class="header-version font-mono">v2.4 Pro</span>
+                    <div class="header-badge-os">
+                        <span class="status-beacon-emerald"></span>
+                        <span class="font-mono">Sistema Monitorado: <strong>Windows 11</strong></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="btnQuickMaint" class="btn-quick-header" title="Disparar Manutenção">
+                        <span class="material-symbols-outlined">bolt</span>
+                        <span>Manutenção Rápida</span>
+                    </button>
+                    <button id="btnHeaderExport" class="btn-quick-header" title="Exportar PDF">
+                        <span class="material-symbols-outlined">download</span>
+                        <span>Exportar</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Abas de Navegação -->
             <nav class="top-nav">
-                <button class="nav-tab active" data-target="dashboardPage">Dashboard</button>
-                <button class="nav-tab" data-target="historicoPage">Histórico</button>
-                <button class="nav-tab" data-target="programasPage">Programas</button>
-                <button class="nav-tab" data-target="otimizacaoPage">Otimização</button>
+                <button class="nav-tab active" data-target="dashboardPage">
+                    <span class="material-symbols-outlined nav-icon">space_dashboard</span>
+                    Dashboard
+                </button>
+                <button class="nav-tab" data-target="historicoPage">
+                    <span class="material-symbols-outlined nav-icon">history</span>
+                    Histórico
+                </button>
+                <button class="nav-tab" data-target="programasPage">
+                    <span class="material-symbols-outlined nav-icon">apps_outage</span>
+                    Programas
+                </button>
+                <button class="nav-tab" data-target="otimizacaoPage">
+                    <span class="material-symbols-outlined nav-icon">tune</span>
+                    Otimização
+                </button>
             </nav>
 
             <div class="page-container">
                 
-                <!-- PÁGINA 1: DASHBOARD -->
+                <!-- PÁGINA 1: DASHBOARD (6 COLUNAS ADAPTADO DO STITCH) -->
                 <div class="dashboard-grid page-view" id="dashboardPage">
-                    <div class="glass-panel span-2 insights-panel">
-                        <h3>Insights do Sistema</h3>
-                        <div class="insights-content">
-                            <div class="insights-legend">
-                                <div class="insight-legend-item insight-cpu">
-                                    <strong id="insightCpuValue">--%</strong>
-                                    <span>CPU Usage</span>
-                                </div>
-                                <div class="insight-legend-item insight-ram">
-                                    <strong id="insightRamValue">--%</strong>
-                                    <span>RAM Usage</span>
-                                </div>
-                                <div class="insight-legend-item insight-disk">
-                                    <strong id="insightDiskValue">--%</strong>
-                                    <span>Disk Usage</span>
+                    
+                    <!-- LINHA 1: HERO TELEMETRY -->
+                    <!-- Card 1: Saúde Geral do Sistema (span 2) -->
+                    <div class="glass-panel span-2 health-hero-panel">
+                        <div class="panel-header-row">
+                            <div class="panel-title-wrap">
+                                <span class="caption-caps">Saúde Geral do Sistema</span>
+                                <span class="status-beacon-emerald"></span>
+                            </div>
+                            <span id="healthTimestamp" class="health-timestamp font-mono">Hoje</span>
+                        </div>
+
+                        <div class="health-hero-body">
+                            <!-- Circular Ring Gauge -->
+                            <div class="health-ring-wrapper">
+                                <svg class="health-ring-svg" viewBox="0 0 100 100">
+                                    <circle class="health-ring-bg" cx="50" cy="50" r="42" fill="none" stroke-width="8"></circle>
+                                    <circle id="healthScoreCircle" class="health-ring-progress" cx="50" cy="50" r="42" fill="none" stroke-dasharray="264" stroke-dashoffset="21" stroke-linecap="round" stroke-width="8"></circle>
+                                </svg>
+                                <div class="health-ring-center">
+                                    <span class="health-score-number font-display" id="healthScoreNumber">92</span>
+                                    <span class="health-score-total font-mono">/100</span>
                                 </div>
                             </div>
+
+                            <div class="health-hero-info">
+                                <div id="healthStatus" class="health-status health-success">SISTEMA ESTÁVEL &amp; SEGURO</div>
+                                <div id="healthDetails" class="health-details">0 erros críticos detectados nas últimas 48h.</div>
+                            </div>
+                        </div>
+
+                        <div class="health-card-footer">
+                            <span class="health-telemetry-pill">
+                                <span class="material-symbols-outlined text-emerald" style="font-size: 16px;">verified</span>
+                                <span>Índice Nominal Ótimo</span>
+                            </span>
+                            <button id="btnRetest" class="btn-retest-link font-mono" type="button">Reavaliar</button>
+                        </div>
+
+                        <!-- Compatibilidade com scripts de recomendação existentes -->
+                        <div id="healthRecommendationStatus" style="display: none;"></div>
+                        <div id="healthRecommendationText" style="display: none;"></div>
+                    </div>
+
+                    <!-- Card 2: Sensores em Tempo Real (span 2) -->
+                    <div class="glass-panel span-2 live-load-panel">
+                        <div class="panel-header-row">
+                            <span class="caption-caps">Sensores em Tempo Real (Live Load)</span>
+                            <div class="live-sample-badge font-mono">
+                                <span class="pulse-dot-primary"></span> Amostragem: 1s
+                            </div>
+                        </div>
+
+                        <div class="live-load-body">
+                            <!-- Multi-Ring Radial ApexChart -->
                             <div class="radial-chart-wrapper">
                                 <div id="radialChart"></div>
                             </div>
+
+                            <!-- 3 Mini Cards de Carga -->
+                            <div class="live-metrics-grid">
+                                <div class="live-metric-card">
+                                    <div class="metric-card-header">
+                                        <span class="sensor-dot dot-cpu"></span>
+                                        <span class="metric-label font-mono">CPU</span>
+                                        <span class="metric-temp font-mono" id="valCpuTempBadge">--°C</span>
+                                    </div>
+                                    <strong class="metric-val font-display" id="insightCpuValue">--%</strong>
+                                    <span class="metric-sub font-mono" id="radCpuVal">Clock Dinâmico</span>
+                                </div>
+
+                                <div class="live-metric-card">
+                                    <div class="metric-card-header">
+                                        <span class="sensor-dot dot-ram"></span>
+                                        <span class="metric-label font-mono">RAM</span>
+                                        <span class="metric-temp font-mono">DDR</span>
+                                    </div>
+                                    <strong class="metric-val font-display" id="insightRamValue">--%</strong>
+                                    <span class="metric-sub font-mono" id="radRamVal">Em Uso</span>
+                                </div>
+
+                                <div class="live-metric-card">
+                                    <div class="metric-card-header">
+                                        <span class="sensor-dot dot-disk"></span>
+                                        <span class="metric-label font-mono">SSD</span>
+                                        <span class="metric-temp font-mono" style="color: #10b981;">SMART</span>
+                                    </div>
+                                    <strong class="metric-val font-display" id="insightDiskValue">--%</strong>
+                                    <span class="metric-sub font-mono" id="radDiskVal">Espaço Livre</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="live-footer-note">
+                            <span class="status-beacon-emerald"></span>
+                            <span>Carga Nominal em Todos os Subsistemas (Zero Gargalo)</span>
                         </div>
                     </div>
 
-                    <div class="glass-panel span-2 hardware-panel">
-                        <h3>Hardware Instalado</h3>
-                        <div class="hardware-grid">
-                            <div class="hardware-row"><span>Processador</span><strong id="hardwareCpu">--</strong></div>
-                            <div class="hardware-row"><span>Memória RAM</span><strong id="hardwareRam">--</strong></div>
-                            <div class="hardware-row"><span>Placa de vídeo</span><strong id="hardwareGpu">--</strong></div>
-                            <div class="hardware-row"><span>Placa-mãe</span><strong id="hardwareMotherboard">--</strong></div>
-                            <div class="hardware-row"><span>Sistema</span><strong id="hardwareOS">--</strong></div>
-                            <div class="hardware-row"><span>Licença Win</span><strong id="valLicense" style="white-space: normal; line-height: 1.4;">--</strong></div>
+                    <!-- Card 3: Rede & Conexão (span 2) -->
+                    <div class="glass-panel span-2 network-hero-panel">
+                        <div class="panel-header-row">
+                            <span class="caption-caps">Rede &amp; Conexão</span>
+                            <span id="valConnType" class="net-conn-badge font-mono">1 Gbps</span>
+                        </div>
+
+                        <div class="net-status-row">
+                            <div id="netStatusDot" class="status-dot"></div>
+                            <div class="metric font-display" id="valNetStatus">Online</div>
+                            <span class="net-type-label font-mono">Cabo / Ethernet</span>
+                        </div>
+
+                        <div class="net-speed-grid">
+                            <div class="net-speed-card">
+                                <span class="caption-caps"><span class="material-symbols-outlined icon-cyan">arrow_downward</span> Down</span>
+                                <strong class="net-speed-val font-mono" id="valNetSpeed">--</strong>
+                            </div>
+                            <div class="net-speed-card">
+                                <span class="caption-caps"><span class="material-symbols-outlined icon-emerald">arrow_upward</span> Up</span>
+                                <strong class="net-speed-val font-mono" id="valNetUpSpeed">Ativo</strong>
+                            </div>
+                        </div>
+
+                        <!-- Sparkline Wave SVG / ApexChart -->
+                        <div class="network-chart-container">
+                            <div id="networkChart"></div>
                         </div>
                     </div>
-                    
-                    <div class="glass-panel span-2 deepclean-panel">
+
+                    <!-- LINHA 2: OPERACIONAL & RECOMENDAÇÕES -->
+                    <!-- Card 4: Limpeza Profunda & Cache (span 3) -->
+                    <div class="glass-panel span-3 deepclean-panel">
                         <div class="deepclean-header-row">
                             <div class="deepclean-title-group">
-                                <h3>Limpeza Profunda</h3>
+                                <span class="caption-caps">Limpeza Profunda &amp; Cache</span>
                                 <span id="deepCleanBadge" class="deepclean-badge badge-clean">Analisando...</span>
                             </div>
-                            <button id="btnDeepClean" class="btn-copper btn-deepclean-action" title="Eliminar Caches e Arquivos Temporários">
-                                <span>🧹</span> Limpar
-                            </button>
+                            <span class="font-mono text-muted text-xs">Purga Segura</span>
                         </div>
 
                         <div class="deepclean-body">
@@ -110,8 +276,8 @@
                             <div class="deepclean-chart-container">
                                 <div id="deepCleanChart"></div>
                                 <div class="deepclean-chart-center">
-                                    <span class="deepclean-center-icon">🗑️</span>
-                                    <span class="deepclean-center-sub">Cache</span>
+                                    <span class="material-symbols-outlined text-copper" style="font-size: 26px;">delete_sweep</span>
+                                    <span class="deepclean-center-sub font-mono">Cache</span>
                                 </div>
                             </div>
 
@@ -122,7 +288,7 @@
                                         <span class="deepclean-dot dot-user"></span>
                                         <span class="deepclean-metric-title">Cache de Apps (%TEMP%)</span>
                                     </div>
-                                    <strong id="userTempSizeText" class="deepclean-metric-val">-- MB</strong>
+                                    <strong id="userTempSizeText" class="deepclean-metric-val font-mono">-- MB</strong>
                                 </div>
 
                                 <div class="deepclean-metric-card">
@@ -130,111 +296,227 @@
                                         <span class="deepclean-dot dot-system"></span>
                                         <span class="deepclean-metric-title">Sistema (Windows Temp)</span>
                                     </div>
-                                    <strong id="systemTempSizeText" class="deepclean-metric-val">-- MB</strong>
+                                    <strong id="systemTempSizeText" class="deepclean-metric-val font-mono">-- MB</strong>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Rodapé com Total e Dica Contextual -->
+                        <!-- Rodapé com Total e Ação -->
                         <div class="deepclean-footer-row">
                             <div class="deepclean-total-wrap">
                                 <span class="deepclean-footer-label">Espaço Ocupado:</span>
-                                <strong id="wastedSpaceText" class="deepclean-total-value">Calculando...</strong>
+                                <strong id="wastedSpaceText" class="deepclean-total-value font-display">Calculando...</strong>
                             </div>
-                            <span id="deepCleanAdvice" class="deepclean-advice">Aguardando telemetria...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="glass-panel span-2 disks-panel">
-                        <h3>Discos e Armazenamento</h3>
-                        <div id="valDisksArea" class="table-container">Aguardando leitura de discos...</div>
-                    </div>
-
-                    <div class="glass-panel span-2 ram-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <h3 style="margin: 0;">Maior Consumo de RAM</h3>
-                            <button id="btnRefreshProcesses" class="btn-copper" title="Atualizar Processos" style="width: auto; padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
-                                <span>🔄</span> Atualizar
+                            <button id="btnDeepClean" class="btn-copper btn-deepclean-action" title="Eliminar Caches e Arquivos Temporários">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">clean_hands</span>
+                                <span>Otimizar &amp; Limpar Agora</span>
                             </button>
                         </div>
-                        <div id="valProcessesArea" class="table-container">Aguardando análise de processos...</div>
+                        <span id="deepCleanAdvice" class="deepclean-advice">Aguardando telemetria...</span>
                     </div>
 
-                    <div class="glass-panel span-2 health-panel">
-                        <h3>Saúde do Computador</h3>
-                        <div id="healthStatus" class="health-status">Aguardando diagnóstico...</div>
-                        <div id="healthDetails" class="health-details"></div>
-                        <div class="health-recommendation">
-                            <h3>RECOMENDAÇÃO</h3>
-                            <div id="healthRecommendationStatus" class="health-status health-success">RECOMENDAÇÃO</div>
-                            <div id="healthRecommendationText" class="health-item health-item-success">Execute um diagnóstico para receber uma recomendação.</div>
+                    <!-- Card 5: Recomendações e Ações Sugeridas (span 3) -->
+                    <div class="glass-panel span-3 recommendations-panel">
+                        <div class="recommendations-header">
+                            <div class="panel-title-wrap">
+                                <span class="caption-caps">Recomendações e Otimizações Sugeridas</span>
+                                <span class="recs-count-badge font-mono">3 Ações Disponíveis</span>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendations-list">
+                            <!-- Item 1: Boot Startups -->
+                            <div class="rec-item">
+                                <div class="rec-item-icon rec-icon-orange">
+                                    <span class="material-symbols-outlined">apps_outage</span>
+                                </div>
+                                <div class="rec-item-info">
+                                    <div class="rec-item-top">
+                                        <strong class="rec-title">Programas pesados iniciando no boot</strong>
+                                        <span class="rec-pill-orange font-mono">+1.4s no Boot</span>
+                                    </div>
+                                    <p class="rec-desc">Desative aplicativos desnecessários para acelerar o arranque do Windows.</p>
+                                </div>
+                                <button class="btn-rec-action" id="btnRecStartup" type="button">
+                                    <span>Gerenciar</span>
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+
+                            <!-- Item 2: Plano de Energia -->
+                            <div class="rec-item">
+                                <div class="rec-item-icon rec-icon-emerald">
+                                    <span class="material-symbols-outlined">bolt</span>
+                                </div>
+                                <div class="rec-item-info">
+                                    <div class="rec-item-top">
+                                        <strong class="rec-title">Plano de Energia e Latência de CPU</strong>
+                                        <span class="rec-pill-emerald font-mono">Desempenho</span>
+                                    </div>
+                                    <p class="rec-desc">Plano de alto desempenho reduz a latência de troca de estado dos núcleos.</p>
+                                </div>
+                                <button class="btn-rec-action" id="btnRecEnergy" type="button">
+                                    <span>Otimizar</span>
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+
+                            <!-- Item 3: Defesa do Windows -->
+                            <div class="rec-item">
+                                <div class="rec-item-icon rec-icon-cyan">
+                                    <span class="material-symbols-outlined">security_update_good</span>
+                                </div>
+                                <div class="rec-item-info">
+                                    <div class="rec-item-top">
+                                        <strong class="rec-title">Defesa do Windows &amp; Integridade de Memória</strong>
+                                        <span class="rec-pill-cyan font-mono">100% Protegido</span>
+                                    </div>
+                                    <p class="rec-desc">Proteção em tempo real e Isolamento de Núcleo (HVCI) operando ativamente.</p>
+                                </div>
+                                <button class="btn-rec-action" id="btnRecShield" type="button">
+                                    <span>Verificar</span>
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="recs-footer-note font-mono">
+                            <span>Próxima varredura automática configurada no agendamento.</span>
                         </div>
                     </div>
-                    
-                    <div class="glass-panel span-2 network-panel">
-                        <h3>Rede e Conexão</h3>
-                        <div class="network-chart-container">
-                            <div id="networkChart"></div>
-                        </div>
-                        <div class="network-info">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
-                                <div id="netStatusDot" class="status-dot"></div>
-                                <div class="metric" id="valNetStatus" style="font-size: 24px; margin-bottom: 0;">--</div>
+
+                    <!-- LINHA 3: HARDWARE & SENSORES -->
+                    <!-- Card 6: Hardware Instalado (span 4) -->
+                    <div class="glass-panel span-4 hardware-panel">
+                        <div class="hardware-header-row">
+                            <div class="panel-title-wrap">
+                                <span class="caption-caps">Especificações do Hardware Detectado</span>
+                                <span class="status-beacon-emerald"></span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div class="sub-metric" id="valNetSpeed">Download: --</div>
-                                <div class="sub-metric" id="valConnType" style="color: #2dd4bf; font-weight: 500;">--</div>
+                            <button id="btnCopySpecs" class="btn-copy-specs font-mono" title="Copiar todas as especificações">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">content_copy</span>
+                                <span>Copiar Specs</span>
+                            </button>
+                        </div>
+
+                        <div class="hardware-grid">
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">memory</span>
+                                    <span>Processador</span>
+                                </div>
+                                <strong id="hardwareCpu" class="font-mono">--</strong>
+                            </div>
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">developer_board</span>
+                                    <span>Memória RAM</span>
+                                </div>
+                                <strong id="hardwareRam" class="font-mono">--</strong>
+                            </div>
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">videogame_asset</span>
+                                    <span>Placa de vídeo</span>
+                                </div>
+                                <strong id="hardwareGpu" class="font-mono">--</strong>
+                            </div>
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">grid_view</span>
+                                    <span>Placa-mãe</span>
+                                </div>
+                                <strong id="hardwareMotherboard" class="font-mono">--</strong>
+                            </div>
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">laptop_windows</span>
+                                    <span>Sistema Operacional</span>
+                                </div>
+                                <strong id="hardwareOS" class="font-mono">--</strong>
+                            </div>
+                            <div class="hardware-row">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">key</span>
+                                    <span>Licença Win</span>
+                                </div>
+                                <div class="hw-license-badge">
+                                    <span class="status-beacon-emerald"></span>
+                                    <strong id="valLicense" class="font-mono">--</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-panel span-2 uptime-panel">
-                        <h3>Ciclo de Atividade</h3>
-                        <div class="uptime-container">
-                            <div id="uptimeChart"></div>
-                            <div class="uptime-center-info">
-                                <div class="metric" id="valUptime">--</div>
-                                <div class="sub-metric">Tempo sem reiniciar</div>
-                            </div>
+                    <!-- Card 7: Sensores Térmicos & Fans / Uptime (span 2) -->
+                    <div class="glass-panel span-2 thermals-uptime-panel sensors-panel">
+                        <div class="panel-header-row">
+                            <span class="caption-caps">Sensores Térmicos &amp; Fans</span>
+                            <span class="thermals-status-ok font-mono">Faixa Ideal</span>
                         </div>
-                    </div>
 
-                    <div class="glass-panel span-2 sensors-panel">
-                        <h3>Sensores Térmicos</h3>
                         <div class="sensors-gauges">
                             <!-- Medidor 1: Temperatura da CPU -->
                             <div class="sensor-gauge">
                                 <div id="tempChart"></div>
                                 <div class="sensor-center-info">
-                                    <div class="sensor-value" id="valCpuTemp">--</div>
-                                    <div class="sensor-label" id="valCpuTempStatus">Aguardando</div>
+                                    <div class="sensor-value font-display" id="valCpuTemp">--</div>
+                                    <div class="sensor-label font-mono" id="valCpuTempStatus">CPU DIE</div>
                                 </div>
-                                <div class="sensor-title">Temperatura CPU</div>
+                                <div class="sensor-title font-mono">Temp. CPU</div>
                             </div>
                             <!-- Medidor 2: Temperatura do Armazenamento -->
                             <div class="sensor-gauge">
                                 <div id="diskTempChart"></div>
                                 <div class="sensor-center-info">
-                                    <div class="sensor-value" id="valDiskTemp">--</div>
-                                    <div class="sensor-label" id="valDiskTempStatus">Aguardando</div>
+                                    <div class="sensor-value font-display" id="valDiskTemp">--</div>
+                                    <div class="sensor-label font-mono" id="valDiskTempStatus">NVMe</div>
                                 </div>
-                                <div class="sensor-title">Armazenamento</div>
+                                <div class="sensor-title font-mono">SSD / NVMe</div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="glass-panel span-2 errors-panel">
-                        <h3>Erros do Sistema (24h)</h3>
-                        <div id="errorsStatus" class="health-status">Aguardando diagnóstico...</div>
-                        <div id="errorsDetails" class="health-details"></div>
-                    </div>
-
-                    <div class="glass-panel span-2 security-panel">
-                        <h3>Segurança do Sistema</h3>
-                        <div id="securityDetails" class="security-details">
-                            <div class="security-loading">Coletando informações de segurança...</div>
+                        <!-- Ciclo de Atividade / Uptime -->
+                        <div class="uptime-section">
+                            <div class="uptime-top">
+                                <div class="uptime-icon-wrap">
+                                    <span class="material-symbols-outlined icon-cyan">timer</span>
+                                </div>
+                                <div class="uptime-text">
+                                    <span class="caption-caps">Ciclo de Atividade (Uptime)</span>
+                                    <div class="uptime-metric font-display" id="valUptime">--</div>
+                                </div>
+                            </div>
+                            <div id="uptimeChart" style="display: none;"></div>
                         </div>
                     </div>
+
+                    <!-- LINHA 4: DRILLDOWN (PROCESSOS & DISCOS) -->
+                    <!-- Card 8: Maior Consumo de RAM (span 3) -->
+                    <div class="glass-panel span-3 ram-panel">
+                        <div class="panel-header-row">
+                            <span class="caption-caps">Maior Consumo de Memória (RAM)</span>
+                            <button id="btnRefreshProcesses" class="btn-copper btn-tiny" title="Atualizar Processos">
+                                <span class="material-symbols-outlined" style="font-size: 13px;">sync</span>
+                                <span>Atualizar</span>
+                            </button>
+                        </div>
+                        <div id="valProcessesArea" class="table-container custom-scrollbar">Aguardando análise de processos...</div>
+                    </div>
+
+                    <!-- Card 9: Discos e Armazenamento (span 3) -->
+                    <div class="glass-panel span-3 disks-panel">
+                        <div class="panel-header-row">
+                            <span class="caption-caps">Discos e Partições</span>
+                            <span class="font-mono text-muted text-xs">TRIM &amp; SMART</span>
+                        </div>
+                        <div id="valDisksArea" class="table-container custom-scrollbar">Aguardando leitura de discos...</div>
+                    </div>
+
+                    <!-- Elementos herdados essenciais mantidos invisíveis para compatibilidade com scripts -->
+                    <div id="errorsStatus" style="display: none;"></div>
+                    <div id="errorsDetails" style="display: none;"></div>
+                    <div id="securityDetails" style="display: none;"></div>
                 </div>
 
                 <!-- PÁGINA 2: HISTÓRICO (DOIS GRÁFICOS) -->
@@ -406,7 +688,7 @@
                     <!-- Reparador de Sistema (One-Click SFC/DISM) -->
                     <div class="glass-panel opt-repair-panel" style="min-height: 280px; padding: 20px 24px; display: flex; flex-direction: column;">
                         <h3 style="margin: 0 0 5px 0; color: #f4f4f5;">Reparador de Sistema</h3>
-                        <p style="margin: 0 0 15px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Corrige erros graves, telas azuis e lentidão usando ferramentas nativas da Microsoft (SFC & DISM).</p>
+                        <p style="margin: 0 0 15px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Corrige erros graves, telas azuis e lentidão usando ferramentas nativas da Microsoft (SFC &amp; DISM).</p>
                         
                         <div style="background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; flex: 1;">
                             <span style="font-size: 12px; color: #2dd4bf; font-weight: 500;">✓ Restaura arquivos do Windows</span><br>

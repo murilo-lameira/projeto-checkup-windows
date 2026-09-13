@@ -1,4 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+    --font-display: 'Space Grotesk', -apple-system, sans-serif;
+    --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --bg-obsidian: #0c0e14;
+    --surface-card: rgba(19, 23, 34, 0.72);
+    --surface-card-hover: rgba(26, 31, 46, 0.85);
+    --surface-container-low: #191b22;
+    --surface-container-high: #282a30;
+
+    --copper-primary: #cf663f;
+    --copper-bright: #ff9364;
+    --copper-glow: rgba(207, 102, 63, 0.35);
+    --emerald-healthy: #10b981;
+    --cyan-telemetry: #06b6d4;
+    --amber-warning: #eab308;
+    --red-critical: #ef4444;
+
+    --text-primary: #f4f4f5;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-glass: rgba(255, 255, 255, 0.07);
+    --border-glass-hover: rgba(207, 102, 63, 0.4);
+}
 
 * { 
     box-sizing: border-box; 
@@ -14,6 +41,7 @@
 }
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -22,6 +50,7 @@
 
 body {
     background-color: #000000;
+    background-color: #0c0e14;
     background-image:
         /* Pincelada Angular Top-Right (Lâmina / Traço de Tinta Cobre Metálica) */
         linear-gradient(222deg, rgba(255, 180, 130, 0.55) 0%, rgba(220, 110, 68, 0.42) 5%, rgba(184, 87, 42, 0.26) 12%, rgba(120, 45, 18, 0.08) 22%, transparent 34%),
@@ -35,9 +64,14 @@ body {
 
         /* Base Preto Puro Profundo */
         linear-gradient(180deg, #000000 0%, #000000 100%);
+        /* Iluminação radial atmosférica âmbar/cobre no topo direito (Stitch Ambient Glow) */
+        radial-gradient(circle at 85% 15%, rgba(184, 92, 42, 0.22) 0%, rgba(61, 32, 18, 0.38) 28%, rgba(26, 16, 12, 0.85) 60%, rgb(12, 14, 20) 100%),
+        /* Base Obsidian Industrial em gradiente angular */
+        linear-gradient(135deg, rgb(18, 12, 10) 0%, rgb(24, 15, 12) 35%, rgb(32, 18, 14) 65%, rgb(12, 14, 20) 100%);
     background-attachment: fixed;
     color: #f4f4f5; 
     font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    font-family: var(--font-body);
     margin: 0;
     padding: 0;
     height: 100vh; 
@@ -203,12 +237,91 @@ body {
     min-width: 0;
 }
 
+/* === TOP HEADER (Barra Superior com Status) === */
+.top-header {
+    height: 48px;
+    background: rgba(12, 14, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    flex-shrink: 0;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.header-app-icon {
+    color: var(--copper-primary);
+    font-size: 20px;
+}
+.header-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.header-divider {
+    color: rgba(255, 255, 255, 0.15);
+}
+.header-version {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.header-badge-os {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: 10px;
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-quick-header {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.btn-quick-header:hover {
+    background: rgba(207, 102, 63, 0.15);
+    border-color: rgba(207, 102, 63, 0.4);
+    color: #ffffff;
+}
+.btn-quick-header .material-symbols-outlined {
+    font-size: 16px;
+    color: var(--copper-bright);
+}
+
+/* === TOP NAV COM ÍCONES === */
 .top-nav {
     display: flex;
     align-items: center;
     padding: 20px 28px 0 28px;
     gap: 30px;
+    padding: 10px 28px 0 28px;
+    gap: 24px;
     flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .nav-tab {
@@ -217,15 +330,29 @@ body {
     outline: none;
     color: #8a888c;
     font-size: 14px;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 13px;
     font-weight: 600;
     padding: 5px 0 10px 0;
+    padding: 6px 4px 12px 4px;
     cursor: pointer;
     position: relative;
     transition: color 0.3s;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .nav-tab:hover {
     color: #d7d9dd;
+    color: var(--text-primary);
+}
+
+.nav-icon {
+    font-size: 17px;
+    opacity: 0.8;
 }
 
 .nav-tab.active {
@@ -233,6 +360,12 @@ body {
     background: none;
     border: none;
     box-shadow: none;
+    color: #ffffff;
+}
+
+.nav-tab.active .nav-icon {
+    color: var(--copper-bright);
+    opacity: 1;
 }
 
 .nav-tab.active::after {
@@ -243,8 +376,10 @@ body {
     width: 100%;
     height: 2px;
     background: #cf663f; /* Sublinhado metálico */
+    background: linear-gradient(90deg, #cf663f, #ff9364);
     border-radius: 2px 2px 0 0;
     box-shadow: 0 0 10px #cf663f, 0 0 20px rgba(207, 102, 63, 0.7);
+    box-shadow: 0 0 10px rgba(207, 102, 63, 0.8);
 }
 
 .page-container {
@@ -257,34 +392,168 @@ body {
 }
 
 /* === GRID DASHBOARD === */
+/* === TIPOGRAFIA & UTILITÁRIOS DO STITCH === */
+.font-display { font-family: var(--font-display) !important; }
+.font-body    { font-family: var(--font-body) !important; }
+.font-mono    { font-family: var(--font-mono) !important; }
+
+.caption-caps {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.text-emerald { color: #10b981 !important; }
+.text-cyan    { color: #06b6d4 !important; }
+.text-copper  { color: #cf663f !important; }
+.text-muted   { color: #94a3b8 !important; }
+.text-xs      { font-size: 11px !important; }
+
+.icon-cyan    { color: #06b6d4 !important; }
+.icon-emerald { color: #10b981 !important; }
+
+.status-beacon-emerald {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.85);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.pulse-dot-primary {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #cf663f;
+    box-shadow: 0 0 8px rgba(207, 102, 63, 0.85);
+    animation: pulseDot 1.6s infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.pulse-dot-emerald {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.85);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes pulseDot {
+    0%   { transform: scale(0.9); opacity: 0.7; }
+    50%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+/* Branding Stitch Sidebar */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 4px 14px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 4px;
+}
+.brand-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(207, 102, 63, 0.14);
+    border: 1px solid rgba(207, 102, 63, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(207, 102, 63, 0.25);
+    flex-shrink: 0;
+}
+.brand-icon {
+    font-size: 22px;
+    color: var(--copper-primary);
+}
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+.brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+.brand-subtitle {
+    font-size: 10px;
+    color: var(--copper-bright);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.btn-hero-action {
+    background: linear-gradient(135deg, rgba(207, 102, 63, 0.95) 0%, rgba(255, 147, 100, 0.85) 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 147, 100, 0.6) !important;
+    box-shadow: 0 4px 18px rgba(207, 102, 63, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+}
+.btn-hero-action:hover {
+    box-shadow: 0 6px 24px rgba(207, 102, 63, 0.6), 0 0 25px rgba(255, 147, 100, 0.5) !important;
+    transform: translateY(-1.5px) !important;
+}
+.schedule-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+/* === GRID DASHBOARD (6 COLUNAS FRACIONÁRIAS) === */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr); 
     grid-auto-rows: auto;
     gap: 18px;
     padding: 20px 28px 40px 28px;
+    gap: 16px;
+    padding: 18px 24px 40px 24px;
     min-height: min-content;
 }
 
 .span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-6 { grid-column: span 6; }
 
 .glass-panel {
     background: rgba(8, 8, 10, 0.85);
+    background: var(--surface-card);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
     padding: 18px 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
     min-width: 0;
 }
 
 .glass-panel:hover {
     border-color: rgba(207, 102, 63, 0.3);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(207, 102, 63, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-color: var(--border-glass-hover);
+    box-shadow: 0 0 20px -4px rgba(207, 102, 63, 0.15), 0 8px 30px rgba(0, 0, 0, 0.45);
 }
 
 .glass-panel h3 { 
@@ -295,6 +564,13 @@ body {
     letter-spacing: 0.8px; 
 }
 
+.panel-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
 /* Posição dos Cards no Desktop Widescreen */
 .insights-panel { 
     grid-column: 1 / span 2; 
@@ -302,10 +578,104 @@ body {
     min-height: 250px; 
 }
 
+.panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .hardware-panel { 
     grid-column: 1 / span 2; 
     grid-row: 2 / span 2; 
     min-height: 250px; 
+} 
+/* --- CARD 1: SAÚDE GERAL DO SISTEMA --- */
+.health-hero-panel {
+    min-height: 220px;
+}
+.health-timestamp {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.health-hero-body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0;
+}
+.health-ring-wrapper {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.health-ring-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+.health-ring-bg {
+    stroke: rgba(255, 255, 255, 0.08);
+}
+.health-ring-progress {
+    stroke: #10b981;
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+    transition: stroke-dashoffset 1s ease;
+}
+.health-ring-center {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.health-score-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+}
+.health-score-total {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+.health-hero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.health-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.health-telemetry-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.btn-retest-link {
+    background: none;
+    border: none;
+    color: var(--copper-bright);
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 2px 4px;
+    transition: color 0.2s ease;
+}
+.btn-retest-link:hover {
+    color: #ffffff;
 }
 
 .disks-panel    { grid-column: 3 / span 2; grid-row: 1 / span 1; min-height: 180px; }
@@ -316,6 +686,367 @@ body {
 .sensors-panel  { grid-column: 5 / span 2; grid-row: 3 / span 1; min-height: 200px; }
 .errors-panel   { grid-column: 3 / span 2; grid-row: 4 / span 1; min-height: 180px; }
 .security-panel { grid-column: 5 / span 2; grid-row: 4 / span 1; min-height: 180px; }
+/* --- CARD 2: SENSORES EM TEMPO REAL --- */
+.live-load-panel {
+    min-height: 220px;
+}
+.live-sample-badge {
+    font-size: 11px;
+    color: var(--copper-bright);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.live-load-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 4px 0;
+}
+.live-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.live-metric-card {
+    background: rgba(12, 14, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.metric-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+}
+.sensor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+.dot-cpu  { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.8); }
+.dot-ram  { background: #a855f7; box-shadow: 0 0 6px rgba(168, 85, 247, 0.8); }
+.dot-disk { background: #eab308; box-shadow: 0 0 6px rgba(234, 179, 8, 0.8); }
+.metric-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+}
+.metric-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.live-footer-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+/* --- CARD 3: REDE & CONEXÃO --- */
+.network-hero-panel {
+    min-height: 220px;
+}
+.net-conn-badge {
+    font-size: 10px;
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+.net-status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 8px 0;
+}
+.net-type-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+.net-speed-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.net-speed-card {
+    background: rgba(12, 14, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+}
+.net-speed-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 2px;
+}
+
+/* --- CARD 5: RECOMENDAÇÕES SUGERIDAS --- */
+.recommendations-panel {
+    min-height: 220px;
+}
+.recs-count-badge {
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border-radius: 9999px;
+    padding: 2px 8px;
+}
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0;
+}
+.rec-item {
+    background: rgba(12, 14, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+.rec-item:hover {
+    background: rgba(20, 24, 36, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.rec-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.rec-icon-orange {
+    background: rgba(207, 102, 63, 0.15);
+    color: var(--copper-bright);
+}
+.rec-icon-emerald {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+.rec-icon-cyan {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+}
+.rec-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+.rec-item-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.rec-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rec-pill-orange {
+    font-size: 9px;
+    background: rgba(207, 102, 63, 0.15);
+    color: var(--copper-bright);
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+.rec-pill-emerald {
+    font-size: 9px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+.rec-pill-cyan {
+    font-size: 9px;
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+.rec-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.btn-rec-action {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.btn-rec-action:hover {
+    background: rgba(207, 102, 63, 0.2);
+    border-color: rgba(207, 102, 63, 0.5);
+    color: #ffffff;
+}
+.btn-rec-action .material-symbols-outlined {
+    font-size: 13px;
+}
+.recs-footer-note {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+/* --- CARD 6: HARDWARE DETECTADO --- */
+.hardware-panel {
+    min-height: 240px;
+}
+.hardware-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.btn-copy-specs {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+.btn-copy-specs:hover {
+    background: rgba(207, 102, 63, 0.2);
+    border-color: rgba(207, 102, 63, 0.5);
+    color: #ffffff;
+}
+.hardware-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.hardware-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.015);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.hw-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.hw-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+.hw-license-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #10b981;
+}
+
+/* --- CARD 7: SENSORES TÉRMICOS & UPTIME --- */
+.thermals-uptime-panel {
+    min-height: 240px;
+}
+.thermals-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.thermals-status-ok {
+    font-size: 10px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+.uptime-section {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.uptime-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.uptime-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(6, 182, 212, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.uptime-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.uptime-metric {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.btn-tiny {
+    width: auto !important;
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
 
 /* =========================================================
    === PAINEL DE LIMPEZA PROFUNDA (REDESIGN GLASSMORPHISM) ===
@@ -1255,6 +1986,15 @@ body {
         grid-row: auto; 
         min-height: 230px; 
     }
+    .health-hero-panel     { grid-column: span 2; }
+    .live-load-panel       { grid-column: span 2; }
+    .network-hero-panel    { grid-column: span 4; }
+    .deepclean-panel       { grid-column: span 4; }
+    .recommendations-panel { grid-column: span 4; }
+    .hardware-panel        { grid-column: span 4; }
+    .thermals-uptime-panel { grid-column: span 4; }
+    .ram-panel             { grid-column: span 2; }
+    .disks-panel           { grid-column: span 2; }
     
     .hardware-panel { 
         grid-column: span 2; 
@@ -1317,6 +2057,19 @@ body {
     .hardware-panel {
         grid-column: span 2;
         grid-row: auto;
+    }
+    .health-hero-panel,
+    .live-load-panel,
+    .network-hero-panel,
+    .deepclean-panel,
+    .recommendations-panel,
+    .hardware-panel,
+    .thermals-uptime-panel,
+    .ram-panel,
+    .disks-panel,
+    .insights-panel {
+        grid-column: span 2 !important;
+        grid-row: auto !important;
         min-height: auto;
     }
     
@@ -1400,6 +2153,9 @@ body {
     .insights-panel, .hardware-panel, .disks-panel, .ram-panel, 
     .health-panel, .network-panel, .uptime-panel, .sensors-panel, 
     .errors-panel, .security-panel,
+    .health-hero-panel, .live-load-panel, .network-hero-panel, .deepclean-panel,
+    .recommendations-panel, .hardware-panel, .thermals-uptime-panel,
+    .ram-panel, .disks-panel, .insights-panel,
     .opt-startup-panel, .opt-disk-panel, .opt-shield-panel, .opt-repair-panel {
         grid-column: span 1 !important;
         grid-row: auto !important;
