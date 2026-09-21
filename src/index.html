@@ -166,7 +166,7 @@
                         <div class="health-card-footer">
                             <span class="health-telemetry-pill">
                                 <span class="material-symbols-outlined text-emerald" style="font-size: 16px;">verified</span>
-                                <span id="healthPillText">Índice de Telemetria Ótimo</span>
+                                <span id="healthPillText">Integridade do Sistema: Estável</span>
                             </span>
                             <button id="btnRetest" class="btn-retest-link font-mono" type="button">Reavaliar</button>
                         </div>
@@ -591,6 +591,151 @@
 
                 <!-- PÁGINA 4: OTIMIZAÇÃO -->
                 <div class="dashboard-grid page-view" id="otimizacaoPage" style="display: none;">
+                    
+                    <!-- MASTER CARD: Checkup & Manutenção Geral (6 em 1) -->
+                    <div class="glass-panel opt-master-panel">
+                        <div class="opt-master-content">
+                            <div class="opt-master-header">
+                                <span class="opt-master-badge">ROTINA COMPLETA RECOMENDADA</span>
+                                <h2 class="opt-master-title">Checkup &amp; Manutenção Geral do Sistema (6 em 1)</h2>
+                                <p class="opt-master-desc">
+                                    Executa a suíte sequencial completa com todas as melhorias: Flush DNS &amp; Rede, Limpeza de Temporários, Verificação de Integridade (SFC), Reparo de Imagem (DISM), Otimização TRIM (SSD) e Atualização de Softwares (Winget) com acompanhamento em tempo real via stepper.
+                                </p>
+                            </div>
+                            <div class="opt-master-action">
+                                <button id="btnTriggerFullMaint" class="btn-copper btn-hero-action">
+                                    <span class="material-symbols-outlined">rocket_launch</span>
+                                    <span>Executar Manutenção Completa</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: OPÇÕES INDIVIDUAIS DE MELHORIA -->
+                    <div class="glass-panel opt-individual-panel">
+                        <div class="opt-section-header">
+                            <div>
+                                <span class="caption-caps font-mono text-copper">// EXECUÇÃO GRANULAR SOB DEMANDA</span>
+                                <h3 class="opt-section-title">Opções Individuais de Melhoria</h3>
+                                <p class="opt-section-desc">Execute apenas a rotina desejada de forma independente, sem precisar aguardar todo o checkup.</p>
+                            </div>
+                        </div>
+
+                        <div class="opt-individual-grid">
+                            <!-- Card 1: Rede e DNS -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">language</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">~2s</span>
+                                </div>
+                                <h4 class="opt-single-title">Otimização de Rede &amp; DNS</h4>
+                                <p class="opt-single-desc">Limpa o cache de resolução DNS e redefine a pilha de sockets TCP/IP do Windows.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleDns">
+                                    <span class="btn-text">Executar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 2: Limpeza de Temporários -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">delete_sweep</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">~5s</span>
+                                </div>
+                                <h4 class="opt-single-title">Limpeza de Temporários</h4>
+                                <p class="opt-single-desc">Elimina com segurança caches em %TEMP%, Windows Temp, Prefetch e esvazia a lixeira.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleTemp">
+                                    <span class="btn-text">Limpar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 3: TRIM do SSD -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">speed</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">~4s</span>
+                                </div>
+                                <h4 class="opt-single-title">Otimização TRIM (SSD)</h4>
+                                <p class="opt-single-desc">Envia instrução ReTrim para liberar blocos ociosos e restaurar a taxa de gravação.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleTrim">
+                                    <span class="btn-text">Otimizar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 4: Integridade de Arquivos (SFC) -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">verified_user</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">3-5 min</span>
+                                </div>
+                                <h4 class="opt-single-title">Integridade de Arquivos (SFC)</h4>
+                                <p class="opt-single-desc">Varre arquivos protegidos do Windows (sfc /scannow) e repara cópias danificadas.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleSfc">
+                                    <span class="btn-text">Verificar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 5: Reparo de Imagem (DISM) -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">build_circle</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">5-8 min</span>
+                                </div>
+                                <h4 class="opt-single-title">Reparo de Imagem (DISM)</h4>
+                                <p class="opt-single-desc">Restaura a integridade do repositório de componentes do Windows via DISM.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleDism">
+                                    <span class="btn-text">Restaurar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 6: Atualização de Softwares -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">system_update</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">1-3 min</span>
+                                </div>
+                                <h4 class="opt-single-title">Atualização de Programas</h4>
+                                <p class="opt-single-desc">Pesquisa e atualiza programas instalados no sistema via Windows Package Manager (Winget).</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleWinget">
+                                    <span class="btn-text">Atualizar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+
+                            <!-- Card 7: Reparador Windows Update -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">sync_problem</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">~15s</span>
+                                </div>
+                                <h4 class="opt-single-title">Reparo do Windows Update</h4>
+                                <p class="opt-single-desc">Destrava os serviços de atualização e limpa a pasta SoftwareDistribution corrompida.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleWUpdate">
+                                    <span class="btn-text">Destravar</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Smart Startup -->
                     <div class="glass-panel opt-startup-panel" style="min-height: 280px; padding: 20px 24px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -691,22 +836,8 @@
                         <button id="btnRestoreShield" class="btn-copper" style="padding: 12px; font-size: 13px;">
                             🛡️ Restaurar Todas as Defesas
                         </button>
-                    </div>
-
-                    <!-- Reparador de Sistema (One-Click SFC/DISM) -->
-                    <div class="glass-panel opt-repair-panel" style="min-height: 280px; padding: 20px 24px; display: flex; flex-direction: column;">
-                        <h3 style="margin: 0 0 5px 0; color: #f4f4f5;">Reparador de Sistema</h3>
-                        <p style="margin: 0 0 15px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Corrige erros graves, telas azuis e lentidão usando ferramentas nativas da Microsoft (SFC &amp; DISM).</p>
-                        
-                        <div style="background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; flex: 1;">
-                            <span style="font-size: 12px; color: #2dd4bf; font-weight: 500;">✓ Restaura arquivos do Windows</span><br>
-                            <span style="font-size: 12px; color: #2dd4bf; font-weight: 500;">✓ Repara a imagem do sistema</span><br><br>
-                            <span style="font-size: 11px; color: #8a888c;">Este processo usa a mesma central de manutenção já integrada ao CheckUP, focando exclusivamente no reparo profundo.</span>
-                        </div>
-
-                        <button id="btnTriggerReparo" class="btn-copper" style="margin-top: auto; padding: 12px; font-size: 13px;">
-                            🔧 Iniciar Reparo Profundo
-                        </button>
+                        <!-- Botão de compatibilidade mantido oculto -->
+                        <button id="btnTriggerReparo" style="display: none;"></button>
                     </div>
 
                 </div>
@@ -847,6 +978,9 @@
         </div>
     </div>
     
+    <!-- CONTAINER DE NOTIFICAÇÕES TOAST (Dark Glassmorphism) -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <!-- OVERLAY DE CARREGAMENTO (Dark Glassmorphism) -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-card">

@@ -7,8 +7,33 @@ Grande parte do poder e confiabilidade do **Projeto CheckUP Windows** reside em 
 ## 📜 Scripts do Diretório `core/`
 
 1. **`checkup.ps1`:** Script mestre de auditoria. 100% modernizado com `Get-CimInstance` (eliminando dependências do legado `Get-WmiObject`), garantindo compatibilidade estrita com Windows 10/11 sem travamentos em chamadas WMI. Coleta hardware, discos lógicos, controladora de vídeo, sensores térmicos através da `LibreHardwareMonitorLib.dll`, licença digital do Windows e processos pesados em memória.
-2. **`Ferramenta_Reparo.bat` / `ExecutarCheckup.bat`:** Launchers rápidos e rotinas de suporte em batch com bypass de política de execução.
-3. **`Instalar_Rotina.ps1` / `CriarTarefa.bat`:** Automatizadores do Agendador de Tarefas do Windows para auditorias mensais sem intervenção manual.
+2. **`ExecutarRotina.ps1`:** Despachante nativo de rotinas granulares de melhoria e reparo. Aceita o parâmetro `-Rotina <dns|temp|trim|sfc|dism|winget|wupdate|shield>` e `-StatusFile <caminho>`, emitindo telemetria em JSON em tempo real.
+3. **`Ferramenta_Reparo.bat` / `ExecutarCheckup.bat`:** Launchers rápidos e rotinas de suporte em batch com bypass de política de execução.
+4. **`Instalar_Rotina.ps1` / `CriarTarefa.bat`:** Automatizadores do Agendador de Tarefas do Windows para auditorias mensais sem intervenção manual.
+
+---
+
+## ⚡ Despachante Granular de Rotinas (`core/ExecutarRotina.ps1`)
+
+Para atender à demanda de **Opções Individuais de Melhoria** sem obrigar o usuário a executar a manutenção completa em 6 etapas, o script centraliza a automação dos comandos nativos da Microsoft:
+- **`dns`:** `ipconfig /flushdns` + `netsh winsock reset` + `netsh int ip reset`.
+- **`temp`:** Higienização de `$env:TEMP` e `C:\Windows\Temp` com proteção estrita contra auto-deleção.
+- **`trim`:** `Optimize-Volume -DriveLetter C -ReTrim` (ou `-Defrag`).
+- **`sfc`:** `sfc /scannow`.
+- **`dism`:** `DISM /Online /Cleanup-Image /RestoreHealth`.
+- **`winget`:** `winget upgrade --all --silent --accept-package-agreements --accept-source-agreements --disable-interactivity`.
+- **`wupdate`:** `net stop wuauserv` + `net stop cryptSvc` + limpeza do cache de download de updates em `SoftwareDistribution` + `net start`.
+
+---
+
+## 🛡️ Blindagem de Temporários (`%TEMP%`) e Prevenção de Auto-Deleção Portátil
+
+Em builds portáteis (`target: portable`), o Electron descompacta o runtime e DLLs essenciais em `$env:LOCALAPPDATA\Temp\checkup-windows`.
+- **Vulnerabilidade Identificada:** Rotinas genéricas que executavam `Remove-Item "$env:TEMP\*"` tentavam apagar os próprios arquivos binários em execução da aplicação, gerando erros críticos de ICU (`Invalid file descriptor to ICU data received`).
+- **Regra Inviolável de Proteção:** Toda rotina de limpeza de temporários DEVE obrigatoriamente aplicar o filtro de exclusão:
+  ```powershell
+  Get-ChildItem -Path $env:TEMP -Exclude "*checkup*" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+  ```
 
 ---
 
@@ -43,9 +68,9 @@ A [[Arquitetura]] da aplicação inicia o Electron com nível de privilégio nor
 
 ### A Solução Assíncrona do CheckUP
 1. **Geração Dinâmica:** O `renderer.js` cria um script transitório em `$env:TEMP\checkup_maint_temp.ps1`.
-2. **Gravação de Estado:** Em cada uma das 6 etapas, o script grava um JSON com `step`, `status` ("running" / "completed") e `log` em `$env:TEMP\checkup_maint_status.json`.
+2. **Gravação de Estado:** Em cada uma das etapas, o script grava um JSON com `step`, `status` ("running" / "completed") e `log` em `$env:TEMP\checkup_maint_status.json`.
 3. **Elevação Isolada:** Dispara `Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -WindowStyle Hidden -File $psTemp" -Verb RunAs`. O UAC do Windows solicita autorização ao usuário apenas para o processo de reparo.
-4. **Polling Reativo (400ms):** O frontend lê periodicamente o arquivo transitório, atualizando a barra de progresso, cronômetro e checklist interativo com animações pulsantes no [[Design System]].
+4. **Polling Reativo (400-500ms):** O frontend lê periodicamente o arquivo transitório, atualizando a barra de progresso, cronômetro e checklist interativo com animações pulsantes no [[Design System]].
 5. **Autolimpeza:** Os arquivos temporários são excluídos automaticamente ao término da rotina.
 
 ---

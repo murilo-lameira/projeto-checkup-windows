@@ -27,8 +27,8 @@ echo       - Rede redefinida com sucesso.
 echo.
 
 echo [2/7] Limpando Arquivos Lixo e Caches de Sistema...
-del /q /f /s "%TEMP%\*" >nul 2>&1
-del /q /f /s "C:\Windows\Temp\*" >nul 2>&1
+powershell -NoProfile -Command "Get-ChildItem -Path $env:TEMP -Exclude '*checkup*' -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue" >nul 2>&1
+powershell -NoProfile -Command "Get-ChildItem -Path 'C:\Windows\Temp' -Exclude '*checkup*' -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue" >nul 2>&1
 del /q /f /s "C:\Windows\Prefetch\*" >nul 2>&1
 rd /s /q %systemdrive%\$Recycle.bin >nul 2>&1
 echo       - Arquivos temporarios, prefetch e lixeira limpos.

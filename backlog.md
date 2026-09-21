@@ -110,3 +110,26 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
 - [x] **Documentação & Rastreabilidade no Obsidian:**
   - Criação da nota técnica dedicada `Check Up/RTK Token Killer.md` (< 200 linhas) com wikilinks para `Home.md` e `Squad Multi-Agentes.md`.
   - Atualização do mapa central em `Check Up/Home.md` e das diretrizes de governança em `Check Up/Squad Multi-Agentes.md`.
+
+---
+### 12. Modularização de Melhorias e Rotinas Granulares (Feedback do Usuário)
+- [x] **Master Card "Checkup & Manutenção Geral 6 em 1":** Cartão hero no topo da aba Otimização (`#btnTriggerFullMaint`) para execução em lote com modal de progresso, cronômetro e checklist animado.
+- [x] **Painel de Opções Individuais de Melhoria:** Grid responsivo com 7 rotinas independentes:
+  - Otimização de Rede & DNS (`#btnSingleDns`)
+  - Limpeza de Arquivos Temporários (`#btnSingleTemp`)
+  - Otimização TRIM para SSDs (`#btnSingleTrim`)
+  - Verificação de Integridade de Arquivos SFC (`#btnSingleSfc`)
+  - Reparo Profundo de Imagem DISM (`#btnSingleDism`)
+  - Atualização de Programas via Winget (`#btnSingleWinget`)
+  - Reparador do Windows Update (`#btnSingleWUpdate`)
+- [x] **Despachante Nativo Granular (`core/ExecutarRotina.ps1`):** Script PowerShell paramétrico (`-Rotina <nome> -StatusFile <caminho>`) 100% nativo sem binários externos.
+- [x] **Feedback Visual Não-Bloqueante:** Botões com spinner animado durante execução e notificações flutuantes Toast (`.toast`, `.toast-success`, `.toast-warning`) via `#toastContainer`.
+
+---
+### 13. Diagnóstico & Correção do Erro de Telemetria e Proteção Portátil
+- [x] **Resolução da Causa Raiz de Telemetria:**
+  - *Falso Positivo Semântico:* O selo `#healthPillText` exibia `"Índice de Telemetria Crítico"` quando havia eventos de erro no log do SO, confundindo o usuário. Alterado para `"Integridade do Sistema: Estável / Atenção / Crítico"`.
+  - *Auto-deleção na Versão Portátil:* A limpeza de temporários chamava `Remove-Item "$env:TEMP\*"`, deletando os arquivos em uso do CheckUP portátil (`%TEMP%\checkup-windows`). Corrigido com `-Exclude "*checkup*"`.
+- [x] **Blindagem de Limpeza em `%TEMP%`:** Aplicado filtro protetor em `core/ExecutarRotina.ps1`, `src/renderer.js` e `core/Ferramenta_Reparo.bat`.
+- [x] **Resiliência e Validação:** Passagem com código 0 em `npm run validate`.
+

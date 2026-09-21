@@ -14,11 +14,11 @@ Visão executiva em tempo real com telemetria contínua da máquina, estruturada
 - **Score Dinâmico de 0 a 100:** Exibição central de índice de saúde na tipografia [[Design System#tipografia-tríade-de-alta-precisão|Space Grotesk]] (`#healthScoreNumber`), contextualizado pelo divisor `/100` em `JetBrains Mono`.
 - **Anel SVG com Gradiente:** Anel circular vetorial (`#healthScoreCircle`) com stroke animado (`stroke-dasharray: 264` e offset dinâmico), refletindo o nível de integridade da máquina de acordo com a detecção de erros e vulnerabilidades.
 - **Status Heurístico e Badge:** Indicador visual com badge dinâmico (`#healthBadgeStatus`: `● Excelente`, `● Atenção` ou `● Crítico`), título padronizado (`Sistema Estável & Seguro`) e contagem de incidentes nas últimas 48 horas.
-- **Selo de Telemetria e Ação Rápida "Reavaliar":** Rodapé com o selo verificado `Índice de Telemetria Ótimo` (`#healthPillText`) e botão microinterativo (`#btnRetest`) embutido para reexecução diagnóstica sob demanda sem sair do dashboard.
+- **Selo de Integridade do Sistema e Ação Rápida "Reavaliar":** Rodapé com o selo de diagnóstico operacional `Integridade do Sistema: Estável / Atenção / Crítico` (`#healthPillText`) e botão microinterativo (`#btnRetest`) embutido para reexecução diagnóstica sob demanda sem sair do dashboard, eliminando ambiguidades entre incidentes do SO e a estabilidade da própria aplicação.
 
 #### 2. ⚡ Widget Sensores em Tempo Real (Live Load)
 - **Amostragem Rápida (1s):** Monitoramento assíncrono síncrono ultra-leve com atualização contínua sem consumir recursos de processamento.
-- **Gráfico Multi-Anel Radial (ApexCharts):** Visualização integrada em 3 anéis concêntricos concêntricos cobrindo Carga da CPU, Consumo de RAM e Taxa de Ocupação do Disco Primário.
+- **Gráfico Multi-Anel Radial (ApexCharts):** Visualização integrada em 3 anéis concêntricos cobrindo Carga da CPU, Consumo de RAM e Taxa de Ocupação do Disco Primário.
 - **Mini-Cards com Sensor Dots:** Três blocos com indicadores temáticos:
   - **CPU:** Ponto de status em Cobre (`.dot-cpu`), porcentagem instantânea e badge de temperatura em tempo real (`#valCpuTempBadge`).
   - **RAM:** Ponto de status em Esmeralda (`.dot-ram`), porcentagem de uso e memória física ativa.
@@ -79,16 +79,27 @@ Módulo *One-Click Optimize* com *Toggle Switches* em cobre metálico para desat
 - **Feedback por Toast:** Notificações flutuantes animadas que confirmam visualmente o sucesso ou o retorno ao estado original de cada chave modificada no Registro.
 
 ### 🚀 Central Avançada de Otimização (Aba Otimização)
-Um hub expandido focado em dar ao usuário a sensação de "PC recém-formatado", composto por 4 grandes painéis e ferramentas One-Click:
-- **Gestor Inteligente de Inicialização (Smart Startup com Toggle Copper):** Tabela interativa que lista os aplicativos que inicializam com o Windows (via `Win32_StartupCommand`). Integra *Toggle Switches* deslizantes estilizados em Cobre (`.copper-switch`) que leem e gravam o estado real nos registros oficiais do Windows (`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run` e `StartupApproved\StartupFolder`). A alternância manipula o byte binário inicial (0x02 para Ativo, 0x03 para Desativado), proporcionando o mesmo comportamento nativo do Gerenciador de Tarefas do Windows sem travar o boot.
-- **Otimização de SSD, Monitoramento S.M.A.R.T. e Benchmark Nativo:** Monitora proativamente a saúde física das unidades de armazenamento através do comando WMI/CIM `Get-PhysicalDisk`. Exibe o modelo exato da unidade primária, tipo de mídia (NVMe / SSD / HDD) e um badge dinâmico de integridade física S.M.A.R.T. (`● Saudável`, `● Atenção` ou `● Risco`). Inclui:
-  - **Benchmark Nativo de Velocidade:** Medição em tempo real de taxas sequenciais de leitura e gravação em MB/s via PowerShell `.NET` (`System.IO.FileStream` e `System.Diagnostics.Stopwatch`) operando com bloco temporário de 100 MB em `%TEMP%` blindado por blocos `try/finally` e descarte seguro de recursos (`Dispose`), 100% livre de binários externos ou dependências de terceiros.
-  - **Otimização Inteligente de Volume:** Botão One-Click com detecção automática do tipo de mídia (envia `ReTrim` para SSDs/NVMes ou `Defrag` para discos mecânicos tradicionais).
-- **Escudo de Segurança com Detecção Híbrida & Grid Responsivo:** Painel avançado de ciberdefesa com suporte a ambientes híbridos e layout 100% responsivo. Realiza uma consulta dupla:
-  1. No namespace WMI `root/SecurityCenter2` (`AntiVirusProduct`) para identificar softwares de proteção de terceiros instalados (ex: Kaspersky, Avast, Bitdefender, Norton).
-  2. No módulo `Get-MpComputerStatus` para telemetria do Microsoft Defender.
-  Caso um antivírus de terceiros esteja gerenciando o sistema, o card exibe o nome do fornecedor com badge esmeralda ("Protegido por Terceiros"), eliminando falsos alarmes de risco que ocorriam quando o Defender entrava em modo passivo.
-- **Reparador de Sistema (SFC/DISM):** Botão de ação rápida que engatilha as ferramentas de reparo profundo da Microsoft (`sfc /scannow` e `DISM /RestoreHealth`) para corrigir corrupções de DLLs e telas azuis.
+Um hub expandido focado em dar ao usuário a sensação de "PC recém-formatado", arquitetado com segregação entre rotina geral automatizada e funções individuais sob demanda:
+
+#### 👑 Master Card: Checkup & Manutenção Geral 6 em 1
+- **Card Hero Panorâmico (`.opt-master-panel`):** Destaque visual ocupando a largura total (span 6) com gradiente Dark Obsidian e iluminação radial Copper Glow.
+- **Execução Sequencial Completa (`#btnTriggerFullMaint`):** Aciona a rotina mestre em 6 etapas com o modal Dark Glassmorphism, barra de progresso em gradiente Cobre/Teal, cronômetro de tempo decorrido e checklist pulsante.
+
+#### 🧩 Painel de Opções Individuais de Melhoria (`.opt-individual-panel`)
+Permite ao usuário executar exclusivamente a intervenção desejada através do despachante nativo [[Manutenção e Scripts|core/ExecutarRotina.ps1]], sem a obrigação de rodar todo o checklist em lote:
+1. **Otimização de Rede & DNS (`#btnSingleDns`):** Purga caches DNS (`ipconfig /flushdns`) e redefine interfaces Winsock/TCP (`netsh`). *Execução ultrarrápida (~5s).*
+2. **Limpeza de Temporários (`#btnSingleTemp`):** Higienização segura de `%TEMP%` e `C:\Windows\Temp` com exclusão obrigatória de pastas do executável portátil (`-Exclude "*checkup*"`), evitando auto-deleção. *Execução rápida (~10s).*
+3. **Otimização TRIM (SSD) (`#btnSingleTrim`):** Emite instruções nativas `Optimize-Volume -ReTrim` em drives SSD/NVMe ou desfragmentação de trilhas em HDDs mecânicos. *Execução rápida (~15s).*
+4. **Integridade de Arquivos (SFC) (`#btnSingleSfc`):** Aciona `sfc /scannow` com elevação UAC para reparar arquivos essenciais corrompidos do Windows. *Verificação profunda (~2-4 min).*
+5. **Reparo de Imagem (DISM) (`#btnSingleDism`):** Executa `DISM /Online /Cleanup-Image /RestoreHealth` com elevação UAC para restaurar o repositório de componentes do Windows Update. *Verificação profunda (~3-6 min).*
+6. **Atualização de Programas (Winget) (`#btnSingleWinget`):** Varre e atualiza softwares instalados via repositório oficial da Microsoft (`winget upgrade --all`). *Verificação profunda (~1-3 min).*
+7. **Reparador do Windows Update (`#btnSingleWUpdate`):** Interrompe serviços de atualização, purga o cache de download em `SoftwareDistribution` e reinicia serviços de atualização. *Execução rápida (~10s).*
+
+- **Feedback Visual Não-Bloqueante:** Cada botão individual substitui seu texto por spinner animado durante a operação, restaurando-se com ícone esmeralda de confirmação acompanhado por notificações flutuantes Toast (`.toast-success`, `.toast-warning`).
+
+- **Gestor Inteligente de Inicialização (Smart Startup com Toggle Copper):** Tabela interativa que lista os aplicativos que inicializam com o Windows (via `Win32_StartupCommand`). Integra *Toggle Switches* deslizantes estilizados em Cobre (`.copper-switch`) que leem e gravam o estado real nos registros oficiais do Windows (`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run` e `StartupApproved\StartupFolder`).
+- **Otimização de SSD, Monitoramento S.M.A.R.T. e Benchmark Nativo:** Monitora proativamente a saúde física das unidades de armazenamento através do comando WMI/CIM `Get-PhysicalDisk`. Exibe o modelo exato da unidade primária, tipo de mídia (NVMe / SSD / HDD) e um badge dinâmico de integridade física S.M.A.R.T. (`● Saudável`, `● Atenção` ou `● Risco`).
+- **Escudo de Segurança com Detecção Híbrida & Grid Responsivo:** Painel avançado de ciberdefesa com suporte a ambientes híbridos (Defender e antivírus de terceiros) e layout responsivo.
 
 ---
 

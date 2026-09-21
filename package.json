@@ -33,7 +33,8 @@
       "icon": "src/assets/icon.ico"
     },
     "extraResources": [
-      "core/**"
+      "core/**",
+      "relatorios/**"
     ],
     "portable": {
       "unpackDirName": "checkup-windows",

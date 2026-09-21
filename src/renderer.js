@@ -22,6 +22,62 @@ let smoothRealtimeValues = [0, 0, 0];
 let uptimeChart, tempChart, diskTempChart;
 let installedProgramsList = [];
 
+function escapeHtml(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function showToast(type = 'info', title = '', message = '', durationMs = 4000) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+
+    let iconClass = 'fa-circle-info';
+    let iconColor = '#cf663f';
+    if (type === 'success') {
+        iconClass = 'fa-circle-check';
+        iconColor = '#2dd4bf';
+    } else if (type === 'error') {
+        iconClass = 'fa-circle-xmark';
+        iconColor = '#ef4444';
+    } else if (type === 'warning') {
+        iconClass = 'fa-triangle-exclamation';
+        iconColor = '#fbbf24';
+    }
+
+    const titleHtml = title 
+        ? `<div style="font-weight:700;margin-bottom:2px;color:#f4f4f5;font-size:13px;">${escapeHtml(title)}</div>` 
+        : '';
+
+    toast.innerHTML = `
+        <i class="fa-solid ${iconClass} toast-icon" style="color: ${iconColor};"></i>
+        <div class="toast-message">
+            ${titleHtml}
+            <div>${escapeHtml(message)}</div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.add('toast-show');
+    });
+
+    setTimeout(() => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 400);
+    }, durationMs);
+}
+window.showToast = showToast;
+
 window.addEventListener('DOMContentLoaded', () => {
     const navTabs = document.querySelectorAll('.nav-tab');
     navTabs.forEach(tab => {
@@ -604,6 +660,50 @@ window.addEventListener('DOMContentLoaded', () => {
                         diskCharts.push(chart);
                     }
                 });
+                if (drives.length > 0) {
+                    cachedDiskUsage = parseFloat(String(drives[0].Uso || '0').replace('%', '')) || 0;
+                }
+            }
+
+            const upSec = os.uptime();
+            const upDays = Math.floor(upSec / 86400);
+            const upHours = Math.floor((upSec % 86400) / 3600);
+            const upMinutes = Math.floor((upSec % 3600) / 60);
+            const uptimeStr = `${upDays} dias, ${upHours} horas, ${upMinutes} minutos`;
+            if (document.getElementById('valUptime')) {
+                document.getElementById('valUptime').innerText = uptimeStr;
+            }
+
+            if (document.getElementById('hardwareMotherboard')) {
+                document.getElementById('hardwareMotherboard').innerText = `${os.hostname()} (Placa-mãe nativa)`;
+            }
+            if (document.getElementById('hardwareGpu')) {
+                document.getElementById('hardwareGpu').innerText = 'GPU Nativa (Auditoria via Diagnóstico)';
+            }
+            if (document.getElementById('valNetSpeed')) {
+                document.getElementById('valNetSpeed').innerText = 'Monitorando tráfego em tempo real';
+            }
+
+            const valCpuTempEl = document.getElementById('valCpuTemp');
+            const valCpuStatusEl = document.getElementById('valCpuTempStatus');
+            if (valCpuTempEl) {
+                valCpuTempEl.innerText = '-- °C';
+                valCpuTempEl.style.color = '#71717a';
+            }
+            if (valCpuStatusEl) {
+                valCpuStatusEl.innerText = 'Requer Diagnóstico';
+                valCpuStatusEl.style.color = '#a1a1aa';
+            }
+
+            const valDiskTempEl = document.getElementById('valDiskTemp');
+            const valDiskStatusEl = document.getElementById('valDiskTempStatus');
+            if (valDiskTempEl) {
+                valDiskTempEl.innerText = '-- °C';
+                valDiskTempEl.style.color = '#71717a';
+            }
+            if (valDiskStatusEl) {
+                valDiskStatusEl.innerText = 'Requer Diagnóstico';
+                valDiskStatusEl.style.color = '#a1a1aa';
             }
 
             const healthStatus = document.getElementById('healthStatus');
@@ -635,6 +735,9 @@ window.addEventListener('DOMContentLoaded', () => {
                     <div class="security-item security-active"><span>Acesso Remoto</span><strong>Nenhum serviço invasivo</strong></div>
                 `;
             }
+
+            // Atualiza processos em tempo real no fallback nativo
+            refreshProcessesList();
         } catch (_) {}
     }
 
@@ -876,11 +979,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 if (healthPillText) {
                     if (healthIssues.length > 0) {
-                        healthPillText.innerText = 'Índice de Telemetria Crítico';
+                        healthPillText.innerText = 'Integridade do Sistema: Crítico';
                     } else if (healthWarnings.length > 0) {
-                        healthPillText.innerText = 'Índice de Telemetria em Atenção';
+                        healthPillText.innerText = 'Integridade do Sistema: Atenção';
                     } else {
-                        healthPillText.innerText = 'Índice de Telemetria Ótimo';
+                        healthPillText.innerText = 'Integridade do Sistema: Estável';
                     }
                 }
 
@@ -1017,12 +1120,14 @@ window.addEventListener('DOMContentLoaded', () => {
                     renderProcessesTable(data.Processos);
                 }
 
+                setStatus('success', 'Telemetria Operacional', 'Todas as métricas e sensores foram carregados com sucesso.');
+
             } catch (err) {
                 setStatus('error', 'Erro de Processamento', `Falha ao ler os dados do diagnóstico: ${err.message}`);
             }
         } else {
             populateBasicHardwareFallback();
-            setStatus('info', 'Telemetria Básica Ativa', 'Dados essenciais carregados. Clique em "Diagnóstico" para varredura completa.');
+            setStatus('info', 'Telemetria Rápida Ativa', 'Métricas básicas do sistema carregadas. Clique em "Diagnóstico" para varredura completa.');
         }
     }
 
@@ -1681,18 +1786,44 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(updateSecurityShield, 1500);
     setTimeout(updateDiskSmartStatus, 2000);
 
+    function resolveCheckupScriptPath() {
+        const candidates = [
+            path.join(projectRoot, 'core', 'checkup.ps1'),
+            path.join(projectRoot, 'checkup.ps1'),
+            path.join(__dirname, '..', 'core', 'checkup.ps1'),
+            path.join(path.dirname(process.execPath), 'resources', 'core', 'checkup.ps1')
+        ];
+        for (const c of candidates) {
+            try {
+                if (fs.existsSync(c)) return c;
+            } catch (_) {}
+        }
+        return candidates[0];
+    }
+
     if (btnCheckup) {
         btnCheckup.addEventListener('click', () => {
             setAppLockState(true, 'Diagnosticando o Sistema...');
             setStatus('action', 'Diagnóstico em Andamento', 'Coletando telemetria avançada... (Isso pode levar de 15 a 30 segundos).');
 
-            const scriptPath = path.join(projectRoot, 'core', 'checkup.ps1');
+            const scriptPath = resolveCheckupScriptPath();
+            if (!fs.existsSync(scriptPath)) {
+                setAppLockState(false);
+                setStatus('error', 'Script Não Localizado', 'O arquivo checkup.ps1 não foi encontrado no pacote. Reinstale ou execute o aplicativo descompactado.');
+                showAlert('Não foi possível localizar o script de diagnóstico (checkup.ps1). Verifique a instalação do aplicativo.', 'Arquivo Não Encontrado', '🚨');
+                return;
+            }
+
             const command = `powershell.exe -NoProfile -Command "Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \\"${scriptPath}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
             
             exec(command, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
                 setAppLockState(false); 
                 if (error) {
-                    setStatus('error', 'Erro no Diagnóstico', `Ocorreu uma falha na execução ou permissão negada: ${error.message}`);
+                    const isUacCancel = error.message && (error.message.includes('cancel') || error.message.includes('1223') || error.message.includes('recus') || error.message.includes('negad'));
+                    const errorMsg = isUacCancel
+                        ? 'Permissão de Administrador recusada no prompt UAC do Windows.'
+                        : `Falha na execução do diagnóstico: ${error.message}`;
+                    setStatus('error', 'Diagnóstico Interrompido', errorMsg);
                     return;
                 }
                 setStatus('success', 'Diagnóstico Concluído', 'Painel de controle atualizado com sucesso.');
@@ -1929,8 +2060,8 @@ Write-MaintStatus 1 "done" "Cache de rede liberado com sucesso."
 
 # 2. Arquivos Temporários
 Write-MaintStatus 2 "running" "Limpando arquivos temporários e caches de aplicativos..."
-Remove-Item -Path "$env:TEMP\\*" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "C:\\Windows\\Temp\\*" -Recurse -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path "$env:TEMP" -Exclude "*checkup*" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path "C:\\Windows\\Temp" -Exclude "*checkup*" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 Write-MaintStatus 2 "done" "Arquivos temporários eliminados."
 
 # 3. Integridade do Windows (SFC)
@@ -1940,7 +2071,20 @@ Write-MaintStatus 3 "done" "Varredura do SFC concluída."
 
 # 4. Imagem do Windows (DISM)
 Write-MaintStatus 4 "running" "Executando DISM /RestoreHealth (Reparo da imagem do sistema)..."
-DISM /Online /Cleanup-Image /RestoreHealth | Out-Null
+try {
+    $dismJob = Start-Job -ScriptBlock { DISM /Online /Cleanup-Image /RestoreHealth /NoRestart }
+    $dismFinished = Wait-Job $dismJob -Timeout 180
+    if (-not $dismFinished) {
+        Stop-Job $dismJob -ErrorAction SilentlyContinue
+        Remove-Job $dismJob -Force -ErrorAction SilentlyContinue
+        Get-Process -Name Dism, DismHost -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    } else {
+        Receive-Job $dismJob | Out-Null
+        Remove-Job $dismJob -Force -ErrorAction SilentlyContinue
+    }
+} catch {
+    DISM /Online /Cleanup-Image /RestoreHealth /NoRestart | Out-Null
+}
 Write-MaintStatus 4 "done" "Reparo de imagem DISM concluído."
 
 # 5. Otimização de Armazenamento (TRIM / Defrag)
@@ -2017,6 +2161,116 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
             });
         });
     }
+
+    // =========================================================
+    // === ROTINAS INDIVIDUAIS DE MELHORIA & MASTER TRIGGER ===
+    // =========================================================
+    const btnTriggerFullMaint = document.getElementById('btnTriggerFullMaint');
+    if (btnTriggerFullMaint && btnFullMaintenance) {
+        btnTriggerFullMaint.addEventListener('click', () => {
+            btnFullMaintenance.click();
+        });
+    }
+
+    let isIndividualRoutineRunning = false;
+
+    function executeIndividualRoutine(routineKey, routineName, btnEl) {
+        if (isIndividualRoutineRunning || isAppPaused) {
+            showToast('warning', 'Operação em Andamento', 'Aguarde a conclusão da tarefa atual antes de iniciar outra.');
+            return;
+        }
+
+        if (!btnEl) return;
+
+        isIndividualRoutineRunning = true;
+        const originalHtml = btnEl.innerHTML;
+        btnEl.disabled = true;
+        btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executando...';
+
+        showToast('info', routineName, 'Iniciando rotina do Windows em segundo plano...');
+        setStatus('action', `Executando: ${routineName}`, 'Aguarde a finalização da rotina nativa...');
+
+        const psScriptPath = path.join(projectRoot, 'core', 'ExecutarRotina.ps1');
+        const statusFile = path.join(os.tmpdir(), `checkup_status_${routineKey}.json`);
+        const tempBat = path.join(os.tmpdir(), `checkup_run_${routineKey}.bat`);
+
+        if (fs.existsSync(statusFile)) {
+            try { fs.unlinkSync(statusFile); } catch(_) {}
+        }
+
+        const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "${psScriptPath}" -Rotina ${routineKey} -StatusFile "${statusFile}"\n`;
+        try {
+            fs.writeFileSync(tempBat, batContent, 'utf8');
+        } catch (errWrite) {
+            console.error('Falha ao escrever bat temporário:', errWrite);
+        }
+
+        // Monitor de progresso da rotina individual
+        const watcher = setInterval(() => {
+            if (fs.existsSync(statusFile)) {
+                try {
+                    const raw = fs.readFileSync(statusFile, 'utf8');
+                    if (raw.trim()) {
+                        const parsed = JSON.parse(raw.trim());
+                        if (parsed.msg) {
+                            setStatus('action', `Rotina: ${routineName}`, parsed.msg);
+                        }
+                    }
+                } catch (_) {}
+            }
+        }, 500);
+
+        const command = `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
+
+        exec(command, { maxBuffer: 1024 * 1024 * 5 }, (error) => {
+            clearInterval(watcher);
+            [statusFile, tempBat].forEach(f => {
+                if (fs.existsSync(f)) {
+                    try { fs.unlinkSync(f); } catch(_) {}
+                }
+            });
+
+            isIndividualRoutineRunning = false;
+
+            if (error) {
+                btnEl.disabled = false;
+                btnEl.innerHTML = originalHtml;
+                showToast('warning', routineName, 'A operação foi cancelada ou requer permissões de Administrador.');
+                setStatus('warning', 'Rotina Interrompida', `A rotina ${routineName} foi cancelada ou não obteve elevação.`);
+                return;
+            }
+
+            // Sucesso
+            btnEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #2dd4bf;"></i> Concluído!';
+            showToast('success', routineName, 'Rotina finalizada com êxito!');
+            setStatus('success', 'Rotina Concluída', `${routineName} finalizada com sucesso.`);
+
+            setTimeout(() => {
+                btnEl.disabled = false;
+                btnEl.innerHTML = originalHtml;
+            }, 3500);
+        });
+    }
+
+    // Vinculação dos Botões Individuais da Aba Otimização
+    const singleRoutineButtons = [
+        { id: 'btnSingleDns', key: 'dns', name: 'Otimização de Rede & DNS' },
+        { id: 'btnSingleTemp', key: 'temp', name: 'Limpeza de Temporários' },
+        { id: 'btnSingleTrim', key: 'trim', name: 'Otimização TRIM (SSD)' },
+        { id: 'btnSingleSfc', key: 'sfc', name: 'Integridade de Arquivos (SFC)' },
+        { id: 'btnSingleDism', key: 'dism', name: 'Reparo de Imagem (DISM)' },
+        { id: 'btnSingleWinget', key: 'winget', name: 'Atualização de Programas (Winget)' },
+        { id: 'btnSingleWUpdate', key: 'wupdate', name: 'Reparador do Windows Update' }
+    ];
+
+    singleRoutineButtons.forEach(item => {
+        const btn = document.getElementById(item.id);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                executeIndividualRoutine(item.key, item.name, btn);
+            });
+        }
+    });
 
     function loadScheduledTasks() {
         if (!activeSchedulesDiv) return;
@@ -2190,6 +2444,7 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
 
     function loadAndRenderHistory() {
         const possiblePaths = [
+            path.join(os.homedir(), 'checkup_relatorios', 'historico_checkup.json'),
             path.join(projectRoot, 'historico', 'historico_checkup.json'),
             path.join(projectRoot, 'core', 'historico', 'historico_checkup.json'),
             path.join(projectRoot, 'core', 'relatorios', 'historico_checkup.json'),

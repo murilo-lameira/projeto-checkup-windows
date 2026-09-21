@@ -458,7 +458,14 @@ while ($historyList.Count -gt 50) {
     $historyList.RemoveAt(0)
 }
 
-$historyList | ConvertTo-Json -Depth 5 | Out-File $jsonHistoryPath -Encoding utf8
+$historyJson = $historyList | ConvertTo-Json -Depth 5
+$historyJson | Out-File $jsonHistoryPath -Encoding utf8
+try {
+    $userHistoryPath = Join-Path $env:USERPROFILE "checkup_relatorios\historico_checkup.json"
+    $userRelatoriosDir = Split-Path $userHistoryPath
+    if (-not (Test-Path $userRelatoriosDir)) { New-Item -ItemType Directory -Path $userRelatoriosDir -Force | Out-Null }
+    $historyJson | Out-File $userHistoryPath -Encoding utf8
+} catch {}
 
 $discordWebhookUrl = if ($env:CHECKUP_DISCORD_WEBHOOK) { $env:CHECKUP_DISCORD_WEBHOOK } else { "" }
 if ($discordWebhookUrl -ne "" -and $healthIssues.Count -gt 0) {
@@ -533,4 +540,11 @@ $dashboardPayload = [PSCustomObject]@{
 }
 
 $jsonPath = "$reportsDir\dados_atuais.json"
-$dashboardPayload | ConvertTo-Json -Depth 5 | Out-File $jsonPath -Encoding utf8
+$payloadJson = $dashboardPayload | ConvertTo-Json -Depth 5
+$payloadJson | Out-File $jsonPath -Encoding utf8
+try {
+    $userPayloadPath = Join-Path $env:USERPROFILE "checkup_relatorios\dados_atuais.json"
+    $userRelatoriosDir = Split-Path $userPayloadPath
+    if (-not (Test-Path $userRelatoriosDir)) { New-Item -ItemType Directory -Path $userRelatoriosDir -Force | Out-Null }
+    $payloadJson | Out-File $userPayloadPath -Encoding utf8
+} catch {}

@@ -73,12 +73,20 @@ npm run agents:pixel:clear
 * **Busca Indexada Instantânea:** Filtragem dinâmica por nome, versão e editor.
 * **Desinstalação Silenciosa com Elevação (`RunAs`):** Execução assíncrona de rotinas desinstaladoras sem congelar a interface.
 
-### 4. 🚀 Central de Otimização
-* **Gestor de Inicialização:** Ativação/desativação ágil de aplicativos iniciados com o Windows.
+### 4. 🚀 Central de Otimização & Manutenção Granular
+* **Master Card "Checkup & Manutenção Geral 6 em 1":** Painel hero no topo da aba com acionamento em 1 clique para a rotina completa com modal de progresso, cronômetro e checklist interativo.
+* **Opções Individuais de Melhoria:** Grid dedicado com execução isolada e não-bloqueante para cada rotina:
+  * *Otimização de Rede & DNS* (`ipconfig /flushdns` + `netsh winsock reset`)
+  * *Limpeza de Arquivos Temporários* (com proteção estrita contra auto-deleção da build portátil)
+  * *Otimização TRIM para SSDs* (`Optimize-Volume -ReTrim`)
+  * *Integridade de Arquivos do Windows* (`SFC /scannow`)
+  * *Reparo da Imagem do Sistema* (`DISM /RestoreHealth`)
+  * *Atualização de Aplicativos* (`Winget upgrade --all`)
+  * *Reparador do Windows Update* (limpeza de cache e reinicialização de serviços)
+* **Gestor de Inicialização:** Ativação/desativação ágil de aplicativos iniciados com o Windows via chaves oficiais de registro.
 * **Benchmark Nativo de SSD/HDD:** Medição de velocidade sequencial de leitura e gravação em MB/s via streams assíncronas do .NET (`System.IO.FileStream` e `Stopwatch`), **sem binários ou instaladores de terceiros**.
 * **Otimização ReTrim & Defrag:** Detecção automática do tipo de mídia (SSD -> `Optimize-Volume -ReTrim`; HDD -> `Defrag`).
 * **Escudo de Segurança Responsivo:** Detecção de antivírus de terceiros via WMI SecurityCenter2, status do Defender em tempo real, proteção em nuvem e isolamento de núcleo.
-* **Reparador de Sistema Integrado:** Execução imediata de reparo profundo com `SFC /scannow` e `DISM /RestoreHealth`.
 
 ### 5. 📑 Exportação de Relatório Técnico (HTML + PDF)
 * Botão com ícone vetorial dedicado de PDF na sidebar.
