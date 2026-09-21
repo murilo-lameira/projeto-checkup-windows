@@ -1,6 +1,6 @@
 {
   "name": "checkup-windows",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Dashboard Central de Monitoramento e Manutenção",
   "author": "Murilo Lameira",
   "main": "main.js",

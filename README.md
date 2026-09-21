@@ -2,7 +2,7 @@
 
 [![Squad Multi-Agentes](https://img.shields.io/badge/Squad-Multi--Agentes-cf663f?style=for-the-badge&logo=anthropic&logoColor=white)](Check%20Up/Squad%20Multi-Agentes.md)
 [![Pixel Agents](https://img.shields.io/badge/Pixel%20Agents-Integrado-F59E0B?style=for-the-badge)](scripts/pixel_agents_bridge.js)
-[![Versão](https://img.shields.io/badge/Versão-1.2.0-blue?style=for-the-badge)](package.json)
+[![Versão](https://img.shields.io/badge/Versão-1.3.0-blue?style=for-the-badge)](package.json)
 [![Electron](https://img.shields.io/badge/Electron-44.0.0-47848F?style=for-the-badge&logo=electron&logoColor=white)](https://electronjs.org/)
 [![PowerShell Nativo](https://img.shields.io/badge/PowerShell-Zero%20Third--Party%20.exe-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](core/checkup.ps1)
 [![Obsidian](https://img.shields.io/badge/Obsidian-Documentado-7C3AED?style=for-the-badge&logo=obsidian&logoColor=white)](Check%20Up/Home.md)
@@ -10,7 +10,7 @@
 
 Aplicativo desktop profissional de diagnóstico, monitoramento contínuo e manutenção profunda para sistemas operacionais **Windows 10 e 11**. O CheckUP integra quatro ambientes em uma interface responsiva: **Dashboard**, **Histórico de Performance**, **Gestor de Programas** e **Central de Otimização**.
 
-Construído sob a estética **Obsidian Telemetry** (Dark Glassmorphism adaptado do **Google Stitch**) com iluminação atmosférica âmbar e acentos em Cobre metálico (`#cf663f`), o aplicativo adota tipografia tríade de alta precisão (**Space Grotesk**, **Geist** e **JetBrains Mono**), é **100% Offline-First**, consome **~0% de CPU em segundo plano** e segue a rigorosa premissa de **Zero Executáveis de Terceiros**, utilizando exclusivamente as ferramentas e APIs que acompanham nativamente o Windows. Na versão **1.2.0+**, inclui **resiliência de telemetria multi-caminho**, **fallback nativo de hardware imediato**, ciclo de vida protegido por **Single Instance Lock**, **widgets heróicos de telemetria** e modernização integral para **CIM**.
+Construído sob a estética **Obsidian Telemetry** (Dark Glassmorphism adaptado do **Google Stitch**) com iluminação atmosférica âmbar e acentos em Cobre metálico (`#cf663f`), o aplicativo adota tipografia tríade de alta precisão (**Space Grotesk**, **Geist** e **JetBrains Mono**), é **100% Offline-First**, consome **~0% de CPU em segundo plano** e segue a rigorosa premissa de **Zero Executáveis de Terceiros**, utilizando exclusivamente as ferramentas e APIs que acompanham nativamente o Windows. Na versão **1.3.0**, introduz **opções de melhoria individuais modulares**, **despachante nativo PowerShell com telemetria JSON**, **widgets heróicos de telemetria**, **resiliência total de inicialização** e **blindagem portátil contra auto-deleção**.
 
 ---
 
