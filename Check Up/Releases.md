@@ -70,3 +70,4 @@ Este documento consolida a evolução das versões do **Projeto CheckUP Windows*
 ---
 
 **Navegação:** Voltar para a [[Home]] | Ver [[Funcionalidades]] | Ver [[Arquitetura]] | Ver [[Design System]] | Ver [[Manutenção e Scripts]]
+

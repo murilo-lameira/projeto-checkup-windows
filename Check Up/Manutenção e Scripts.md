@@ -23,6 +23,82 @@ Para atender à demanda de **Opções Individuais de Melhoria** sem obrigar o us
 - **`dism`:** `DISM /Online /Cleanup-Image /RestoreHealth`.
 - **`winget`:** `winget upgrade --all --silent --accept-package-agreements --accept-source-agreements --disable-interactivity`.
 - **`wupdate`:** `net stop wuauserv` + `net stop cryptSvc` + limpeza do cache de download de updates em `SoftwareDistribution` + `net start`.
+- **`winsxs`:** `DISM.exe /Online /Cleanup-Image /StartComponentCleanup` + higienização de relatórios WER e logs legados CBS/DISM.
+- **`battery`:** Diagnóstico ACPI via `Win32_Battery` / WMI e emissão do relatório oficial `powercfg /batteryreport`.
+- **`profile`:** Calibração modular de serviços (`SysMain`, `WSearch`, `Spooler`, `DiagTrack`, `MapsBroker`) e planos de energia via `powercfg /setactive` (`-Modo gamer|economia|equilibrado`).
+- **`restore`:** Criação de snapshot nativo via `Checkpoint-Computer` ou invocação direta da UI nativa `rstrui.exe` (`-Modo criar|abrir`).
+
+---
+
+## 🧹 Limpeza de Componentes Obsoletos (WinSxS via DISM)
+
+A pasta `C:\Windows\WinSxS` (Component Store) cresce continuamente à medida que novas atualizações cumulativas do Windows Update são instaladas. Para recuperar espaço com segurança sem violar arquivos ativos:
+- **Análise Prévia de Armazenamento:**
+  ```cmd
+  Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore
+  ```
+- **Limpeza Profunda com Remoção de Versões Legadas:**
+  ```powershell
+  Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase
+  ```
+  O parâmetro `/ResetBase` consolida a versão vigente de cada componente e remove todos os binários de versões anteriores já superadas, reduzindo drasticamente o tamanho em disco.
+
+---
+
+## 🔋 Diagnóstico de Bateria & Telemetria Energética
+
+Para dispositivos portáteis (notebooks e tablets Windows), o sistema dispensa instaladores externos e utiliza consultas CIM nativas e o subsistema de energia do Windows:
+- **Coleta de Métricas WMI/CIM:**
+  ```powershell
+  $batt = Get-CimInstance -ClassName Win32_Battery
+  $static = Get-CimInstance -Namespace root/wmi -ClassName BatteryStaticData
+  $full = Get-CimInstance -Namespace root/wmi -ClassName BatteryFullChargedCapacity
+  $cycles = Get-CimInstance -Namespace root/wmi -ClassName BatteryCycleCount
+  ```
+- **Cálculo de Degradação:**
+  `$healthPercent = [math]::Round(($full.FullChargedCapacity / $static.DesignedCapacity) * 100, 1)`
+- **Geração de Relatório Oficial da Microsoft (`powercfg`):**
+  ```cmd
+  powercfg /batteryreport /output "$env:TEMP\battery-report.html"
+  ```
+  O relatório gerado é aberto instantaneamente pelo aplicativo via Electron `shell.openPath`.
+
+---
+
+## ⚙️ Gestão de Perfis de Serviços do Windows
+
+A calibração de serviços do sistema é realizada 100% através do cmdlet nativo `Set-Service`:
+- **Backup de Reversibilidade (Pré-execução):**
+  Antes de alterar qualquer serviço, o estado atual (`Name`, `Status`, `StartType`) dos serviços-alvo é exportado para um arquivo JSON em `$env:TEMP\checkup_services_backup.json`.
+- **Serviços Otimizados por Perfil:**
+  - *Gaming / Alto Desempenho:* `DiagTrack` (Telemetria), `SysMain` (se SSD ativo), `WMPNetworkSvc` (Compartilhamento WMP), `XblAuthManager` (se sem Xbox Live), `Spooler` (se sem impressoras instaladas).
+  - *Produtividade:* `DiagTrack` (Desativado), `SysMain` (Otimizado), foco em baixa latência e economia de RAM.
+  - *Padrão Microsoft:* Restaura o estado original a partir do backup ou dos padrões de fábrica do Windows.
+- **Restauração Segura:**
+  ```powershell
+  $backup = Get-Content "$env:TEMP\checkup_services_backup.json" | ConvertFrom-Json
+  foreach ($s in $backup) { Set-Service -Name $s.Name -StartupType $s.StartType }
+  ```
+
+---
+
+## 🛡️ Gestão de Pontos de Restauração do Sistema
+
+Garante uma camada de contingência absoluta antes de procedimentos profundos:
+- **Habilitação Preventiva (se inativa):**
+  ```powershell
+  Enable-ComputerRestore -Drive "C:\"
+  ```
+- **Criação Instantânea de Ponto:**
+  ```powershell
+  Checkpoint-Computer -Description "CheckUP Ponto Preventivo" -RestorePointType "MODIFY_SETTINGS"
+  ```
+- **Consulta de Pontos Ativos:**
+  ```powershell
+  Get-ComputerRestorePoint | Select-Object SequenceNumber, CreationTime, Description, EventType
+  ```
+- **Invocação do Assistente Nativo:**
+  Dispara `Start-Process "rstrui.exe"` para que o usuário possa escolher e restaurar o sistema caso necessário.
 
 ---
 

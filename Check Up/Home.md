@@ -24,10 +24,10 @@ O CheckUP é um ecossistema desktop profissional em [[Arquitetura|Electron]] e [
 
 ## 💻 As Quatro Dimensões do Aplicativo
 
-1. **[[Funcionalidades#1-dashboard-integrada|Dashboard em Tempo Real]]:** Telemetria instantânea de CPU, RAM, rede, licença digital e discos com fallback nativo e sensores térmicos sem processos pesados em background.
+1. **[[Funcionalidades#1-dashboard-integrada|Dashboard em Tempo Real]]:** Telemetria instantânea de CPU, RAM, rede, licença digital, saúde da bateria (notebooks/desktops) e discos com fallback nativo e sensores térmicos sem processos pesados em background.
 2. **[[Funcionalidades#2-histórico-de-performance-apexcharts|Histórico de Performance]]:** Janela rotativa dos 50 últimos diagnósticos e linha do tempo de incidentes para diagnóstico preditivo.
 3. **[[Funcionalidades#3-gestor--desinstalador-de-aplicativos-programas|Gestor de Programas]]:** Inventário completo de aplicativos do Windows e desinstalação silenciosa sem travar a interface.
-4. **[[Funcionalidades#4-central-avançada-de-otimização-aba-otimização|Central de Otimização]]:** Inicialização ágil, benchmark de disco sequencial (.NET nativo), ReTrim/Defrag, Escudo de Segurança responsivo e reparo do sistema (SFC/DISM).
+4. **[[Funcionalidades#4-central-avançada-de-otimização-aba-otimização|Central de Otimização]]:** Inicialização ágil, benchmark de disco sequencial (.NET nativo), ReTrim/Defrag, perfis de serviços, ponto de restauração one-click, limpeza WinSxS, Escudo de Segurança responsivo e reparo do sistema (SFC/DISM).
 
 ---
 

@@ -60,6 +60,7 @@ npm run agents:pixel:clear
 * **Widget Sensores em Tempo Real (Live Load):** Amostragem de 1s sem overhead, gráfico multi-anel radial ApexCharts e mini-cards de CPU (com temperatura em tempo real), RAM e SSD.
 * **Widget Recomendações e Otimizações Sugeridas:** Cards heurísticos com estimativa de ganho no boot (`+1.4s`) e atalhos de 1 clique para a aba de Otimização.
 * **Widget Hardware com "Copiar Specs":** Especificações completas com ícones dedicados e botão One-Click para copiar todas as informações técnicas para a Área de Transferência.
+* **Saúde da Bateria & Gestão de Energia:** Telemetria de desgaste de bateria para notebooks (`Win32_Battery`), contagem de ciclos, relatório nativo `powercfg /batteryreport` e detecção elegante de Desktops.
 * **Resiliência e Fallback Nativo:** *Zero Broken State* com preenchimento instantâneo via Node.js (`os.cpus()`, `os.totalmem()`, `fs.statfsSync`) na primeira execução.
 * **Rede, Limpeza e Sensores Térmicos:** Monitoramento de tráfego, velocidade, medidores semicirculares de temperatura e donutchart de arquivos temporários.
 
@@ -83,6 +84,9 @@ npm run agents:pixel:clear
   * *Reparo da Imagem do Sistema* (`DISM /RestoreHealth`)
   * *Atualização de Aplicativos* (`Winget upgrade --all`)
   * *Reparador do Windows Update* (limpeza de cache e reinicialização de serviços)
+  * *Limpeza de Componentes WinSxS* (`DISM /StartComponentCleanup /ResetBase`)
+* **Perfis Inteligentes de Serviços:** Otimização modular de serviços do Windows (Padrão, Gaming de Baixa Latência e Produtividade) com backup automático e reversão em 1 clique.
+* **Ponto de Restauração One-Click:** Criação preventiva de snapshots de segurança via `Checkpoint-Computer` e integração nativa com o utilitário `rstrui.exe`.
 * **Gestor de Inicialização:** Ativação/desativação ágil de aplicativos iniciados com o Windows via chaves oficiais de registro.
 * **Benchmark Nativo de SSD/HDD:** Medição de velocidade sequencial de leitura e gravação em MB/s via streams assíncronas do .NET (`System.IO.FileStream` e `Stopwatch`), **sem binários ou instaladores de terceiros**.
 * **Otimização ReTrim & Defrag:** Detecção automática do tipo de mídia (SSD -> `Optimize-Volume -ReTrim`; HDD -> `Defrag`).

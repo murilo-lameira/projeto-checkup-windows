@@ -133,3 +133,23 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
 - [x] **Blindagem de Limpeza em `%TEMP%`:** Aplicado filtro protetor em `core/ExecutarRotina.ps1`, `src/renderer.js` e `core/Ferramenta_Reparo.bat`.
 - [x] **Resiliência e Validação:** Passagem com código 0 em `npm run validate`.
 
+---
+### 14. Fase 5: Expansão do Sistema (WinSxS, Bateria, Perfis de Serviços e Restauração)
+- [ ] **Limpeza de WinSxS (Component Store) via DISM:**
+  - [ ] Implementação de trigger no despachante nativo `core/ExecutarRotina.ps1 -Rotina winsxs` com `DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase`.
+  - [ ] Integração do botão `#btnSingleWinSxS` no painel de opções individuais da aba Otimização com feedback de progresso e Toast.
+- [ ] **Módulo de Saúde da Bateria & Relatório Energético:**
+  - [ ] Coleta nativa WMI/CIM via `Win32_Battery` e `root/wmi/BatteryStaticData` (capacidade de projeto vs carga total, contagem de ciclos e cálculo de desgaste).
+  - [ ] Detecção suave de computadores desktop ("Alimentação AC / Desktop sem bateria").
+  - [ ] Botão de geração e abertura do relatório HTML nativo `powercfg /batteryreport`.
+- [ ] **Perfis Inteligentes de Serviços do Windows:**
+  - [ ] Implementação dos perfis *Equilibrado*, *Jogos/Alta Performance* e *Produtividade*.
+  - [ ] Mecanismo de backup prévio automático dos estados de inicialização em `$env:TEMP\checkup_services_backup.json` e reversão segura em 1 clique.
+  - [ ] Interface visual com cards selecionáveis e botão de restauração na aba Otimização.
+- [ ] **Ponto de Restauração do Sistema One-Click:**
+  - [ ] Criação preventiva de snapshot via `Checkpoint-Computer` com elevação UAC.
+  - [ ] Consulta e exibição do histórico de pontos criados (`Get-ComputerRestorePoint`).
+  - [ ] Botão de atalho para inicialização da ferramenta nativa `rstrui.exe`.
+- [ ] **Sincronização da Documentação e Obsidian:**
+  - [x] Atualização de `Check Up/Funcionalidades.md`, `Check Up/Manutenção e Scripts.md`, `backlog.md` e `README.md` com wikilinks rastreáveis.
+

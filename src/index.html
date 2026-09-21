@@ -447,6 +447,19 @@
                                     <strong id="valLicense" class="font-mono">--</strong>
                                 </div>
                             </div>
+                            <div class="hardware-row" id="hwBatteryRow">
+                                <div class="hw-label">
+                                    <span class="material-symbols-outlined hw-icon">battery_charging_full</span>
+                                    <span>Bateria / Energia</span>
+                                </div>
+                                <div class="hw-battery-badge-wrap">
+                                    <span class="status-beacon-emerald" id="valBatteryBeacon"></span>
+                                    <strong id="hardwareBattery" class="font-mono">--</strong>
+                                    <button id="btnOpenBatteryModal" class="btn-battery-trigger" title="Ver Detalhes e Saúde da Bateria">
+                                        <span class="material-symbols-outlined">analytics</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -733,6 +746,131 @@
                                     <span class="material-symbols-outlined">play_arrow</span>
                                 </button>
                             </div>
+
+                            <!-- Card 8: Limpeza da Pasta WinSxS -->
+                            <div class="opt-single-card">
+                                <div class="opt-single-top">
+                                    <div class="opt-single-icon-wrap">
+                                        <span class="material-symbols-outlined text-copper">cleaning_services</span>
+                                    </div>
+                                    <span class="opt-badge-time font-mono">3-8 min</span>
+                                </div>
+                                <h4 class="opt-single-title">Limpeza da Pasta WinSxS</h4>
+                                <p class="opt-single-desc">Remove versões obsoletas de componentes e reduz o volume do repositório WinSxS via DISM.</p>
+                                <button class="btn-copper btn-single-action" id="btnSingleWinsxs">
+                                    <span class="btn-text">Limpar WinSxS</span>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LINHA 3: PERFIS DE SERVIÇOS & PONTO DE RESTAURAÇÃO (GRID 3 + 3) -->
+                    <!-- Painel 1: Perfis de Serviços do Windows (span 3) -->
+                    <div class="glass-panel span-3 opt-services-panel">
+                        <div class="panel-header-row" style="margin-bottom: 6px;">
+                            <div class="panel-title-wrap">
+                                <span class="caption-caps">Perfis de Serviços do Windows</span>
+                                <span class="status-beacon-emerald"></span>
+                            </div>
+                            <span id="activeServiceProfileBadge" class="profile-badge-active font-mono">Equilibrado</span>
+                        </div>
+                        <p style="margin: 0 0 14px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Ajuste em 1 clique o comportamento dos serviços e plano de energia do Windows.</p>
+
+                        <div class="services-profiles-grid">
+                            <!-- Opção Gamer -->
+                            <label class="service-profile-card" data-profile="gamer">
+                                <input type="radio" name="serviceProfileRadio" value="gamer" class="profile-radio-input">
+                                <div class="profile-card-content">
+                                    <div class="profile-icon-box">
+                                        <span class="material-symbols-outlined">sports_esports</span>
+                                    </div>
+                                    <div class="profile-text-box">
+                                        <div class="profile-title-row">
+                                            <strong>Gamer / Alta Performance</strong>
+                                            <span class="profile-pill-copper font-mono">Max FPS</span>
+                                        </div>
+                                        <span>Pausa SysMain, WSearch e telemetria para menor latência e máximo desempenho em jogos.</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Opção Equilibrado -->
+                            <label class="service-profile-card active" data-profile="balanced">
+                                <input type="radio" name="serviceProfileRadio" value="balanced" checked class="profile-radio-input">
+                                <div class="profile-card-content">
+                                    <div class="profile-icon-box">
+                                        <span class="material-symbols-outlined">balance</span>
+                                    </div>
+                                    <div class="profile-text-box">
+                                        <div class="profile-title-row">
+                                            <strong>Equilibrado (Recomendado)</strong>
+                                            <span class="profile-pill-emerald font-mono">Padrão MS</span>
+                                        </div>
+                                        <span>Configuração balanceada oficial da Microsoft para estabilidade, trabalho e estudo.</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Opção Economia -->
+                            <label class="service-profile-card" data-profile="powersave">
+                                <input type="radio" name="serviceProfileRadio" value="powersave" class="profile-radio-input">
+                                <div class="profile-card-content">
+                                    <div class="profile-icon-box">
+                                        <span class="material-symbols-outlined">energy_savings_leaf</span>
+                                    </div>
+                                    <div class="profile-text-box">
+                                        <div class="profile-title-row">
+                                            <strong>Economia &amp; Silencioso</strong>
+                                            <span class="profile-pill-cyan font-mono">Baixo Watts</span>
+                                        </div>
+                                        <span>Reduz consumo energético, rotação de fans e processos em segundo plano.</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <button id="btnApplyServiceProfile" class="btn-copper" style="margin-top: auto; padding: 11px; font-size: 12px;">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">tune</span>
+                            <span>Aplicar Perfil Selecionado</span>
+                        </button>
+                    </div>
+
+                    <!-- Painel 2: Ponto de Restauração do Windows (span 3) -->
+                    <div class="glass-panel span-3 opt-restore-panel">
+                        <div class="panel-header-row" style="margin-bottom: 6px;">
+                            <div class="panel-title-wrap">
+                                <span class="caption-caps">Proteção e Ponto de Restauração</span>
+                                <span class="status-beacon-emerald"></span>
+                            </div>
+                            <span id="restoreProtectionBadge" class="smart-badge badge-healthy font-mono">Drive C: Ativo</span>
+                        </div>
+                        <p style="margin: 0 0 14px 0; font-size: 11px; color: #8a888c; line-height: 1.4;">Crie snapshots do Registro e arquivos de sistema para reverter alterações com segurança.</p>
+
+                        <div class="restore-info-box">
+                            <div class="restore-status-row">
+                                <span class="restore-lbl">Proteção do Sistema:</span>
+                                <strong id="valRestoreStatus" class="font-mono text-emerald">Ativado (C:)</strong>
+                            </div>
+                            <div class="restore-status-row">
+                                <span class="restore-lbl">Último Ponto Criado:</span>
+                                <strong id="valRestoreLastDate" class="font-mono">Pronto para criar</strong>
+                            </div>
+                            <div class="restore-notice-box">
+                                <span class="material-symbols-outlined text-copper" style="font-size: 18px; flex-shrink: 0;">security</span>
+                                <span>Permite reverter atualizações problemáticas ou danos a DLLs sem perder seus arquivos pessoais ou fotos.</span>
+                            </div>
+                        </div>
+
+                        <div class="restore-actions-row">
+                            <button id="btnCreateRestorePoint" class="btn-copper" style="flex: 1; padding: 11px; font-size: 12px;" title="Cria um novo ponto de restauração imediato">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">add_moderator</span>
+                                <span>Criar Ponto</span>
+                            </button>
+                            <button id="btnOpenRstrui" class="btn-copper" style="flex: 1; padding: 11px; font-size: 12px;" title="Abre a restauração nativa do Windows (rstrui.exe)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">settings_backup_restore</span>
+                                <span>Restaurar (Rstrui)</span>
+                            </button>
                         </div>
                     </div>
 
@@ -987,6 +1125,75 @@
             <div class="spinner"></div>
             <h2 id="loadingText">Iniciando CheckUP...</h2>
             <p id="loadingSubtext">Carregando telemetria e integridade do sistema...</p>
+        </div>
+    </div>
+
+    <!-- MODAL DE SAÚDE DA BATERIA (Dark Glassmorphism) -->
+    <div id="batteryModal" class="battery-modal-overlay hidden">
+        <div class="battery-modal-card">
+            <!-- Cabeçalho -->
+            <div class="battery-modal-header">
+                <div class="battery-header-left">
+                    <div class="battery-badge font-mono">TELEMETRIA DE ENERGIA</div>
+                    <h2>Saúde &amp; Capacidade da Bateria</h2>
+                    <p>Desgaste de células, capacidade de carga e estado de alimentação AC.</p>
+                </div>
+                <button id="btnCloseBatteryModal" class="btn-close-modal" title="Fechar">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Visualização para Laptops (com Bateria Física) -->
+            <div class="battery-modal-content" id="batteryModalLaptopView">
+                <div class="battery-gauge-col">
+                    <div id="batteryHealthRadialChart"></div>
+                    <div class="battery-gauge-center">
+                        <span class="battery-gauge-num font-display" id="valBatteryHealthPct">--%</span>
+                        <span class="battery-gauge-sub font-mono" id="valBatteryHealthTag">Integridade</span>
+                    </div>
+                </div>
+
+                <div class="battery-details-col">
+                    <div class="battery-detail-card">
+                        <span class="battery-detail-lbl font-mono">Capacidade de Projeto:</span>
+                        <strong class="battery-detail-val font-mono" id="valBatteryDesignCap">-- mWh</strong>
+                    </div>
+                    <div class="battery-detail-card">
+                        <span class="battery-detail-lbl font-mono">Carga Plena Atual:</span>
+                        <strong class="battery-detail-val font-mono" id="valBatteryFullCap">-- mWh</strong>
+                    </div>
+                    <div class="battery-detail-card">
+                        <span class="battery-detail-lbl font-mono">Índice de Desgaste (Degradação):</span>
+                        <strong class="battery-detail-val font-mono text-copper" id="valBatteryWearPct">--%</strong>
+                    </div>
+                    <div class="battery-detail-card">
+                        <span class="battery-detail-lbl font-mono">Estado de Alimentação:</span>
+                        <strong class="battery-detail-val font-mono" id="valBatteryState">Verificando...</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualização para Desktop PC (Sem Bateria) -->
+            <div class="battery-desktop-view" id="batteryDesktopView" style="display: none;">
+                <div class="battery-desktop-icon-wrap">
+                    <span class="material-symbols-outlined text-cyan" style="font-size: 42px;">desktop_windows</span>
+                </div>
+                <h3>Computador de Mesa (Desktop PC)</h3>
+                <p>Este sistema é alimentado de forma contínua diretamente pela tomada (Rede Elétrica AC) e não possui acumulador de lítio ou desgaste de bateria.</p>
+                <div class="battery-desktop-pill font-mono">
+                    <span class="status-beacon-emerald"></span>
+                    <span>Alimentação Nominal Estável (Fonte de Alimentação ATX)</span>
+                </div>
+            </div>
+
+            <!-- Rodapé com Ações -->
+            <div class="battery-modal-footer">
+                <button id="btnGenerateBatteryReport" class="btn-copper btn-report-battery" title="Gera relatório detalhado do Windows (powercfg)">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">description</span>
+                    <span>Gerar Relatório (powercfg)</span>
+                </button>
+                <button id="btnCloseBatteryFooter" class="btn-dialog-cancel">Fechar</button>
+            </div>
         </div>
     </div>
 

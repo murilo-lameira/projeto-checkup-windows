@@ -1,4 +1,4 @@
-# 🚀 CheckUP Windows v1.3.0 - Obsidian Telemetry & Granular Maintenance
+# 🚀 CheckUP Windows v2.2.0 - Obsidian Telemetry & Granular Maintenance
 
 > **Release Date:** 21 de Setembro de 2026  
 > **Target OS:** Windows 10 e Windows 11 (64-bit)  
@@ -7,7 +7,7 @@
 
 ---
 
-## 🌟 Destaques da Versão 1.3.0
+## 🌟 Destaques da Versão 2.2.0
 
 A versão **1.3.0** do **CheckUP Windows** introduz uma reformulação visual completa baseada na estética **Obsidian Telemetry** adaptada do **Google Stitch**, além da aguardada **Modularização das Opções de Manutenção**, permitindo que o usuário execute rotinas individuais sob demanda sem a obrigatoriedade de rodar o checklist em lote. Esta versão também blinda a execução em modo portátil contra auto-deleção acidental de arquivos temporários e resolve o falso positivo de telemetria na interface.
 
@@ -92,3 +92,4 @@ npm run build
 ---
 
 **Full Changelog:** [`v1.2.0...v1.3.0`](https://github.com/murilo-lameira/projeto-checkup-windows/compare/v1.2.0...v1.3.0)
+

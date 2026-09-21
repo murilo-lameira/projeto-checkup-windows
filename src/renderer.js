@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 
 const isPackaged = __dirname.includes('app.asar');
 const projectRoot = isPackaged 
@@ -2174,7 +2174,7 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
 
     let isIndividualRoutineRunning = false;
 
-    function executeIndividualRoutine(routineKey, routineName, btnEl) {
+    function executeIndividualRoutine(routineKey, routineName, btnEl, options = {}) {
         if (isIndividualRoutineRunning || isAppPaused) {
             showToast('warning', 'Operação em Andamento', 'Aguarde a conclusão da tarefa atual antes de iniciar outra.');
             return;
@@ -2198,7 +2198,8 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
             try { fs.unlinkSync(statusFile); } catch(_) {}
         }
 
-        const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "${psScriptPath}" -Rotina ${routineKey} -StatusFile "${statusFile}"\n`;
+        const extraArgs = options.modo ? ` -Modo "${options.modo}"` : '';
+        const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "${psScriptPath}" -Rotina ${routineKey}${extraArgs} -StatusFile "${statusFile}"\n`;
         try {
             fs.writeFileSync(tempBat, batContent, 'utf8');
         } catch (errWrite) {
@@ -2260,7 +2261,9 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
         { id: 'btnSingleSfc', key: 'sfc', name: 'Integridade de Arquivos (SFC)' },
         { id: 'btnSingleDism', key: 'dism', name: 'Reparo de Imagem (DISM)' },
         { id: 'btnSingleWinget', key: 'winget', name: 'Atualização de Programas (Winget)' },
-        { id: 'btnSingleWUpdate', key: 'wupdate', name: 'Reparador do Windows Update' }
+        { id: 'btnSingleWUpdate', key: 'wupdate', name: 'Reparador do Windows Update' },
+        { id: 'btnSingleWinsxs', key: 'winsxs', name: 'Limpeza da Pasta WinSxS' },
+        { id: 'btnSingleBattery', key: 'battery', name: 'Diagnóstico de Bateria' }
     ];
 
     singleRoutineButtons.forEach(item => {
@@ -2271,6 +2274,217 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
             });
         }
     });
+
+    // =========================================================
+    // === PERFIS DE SERVIÇOS DO WINDOWS ===
+    // =========================================================
+    const btnApplyServiceProfile = document.getElementById('btnApplyServiceProfile');
+    const profileCards = document.querySelectorAll('.service-profile-card');
+    const activeServiceProfileBadge = document.getElementById('activeServiceProfileBadge');
+
+    if (profileCards.length > 0) {
+        profileCards.forEach(card => {
+            card.addEventListener('click', () => {
+                profileCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                const radio = card.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            });
+        });
+    }
+
+    if (btnApplyServiceProfile) {
+        btnApplyServiceProfile.addEventListener('click', () => {
+            const selectedRadio = document.querySelector('input[name="serviceProfileRadio"]:checked');
+            const selectedVal = selectedRadio ? selectedRadio.value : 'balanced';
+
+            let modo = 'equilibrado';
+            let nomePerfil = 'Equilibrado (Recomendado)';
+            if (selectedVal === 'gamer') {
+                modo = 'gamer';
+                nomePerfil = 'Gamer / Alta Performance';
+            } else if (selectedVal === 'powersave') {
+                modo = 'economia';
+                nomePerfil = 'Economia & Silencioso';
+            }
+
+            executeIndividualRoutine('profile', `Perfil: ${nomePerfil}`, btnApplyServiceProfile, {
+                modo: modo
+            });
+
+            if (activeServiceProfileBadge) {
+                activeServiceProfileBadge.innerText = modo.charAt(0).toUpperCase() + modo.slice(1);
+            }
+        });
+    }
+
+    // =========================================================
+    // === PONTOS DE RESTAURAÇÃO & SEGURANÇA ===
+    // =========================================================
+    const btnCreateRestorePoint = document.getElementById('btnCreateRestorePoint');
+    const btnOpenRstrui = document.getElementById('btnOpenRstrui');
+    const valRestoreLastDate = document.getElementById('valRestoreLastDate');
+
+    if (btnCreateRestorePoint) {
+        btnCreateRestorePoint.addEventListener('click', () => {
+            executeIndividualRoutine('restore', 'Criar Ponto de Restauração', btnCreateRestorePoint, { modo: 'criar' });
+            if (valRestoreLastDate) {
+                const now = new Date();
+                valRestoreLastDate.innerText = `Criado hoje às ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            }
+        });
+    }
+
+    if (btnOpenRstrui) {
+        btnOpenRstrui.addEventListener('click', () => {
+            executeIndividualRoutine('restore', 'Abrir Restauração do Windows', btnOpenRstrui, { modo: 'abrir' });
+        });
+    }
+
+    // =========================================================
+    // === SAÚDE DA BATERIA & TELEMETRIA DE ENERGIA ===
+    // =========================================================
+    const btnOpenBatteryModal = document.getElementById('btnOpenBatteryModal');
+    const btnCloseBatteryModal = document.getElementById('btnCloseBatteryModal');
+    const btnCloseBatteryFooter = document.getElementById('btnCloseBatteryFooter');
+    const btnGenerateBatteryReport = document.getElementById('btnGenerateBatteryReport');
+    const batteryModal = document.getElementById('batteryModal');
+    let batteryRadialChartInstance = null;
+
+    function detectBatteryStatus() {
+        const hwBatteryEl = document.getElementById('hardwareBattery');
+        const hwBeacon = document.getElementById('valBatteryBeacon');
+
+        exec('powershell.exe -NoProfile -Command "$b = Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue; if ($b) { $b.EstimatedChargeRemaining } else { -1 }"', (err, stdout) => {
+            const charge = parseInt(String(stdout || '').trim(), 10);
+            if (isNaN(charge) || charge < 0) {
+                if (hwBatteryEl) hwBatteryEl.innerText = 'Rede AC (Desktop)';
+                if (hwBeacon) hwBeacon.className = 'status-beacon-emerald';
+            } else {
+                if (hwBatteryEl) hwBatteryEl.innerText = `${charge}% (Bateria)`;
+                if (hwBeacon) hwBeacon.className = charge > 25 ? 'status-beacon-emerald' : 'status-beacon-amber';
+            }
+        });
+    }
+
+    function openBatteryModal() {
+        if (!batteryModal) return;
+        batteryModal.classList.remove('hidden');
+
+        const laptopView = document.getElementById('batteryModalLaptopView');
+        const desktopView = document.getElementById('batteryDesktopView');
+
+        const psScript = `
+        $b = Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue
+        if (-not $b) {
+            [PSCustomObject]@{ isLaptop = $false } | ConvertTo-Json -Compress
+        } else {
+            $design = 0
+            $full = 0
+            try {
+                $design = (Get-CimInstance -Namespace root/wmi -ClassName BatteryStaticData -ErrorAction SilentlyContinue | Select-Object -First 1).DesignedCapacity
+                $full = (Get-CimInstance -Namespace root/wmi -ClassName BatteryFullChargedCapacity -ErrorAction SilentlyContinue | Select-Object -First 1).FullChargedCapacity
+            } catch {}
+            [PSCustomObject]@{
+                isLaptop = $true
+                charge = $b.EstimatedChargeRemaining
+                status = $b.BatteryStatus
+                designCap = $design
+                fullCap = $full
+            } | ConvertTo-Json -Compress
+        }
+        `;
+
+        exec(`powershell.exe -NoProfile -Command "${psScript.replace(/\\r?\\n/g, ' ')}"`, (err, stdout) => {
+            let data = { isLaptop: false };
+            try {
+                if (stdout && stdout.trim()) data = JSON.parse(stdout.trim());
+            } catch (_) {}
+
+            if (!data.isLaptop) {
+                if (laptopView) laptopView.style.display = 'none';
+                if (desktopView) desktopView.style.display = 'flex';
+                return;
+            }
+
+            if (laptopView) laptopView.style.display = 'flex';
+            if (desktopView) desktopView.style.display = 'none';
+
+            const design = data.designCap || 0;
+            const full = data.fullCap || 0;
+            let healthPct = 100;
+            let wearPct = 0;
+            if (design > 0 && full > 0) {
+                healthPct = Math.min(100, Math.round((full / design) * 100));
+                wearPct = Math.max(0, 100 - healthPct);
+            }
+
+            const valHealthPct = document.getElementById('valBatteryHealthPct');
+            const valDesignCap = document.getElementById('valBatteryDesignCap');
+            const valFullCap = document.getElementById('valBatteryFullCap');
+            const valWearPct = document.getElementById('valBatteryWearPct');
+            const valState = document.getElementById('valBatteryState');
+
+            if (valHealthPct) valHealthPct.innerText = `${healthPct}%`;
+            if (valDesignCap) valDesignCap.innerText = design > 0 ? `${design} mWh` : 'N/D';
+            if (valFullCap) valFullCap.innerText = full > 0 ? `${full} mWh` : 'N/D';
+            if (valWearPct) valWearPct.innerText = `${wearPct}%`;
+            if (valState) {
+                valState.innerText = data.status === 2 ? 'Carregando (AC Conectado)' : data.status === 1 ? 'Em Descarga (Bateria)' : 'Operando Normalmente';
+            }
+
+            // Renderizar Radial Chart
+            const chartEl = document.getElementById('batteryHealthRadialChart');
+            if (chartEl && typeof ApexCharts !== 'undefined') {
+                if (batteryRadialChartInstance) {
+                    batteryRadialChartInstance.updateSeries([healthPct]);
+                } else {
+                    chartEl.innerHTML = '';
+                    batteryRadialChartInstance = new ApexCharts(chartEl, {
+                        series: [healthPct],
+                        chart: { type: 'radialBar', height: 180, sparkline: { enabled: true } },
+                        plotOptions: {
+                            radialBar: {
+                                hollow: { size: '65%' },
+                                track: { background: 'rgba(255,255,255,0.06)' },
+                                dataLabels: { show: false }
+                            }
+                        },
+                        colors: [healthPct > 75 ? '#2dd4bf' : healthPct > 50 ? '#fbbf24' : '#ef4444'],
+                        stroke: { lineCap: 'round' }
+                    });
+                    batteryRadialChartInstance.render();
+                }
+            }
+        });
+    }
+
+    if (btnOpenBatteryModal) {
+        btnOpenBatteryModal.addEventListener('click', openBatteryModal);
+    }
+    if (btnCloseBatteryModal) {
+        btnCloseBatteryModal.addEventListener('click', () => {
+            if (batteryModal) batteryModal.classList.add('hidden');
+        });
+    }
+    if (btnCloseBatteryFooter) {
+        btnCloseBatteryFooter.addEventListener('click', () => {
+            if (batteryModal) batteryModal.classList.add('hidden');
+        });
+    }
+    if (btnGenerateBatteryReport) {
+        btnGenerateBatteryReport.addEventListener('click', () => {
+            executeIndividualRoutine('battery', 'Relatório Oficial de Bateria', btnGenerateBatteryReport);
+            const reportPath = path.join(projectRoot, 'relatorios', 'battery_report.html');
+            setTimeout(() => {
+                if (fs.existsSync(reportPath)) {
+                    shell.openPath(reportPath);
+                }
+            }, 3000);
+        });
+    }
+
+    setTimeout(detectBatteryStatus, 1200);
 
     function loadScheduledTasks() {
         if (!activeSchedulesDiv) return;

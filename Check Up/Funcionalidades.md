@@ -48,7 +48,16 @@ Visão executiva em tempo real com telemetria contínua da máquina, estruturada
 - Medidores semicirculares dedicados à temperatura da CPU (Intel/AMD) e SSDs/NVMe alimentados pela `LibreHardwareMonitorLib.dll`.
 - Seção integrada de Ciclo de Atividade (Uptime) com contador de tempo contínuo desde a última reinicialização da máquina.
 
-#### 8. 🔍 Drilldown de Recursos (Processos de RAM & Discos)
+#### 8. 🔋 Widget Saúde da Bateria & Gestão de Energia
+- **Telemetria de Dispositivos Móveis:** Monitoramento em tempo real para notebooks através de consultas WMI/CIM nativas (`Win32_Battery` e `root/wmi/BatteryStaticData`).
+- **Métricas de Saúde e Degradação:**
+  - Capacidade Atual de Carga Total (`Full Charge Capacity`) vs Capacidade Nominal de Fábrica (`Design Capacity`).
+  - Cálculo percentual dinâmico do Desgaste da Bateria (`Health % = FullCharge / Design * 100`).
+  - Contagem de ciclos de carga e status da fonte de alimentação (Conectado à Tomada / Bateria).
+- **Detecção Inteligente de Desktops:** Caso a máquina seja um computador de mesa alimentado por tomada direta (sem bateria física), o widget entra suavemente no estado nominal `"Alimentação AC / Desktop"`, sem gerar exceções de telemetria ou alertas falsos.
+- **Relatório Oficial da Microsoft (`powercfg`):** Botão One-Click para gerar e exibir instantaneamente o relatório diagnóstico completo do Windows (`powercfg /batteryreport`) em formato HTML autocontido via [[Arquitetura|Electron]] `shell.openPath`.
+
+#### 9. 🔍 Drilldown de Recursos (Processos de RAM & Discos)
 - **Maior Consumo de RAM:** Tabela com os processos mais pesados residentes na memória, consumo em MB e botão de encerramento forçado (`taskkill`).
 - **Discos e Armazenamento:** Listagem particionada de unidades com taxas de ocupação, tipo de mídia (NVMe / SSD / HDD) e integridade S.M.A.R.T.
 
@@ -94,8 +103,22 @@ Permite ao usuário executar exclusivamente a intervenção desejada através do
 5. **Reparo de Imagem (DISM) (`#btnSingleDism`):** Executa `DISM /Online /Cleanup-Image /RestoreHealth` com elevação UAC para restaurar o repositório de componentes do Windows Update. *Verificação profunda (~3-6 min).*
 6. **Atualização de Programas (Winget) (`#btnSingleWinget`):** Varre e atualiza softwares instalados via repositório oficial da Microsoft (`winget upgrade --all`). *Verificação profunda (~1-3 min).*
 7. **Reparador do Windows Update (`#btnSingleWUpdate`):** Interrompe serviços de atualização, purga o cache de download em `SoftwareDistribution` e reinicia serviços de atualização. *Execução rápida (~10s).*
+8. **Limpeza do Armazenamento de Componentes (WinSxS) (`#btnSingleWinSxS`):** Executa `DISM.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase` com elevação UAC para purgar versões antigas e substituídas de pacotes do Windows Update, liberando gigabytes de espaço em disco no volume do sistema. *Verificação profunda (~3-6 min).*
 
 - **Feedback Visual Não-Bloqueante:** Cada botão individual substitui seu texto por spinner animado durante a operação, restaurando-se com ícone esmeralda de confirmação acompanhado por notificações flutuantes Toast (`.toast-success`, `.toast-warning`).
+
+#### ⚙️ Perfis Inteligentes de Serviços do Windows (`.opt-services-panel`)
+Permite calibrar o ecossistema de serviços do Windows através de perfis modulares pré-configurados, otimizando o consumo de CPU e RAM para diferentes fluxos de trabalho sem quebrar recursos essenciais:
+- **Perfil Equilibrado (Padrão Microsoft):** Restaura os estados e tipos de inicialização recomendados originalmente pelo Windows.
+- **Perfil Alto Desempenho & Jogos (Gaming Mode):** Suspende e desativa temporariamente serviços em segundo plano que causam microtravamentos de latência e consumo desnecessário de CPU (ex: telemetria `DiagTrack`, serviço `SysMain` em SSDs, `Spooler` se não houver impressoras locais configuradas e serviços legados de streaming `WMPNetworkSvc`).
+- **Perfil Produtividade & Estúdio:** Foco em baixa latência e estabilidade em tarefas de trabalho contínuo.
+- **Reversibilidade Garantida:** Antes de aplicar qualquer perfil, o CheckUP efetua backup automático do estado dos serviços em `$env:TEMP\checkup_services_backup.json`, permitindo desfazer as alterações a qualquer momento em 1 clique.
+
+#### 🛡️ Ponto de Restauração do Sistema One-Click (`.opt-restore-panel`)
+Camada preventiva de segurança que integra o mecanismo nativo de restauração do Windows (`SystemRestore`) à interface do aplicativo:
+- **Criação Preventiva em 1 Clique (`#btnCreateRestorePoint`):** Dispara `Checkpoint-Computer` via PowerShell elevado, gerando um snapshot completo do estado do registro e drivers antes de qualquer manutenção ou alteração de debloat.
+- **Histórico de Snapshots:** Lista os pontos de restauração recentes disponíveis na máquina (`Get-ComputerRestorePoint`), exibindo nome, data de criação e tipo de evento.
+- **Restauração Rápida do Sistema:** Botão direto para invocar a interface nativa do Utilitário de Restauração do Windows (`rstrui.exe`).
 
 - **Gestor Inteligente de Inicialização (Smart Startup com Toggle Copper):** Tabela interativa que lista os aplicativos que inicializam com o Windows (via `Win32_StartupCommand`). Integra *Toggle Switches* deslizantes estilizados em Cobre (`.copper-switch`) que leem e gravam o estado real nos registros oficiais do Windows (`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run` e `StartupApproved\StartupFolder`).
 - **Otimização de SSD, Monitoramento S.M.A.R.T. e Benchmark Nativo:** Monitora proativamente a saúde física das unidades de armazenamento através do comando WMI/CIM `Get-PhysicalDisk`. Exibe o modelo exato da unidade primária, tipo de mídia (NVMe / SSD / HDD) e um badge dinâmico de integridade física S.M.A.R.T. (`● Saudável`, `● Atenção` ou `● Risco`).
