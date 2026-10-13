@@ -15,6 +15,7 @@ O desenvolvimento, testes e documentação contínua do projeto são operados po
 | **QA** | `checkup_qa` | Qualidade & Resiliência | Validação funcional, sintática (`npm run validate`), casos de borda e privilégios UAC |
 | **Revisor** | `checkup_reviewer` | Arquitetura & Segurança | Auditoria contra `memory.md`, segurança contra injeção e conformidade técnica |
 | **Documentador** | `checkup_doc` | Obsidian & Conhecimento | Gestão contínua do cofre (`Check Up/`), notas interligadas, `backlog.md` e `README.md` |
+| **Eng. Reversa** | `checkup_rea` | Engenharia Reversa (REA) | Dissecação técnica de softwares de referência (CCleaner, etc.), mapeamento de rotinas e reconstrução nativa |
 
 ---
 
