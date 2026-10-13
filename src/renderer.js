@@ -2299,7 +2299,11 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
         { id: 'btnSingleBrowserClean', key: 'browserclean', name: 'Limpeza de Caches de Navegadores' },
         { id: 'btnSingleExplorerClean', key: 'explorerclean', name: 'Limpeza do Histórico do Explorer' },
         { id: 'btnSingleThumbClean', key: 'thumbclean', name: 'Limpeza de Miniaturas & Ícones' },
-        { id: 'btnSingleRegClean', key: 'regclean', name: 'Limpeza de Registro Órfão' }
+        { id: 'btnSingleRegClean', key: 'regclean', name: 'Limpeza de Registro Órfão' },
+        { id: 'btnSingleDuplicates', key: 'duplicates', name: 'Localizador de Duplicados' },
+        { id: 'btnSingleCloudClean', key: 'cloudclean', name: 'Limpador de Caches de Nuvem' },
+        { id: 'btnSingleDriverAudit', key: 'driveraudit', name: 'Auditoria de Drivers do Windows' },
+        { id: 'btnSingleProcessFreeze', key: 'processfreeze', name: 'Otimizador de Processos (EcoQoS)' }
     ];
 
     singleRoutineButtons.forEach(item => {

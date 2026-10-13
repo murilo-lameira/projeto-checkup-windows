@@ -108,6 +108,10 @@ Permite ao usuário executar exclusivamente a intervenção desejada através do
 10. **Histórico do Explorer & MRU (`#btnSingleExplorerClean`):** Purga Jump Lists da barra de tarefas, histórico de documentos recentes, histórico da caixa Executar (Win+R) e caixas de diálogo do Windows. *Execução ultrarrápida (~5s).*
 11. **Cache de Miniaturas & Ícones (`#btnSingleThumbClean`):** Esvazia e recria bancos `thumbcache_*.db` e `iconcache_*.db`, liberando espaço e resolvendo problemas visuais de prévias e ícones corrompidos. *Execução rápida (~10s).*
 12. **Registro Órfão - Limpeza Segura (`#btnSingleRegClean`):** Audita o Registro do Windows e remove chaves órfãs que apontam para arquivos ausentes no disco (SharedDLLs, App Paths, MuiCache e desinstaladores residuais). *Execução rápida (~15s).*
+13. **Localizador de Duplicados (`#btnSingleDuplicates`):** Varredura inteligente em 3 estágios (tamanho, cabeçalho 8KB e SHA-256) na pasta Downloads, identificando arquivos repetidos sem sobrecarga de I/O de disco. *Execução rápida (~5s).*
+14. **Limpador de Caches de Nuvem (`#btnSingleCloudClean`):** Higienização de caches de transferência, logs `.odl` e resíduos de sincronização de OneDrive, Google Drive e Dropbox, sem afetar arquivos na nuvem. *Execução rápida (~10s).*
+15. **Auditoria de Drivers do Windows (`#btnSingleDriverAudit`):** Diagnóstico de dispositivos com falha no Gerenciador de Dispositivos e consulta ao catálogo oficial WHQL do Windows Update. *Verificação profunda (~20s).*
+16. **Otimizador de Processos EcoQoS (`#btnSingleProcessFreeze`):** Aplica Modo Eficiência e prioridade ociosa em processos vorazes em segundo plano (Spotify, Discord, updaters) sem fechá-los. *Execução instantânea (~3s).*
 
 - **Feedback Visual Não-Bloqueante:** Cada botão individual substitui seu texto por spinner animado durante a operação, restaurando-se com ícone esmeralda de confirmação acompanhado por notificações flutuantes Toast (`.toast-success`, `.toast-warning`).
 

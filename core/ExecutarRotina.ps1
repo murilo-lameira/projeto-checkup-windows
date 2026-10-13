@@ -7,7 +7,7 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true)]
-    [ValidateSet("dns", "temp", "trim", "sfc", "dism", "winget", "wupdate", "shield", "winsxs", "battery", "profile", "restore", "browserclean", "explorerclean", "thumbclean", "regclean", "recyclebin")]
+    [ValidateSet("dns", "temp", "trim", "sfc", "dism", "winget", "wupdate", "shield", "winsxs", "battery", "profile", "restore", "browserclean", "explorerclean", "thumbclean", "regclean", "recyclebin", "duplicates", "cloudclean", "driveraudit", "processfreeze")]
     [string]$Rotina,
 
     [Parameter(Mandatory = $false)]
@@ -458,6 +458,44 @@ switch ($Rotina) {
             Write-RoutineLog "done" "Lixeira esvaziada e espaço reciclado com sucesso!" 100
         } catch {
             Write-RoutineLog "error" "Falha ao esvaziar lixeira: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "duplicates" {
+        try {
+            $targetPath = if ($Modo -and (Test-Path -LiteralPath $Modo)) { $Modo } else { (Join-Path $env:USERPROFILE "Downloads") }
+            Find-CheckupDuplicateFiles -SearchPath $targetPath
+        } catch {
+            Write-RoutineLog "error" "Falha ao localizar duplicados: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "cloudclean" {
+        try {
+            Invoke-CheckupCloudDriveCleaner
+        } catch {
+            Write-RoutineLog "error" "Falha na limpeza de nuvem: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "driveraudit" {
+        try {
+            Invoke-CheckupDriverAudit
+        } catch {
+            Write-RoutineLog "error" "Falha na auditoria de drivers: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "processfreeze" {
+        try {
+            $act = if ($Modo -in @("Sleep", "Wake", "EcoMode")) { $Modo } else { "EcoMode" }
+            Set-CheckupProcessSleepState -Action $act
+        } catch {
+            Write-RoutineLog "error" "Falha na otimização de processos: $($_.Exception.Message)" 100
             exit 1
         }
     }

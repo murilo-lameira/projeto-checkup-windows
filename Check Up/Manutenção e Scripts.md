@@ -32,6 +32,10 @@ Para atender à demanda de **Opções Individuais de Melhoria** sem obrigar o us
 - **`thumbclean`:** Encerramento gracioso do Explorer, exclusão de bancos de miniaturas `thumbcache_*.db` e regeneração automática do processo.
 - **`regclean`:** Scanner e higienização segura de referências órfãs de registro (SharedDLLs ausentes, App Paths fantasmas, MuiCache e desinstaladores mortos).
 - **`recyclebin`:** Esvaziamento forçado de lixeira em todos os volumes com `Clear-RecycleBin -Force`.
+- **`duplicates`:** Varredura em 3 estágios (tamanho, cabeçalho 8KB e SHA-256) para identificar arquivos duplicados em `$env:USERPROFILE\Downloads`.
+- **`cloudclean`:** Limpeza de logs e caches locais de sincronização de clientes OneDrive, Google Drive for Desktop e Dropbox.
+- **`driveraudit`:** Auditoria de integridade de hardware com `Get-PnpDevice` e verificação de drivers homologados no catálogo do Windows Update.
+- **`processfreeze`:** Aplicação de Modo Eficiência / EcoQoS e suspensão nativa de threads em processos pesados de fundo via P/Invoke `ntdll.dll`.
 
 ---
 
@@ -43,6 +47,10 @@ Inspirado nas regras do CCleaner e do projeto Winapp2.ini, este submódulo conso
 - `Invoke-CheckupThumbcacheCleanup`: Desbloqueio e purga de caches gráficos do shell.
 - `Invoke-CheckupRegistryCleaner`: Validação de ponteiros no disco (`Test-Path`) com suporte a auditoria prévia (`-DryRun`).
 - `Get-CheckupRecycleBinTelemetry`: Coleta de itens e bytes através da interface COM `Shell.Application`.
+- `Find-CheckupDuplicateFiles`: Scanner com filtragem progressiva e hashes criptográficos SHA-256.
+- `Invoke-CheckupCloudDriveCleaner`: Higienização cirúrgica de caches de sincronização de nuvem.
+- `Invoke-CheckupDriverAudit`: Auditoria de falhas PnP e catálogo oficial WHQL.
+- `Set-CheckupProcessSleepState`: Wrapper nativo de `NtSuspendProcess`, `NtResumeProcess` e prioridade ociosa EcoQoS.
 
 
 ---

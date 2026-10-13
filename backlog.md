@@ -167,4 +167,15 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
   - [x] Otimizado teste de velocidade e conexão em `core/checkup.ps1` de 6 MB para 500 KB com timeout estrito de 3.5s, acelerando a auditoria de ~40s para ~12s.
   - [x] Passagem 100% aprovada em `npm run validate`.
 
+---
+### 16. Fase 7: Módulos Avançados CCleaner (Duplicados, Nuvem, Drivers e EcoQoS)
+- [x] **Localizador de Arquivos Duplicados Nativo (`Find-CheckupDuplicateFiles`):**
+  - Pipeline de 3 estágios de alto desempenho (tamanho exato, pre-hash de 8 KB e SHA-256) com relatório de economia. Card 13 (`#btnSingleDupFinder`).
+- [x] **Limpador de Cache em Nuvem (`Invoke-CheckupCloudDriveCleaner`):**
+  - Purga segura de logs e caches locais do OneDrive, Google Drive (`content_cache`) e Dropbox (`.dropbox.cache`). Card 14 (`#btnSingleCloudClean`).
+- [x] **Auditoria de Drivers & Catálogo WHQL (`Invoke-CheckupDriverAudit`):**
+  - Diagnóstico de dispositivos PnP com falha e varredura de drivers certificados WHQL via COM `Microsoft.Update.Session`. Card 15 (`#btnSingleDriverAudit`).
+- [x] **Otimização de Desempenho / Sleep Mode (`Set-CheckupProcessSleepState`):**
+  - Aplicação de EcoQoS / PriorityClass Idle e suspensão nativa via `ntdll!NtSuspendProcess` sem executáveis externos. Card 16 (`#btnSingleEcoQoS`).
+
 

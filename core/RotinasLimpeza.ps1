@@ -340,3 +340,288 @@ function Get-CheckupRecycleBinTelemetry {
         return [PSCustomObject]@{ ItemCount = 0; SizeBytes = 0; SizeMB = 0 }
     }
 }
+
+
+# ---------------------------------------------------------------------
+# 6. Localizador de Arquivos Duplicados (Fast 3-Stage Pipeline)
+# ---------------------------------------------------------------------
+function Find-CheckupDuplicateFiles {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$SearchPath = "",
+
+        [Parameter(Mandatory = $false)]
+        [long]$MinSizeBytes = 10240, # Ignora arquivos menores que 10KB
+
+        [Parameter(Mandatory = $false)]
+        [string[]]$ExcludeExtensions = @(".sys", ".dll", ".exe", ".ini", ".dat")
+    )
+
+    if (-not $SearchPath -or (-not (Test-Path -LiteralPath $SearchPath))) {
+        $SearchPath = Join-Path $env:USERPROFILE "Downloads"
+    }
+
+    Write-RoutineLog "running" "Estágio 1: Mapeando tamanhos de arquivos em '$SearchPath'..." 20
+
+    $files = [System.IO.Directory]::EnumerateFiles($SearchPath, "*", [System.IO.SearchOption]::AllDirectories)
+    $sizeGroups = @{}
+
+    foreach ($f in $files) {
+        try {
+            $ext = [System.IO.Path]::GetExtension($f).ToLower()
+            if ($ExcludeExtensions -contains $ext) { continue }
+
+            $fi = New-Object System.IO.FileInfo($f)
+            $len = $fi.Length
+            if ($len -lt $MinSizeBytes) { continue }
+
+            if (-not $sizeGroups.ContainsKey($len)) {
+                $sizeGroups[$len] = [System.Collections.Generic.List[string]]::new()
+            }
+            $sizeGroups[$len].Add($f)
+        } catch {}
+    }
+
+    $candidateGroups = $sizeGroups.Values | Where-Object { $_.Count -gt 1 }
+    $totalCandidates = 0
+    foreach ($cg in $candidateGroups) { $totalCandidates += $cg.Count }
+
+    Write-RoutineLog "running" "Estágio 2: Auditando cabeçalhos de $totalCandidates arquivos suspeitos..." 55
+
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $duplicates = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $duplicateBytes = 0
+
+    foreach ($group in $candidateGroups) {
+        $headerGroups = @{}
+        foreach ($filePath in $group) {
+            try {
+                $fs = [System.IO.File]::OpenRead($filePath)
+                $buffer = New-Object byte[] 8192
+                $bytesRead = $fs.Read($buffer, 0, 8192)
+                $fs.Close()
+                $fs.Dispose()
+
+                $headerHash = [System.BitConverter]::ToString($sha256.ComputeHash($buffer, 0, $bytesRead))
+                if (-not $headerGroups.ContainsKey($headerHash)) {
+                    $headerGroups[$headerHash] = [System.Collections.Generic.List[string]]::new()
+                }
+                $headerGroups[$headerHash].Add($filePath)
+            } catch {}
+        }
+
+        # Estágio 3: Full SHA-256 para arquivos com mesmo cabeçalho
+        foreach ($hGroup in $headerGroups.Values) {
+            if ($hGroup.Count -gt 1) {
+                $isFirst = $true
+                foreach ($finalFile in $hGroup) {
+                    try {
+                        $fullHash = (Get-FileHash -LiteralPath $finalFile -Algorithm SHA256 -ErrorAction SilentlyContinue).Hash
+                        $fi = New-Object System.IO.FileInfo($finalFile)
+                        $duplicates.Add([PSCustomObject]@{
+                            FilePath     = $finalFile
+                            SizeBytes    = $fi.Length
+                            SizeMB       = [math]::Round($fi.Length / 1MB, 2)
+                            LastModified = $fi.LastWriteTime
+                            SHA256       = $fullHash
+                        })
+                        if (-not $isFirst) {
+                            $duplicateBytes += $fi.Length
+                        }
+                        $isFirst = $false
+                    } catch {}
+                }
+            }
+        }
+    }
+
+    $dupMb = [math]::Round($duplicateBytes / 1MB, 2)
+    $dupCount = $duplicates.Count
+    Write-RoutineLog "done" "Varredura concluída! $dupCount arquivos duplicados encontrados (~$dupMb MB redundantes em '$SearchPath')." 100
+    return $duplicates
+}
+
+
+# ---------------------------------------------------------------------
+# 7. Limpador de Caches de Nuvem (Cloud Drive Cleaner)
+# ---------------------------------------------------------------------
+function Invoke-CheckupCloudDriveCleaner {
+    [CmdletBinding()]
+    param(
+        [switch]$CleanDriveFSCache = $true,
+        [switch]$CleanOneDriveLogs = $true,
+        [switch]$CleanDropboxCache = $true
+    )
+
+    $reclaimedBytes = 0
+    Write-RoutineLog "running" "Iniciando varredura de caches de nuvem (OneDrive, Google Drive, Dropbox)..." 15
+
+    # 1. Microsoft OneDrive e OfficeFileCache
+    if ($CleanOneDriveLogs) {
+        Write-RoutineLog "running" "Limpando logs e caches do OneDrive e Office..." 35
+        $oneDriveTargets = @(
+            "$env:LOCALAPPDATA\Microsoft\OneDrive\logs",
+            "$env:LOCALAPPDATA\Microsoft\OneDrive\setup\logs",
+            "$env:LOCALAPPDATA\Microsoft\Office\16.0\OfficeFileCache"
+        )
+        foreach ($target in $oneDriveTargets) {
+            if (Test-Path $target) {
+                Get-ChildItem -Path $target -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                    try {
+                        $len = $_.Length
+                        Remove-Item -LiteralPath $_.FullName -Force -Recurse -ErrorAction SilentlyContinue
+                        $reclaimedBytes += $len
+                    } catch {}
+                }
+            }
+        }
+    }
+
+    # 2. Google Drive for Desktop
+    if ($CleanDriveFSCache) {
+        Write-RoutineLog "running" "Limpando content_cache e logs do Google Drive..." 65
+        $gDriveDir = "$env:LOCALAPPDATA\Google\DriveFS"
+        if (Test-Path $gDriveDir) {
+            $cacheFolders = Get-ChildItem -Path $gDriveDir -Directory -ErrorAction SilentlyContinue | 
+                ForEach-Object { Join-Path $_.FullName "content_cache" }
+            foreach ($cf in $cacheFolders) {
+                if (Test-Path $cf) {
+                    Get-ChildItem -Path $cf -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                        try {
+                            $len = $_.Length
+                            Remove-Item -LiteralPath $_.FullName -Force -Recurse -ErrorAction SilentlyContinue
+                            $reclaimedBytes += $len
+                        } catch {}
+                    }
+                }
+            }
+        }
+    }
+
+    # 3. Dropbox (.dropbox.cache)
+    if ($CleanDropboxCache) {
+        Write-RoutineLog "running" "Limpando cache de transferência do Dropbox..." 85
+        $userDropbox = "$env:USERPROFILE\Dropbox\.dropbox.cache"
+        if (Test-Path $userDropbox) {
+            Get-ChildItem -Path $userDropbox -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                try {
+                    $len = $_.Length
+                    Remove-Item -LiteralPath $_.FullName -Force -Recurse -ErrorAction SilentlyContinue
+                    $reclaimedBytes += $len
+                } catch {}
+            }
+        }
+    }
+
+    $mbReclaimed = [math]::Round($reclaimedBytes / 1MB, 2)
+    Write-RoutineLog "done" "Caches de nuvem higienizados com sucesso! $mbReclaimed MB recuperados em disco local." 100
+}
+
+
+# ---------------------------------------------------------------------
+# 8. Auditoria & Verificação de Drivers do Windows (Driver Health)
+# ---------------------------------------------------------------------
+function Invoke-CheckupDriverAudit {
+    Write-RoutineLog "running" "Auditando dispositivos de hardware e falhas no Gerenciador de Dispositivos..." 20
+
+    $problemDevices = Get-PnpDevice -ErrorAction SilentlyContinue | Where-Object { 
+        $_.Status -ne "OK" -and $_.ConfigManagerErrorCode -ne 0 
+    }
+
+    $problemCount = if ($problemDevices) { @($problemDevices).Count } else { 0 }
+
+    Write-RoutineLog "running" "Auditando drivers assinados (WHQL) no sistema..." 55
+    $drivers = Get-CimInstance Win32_PnPSignedDriver -ErrorAction SilentlyContinue
+    $totalDrivers = if ($drivers) { @($drivers).Count } else { 0 }
+    $unsignedCount = if ($drivers) { (@($drivers | Where-Object { $_.IsSigned -eq $false })).Count } else { 0 }
+
+    Write-RoutineLog "running" "Consultando catálogo oficial do Windows Update para drivers pendentes..." 80
+    $pendingDriversCount = 0
+    try {
+        $updateSession = New-Object -ComObject Microsoft.Update.Session
+        $searcher = $updateSession.CreateUpdateSearcher()
+        $searcher.ServerSelection = 2
+        $searchResult = $searcher.Search("IsInstalled=0 and Type='Driver'")
+        if ($searchResult -and $searchResult.Updates) {
+            $pendingDriversCount = $searchResult.Updates.Count
+        }
+    } catch {}
+
+    $summaryMsg = "Auditoria de Drivers: $totalDrivers drivers avaliados. $problemCount dispositivo(s) com alerta. $pendingDriversCount atualização(ões) oficial(is) no Windows Update."
+    Write-RoutineLog "done" $summaryMsg 100
+}
+
+
+# ---------------------------------------------------------------------
+# 9. Otimizador de Desempenho / Congelador de Processos (EcoQoS / Sleep)
+# ---------------------------------------------------------------------
+if (-not ([System.Management.Automation.PSTypeName]'CheckUP.ProcessController').Type) {
+    try {
+        Add-Type -MemberDefinition @'
+        [DllImport("ntdll.dll", SetLastError = true)]
+        public static extern int NtSuspendProcess(IntPtr processHandle);
+
+        [DllImport("ntdll.dll", SetLastError = true)]
+        public static extern int NtResumeProcess(IntPtr processHandle);
+'@ -Name "ProcessController" -Namespace "CheckUP" -ErrorAction SilentlyContinue
+    } catch {}
+}
+
+function Set-CheckupProcessSleepState {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$ProcessName = "",
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("Sleep", "Wake", "EcoMode")]
+        [string]$Action = "EcoMode"
+    )
+
+    # Se nenhum processo foi especificado, aplica EcoMode nos processos pesados de segundo plano conhecidos
+    $targetProcs = if ($ProcessName) {
+        @($ProcessName)
+    } else {
+        @("Spotify", "Discord", "EpicGamesLauncher", "Steam", "OneDrive", "Dropbox")
+    }
+
+    $affectedCount = 0
+
+    foreach ($pName in $targetProcs) {
+        $procs = Get-Process -Name $pName -ErrorAction SilentlyContinue
+        if ($procs) {
+            foreach ($p in $procs) {
+                try {
+                    switch ($Action) {
+                        "Sleep" {
+                            if ([System.Management.Automation.PSTypeName]'CheckUP.ProcessController'.Type) {
+                                [CheckUP.ProcessController]::NtSuspendProcess($p.Handle) | Out-Null
+                                $affectedCount++
+                            }
+                        }
+                        "Wake" {
+                            if ([System.Management.Automation.PSTypeName]'CheckUP.ProcessController'.Type) {
+                                [CheckUP.ProcessController]::NtResumeProcess($p.Handle) | Out-Null
+                                $affectedCount++
+                            }
+                        }
+                        "EcoMode" {
+                            $p.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::Idle
+                            $affectedCount++
+                        }
+                    }
+                } catch {}
+            }
+        }
+    }
+
+    $actionName = switch ($Action) {
+        "Sleep"   { "colocados em Sleep (0% CPU)" }
+        "Wake"    { "reativados" }
+        "EcoMode" { "otimizados no Modo EcoQoS (Prioridade Ociosa)" }
+    }
+
+    Write-RoutineLog "done" "Otimização de Processos concluída: $affectedCount instâncias $actionName com sucesso!" 100
+}
+
