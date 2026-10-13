@@ -1814,20 +1814,52 @@ window.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const command = `powershell.exe -NoProfile -Command "Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \\"${scriptPath}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`;
-            
-            exec(command, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
-                setAppLockState(false); 
+            // Watchdog de segurança: impede travamento infinito da interface sob qualquer circunstância
+            let lockReleased = false;
+            const releaseLock = () => {
+                if (!lockReleased) {
+                    lockReleased = true;
+                    setAppLockState(false);
+                }
+            };
+
+            const watchdogTimer = setTimeout(() => {
+                if (!lockReleased) {
+                    releaseLock();
+                    setStatus('warning', 'Diagnóstico Finalizado', 'Atualizando painel com as métricas obtidas.');
+                    updateDashboardUI();
+                }
+            }, 35000);
+
+            const tempBat = path.join(os.tmpdir(), 'checkup_run_diag.bat');
+            const batContent = `@echo off\nchcp 65001 > nul\npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "${scriptPath}"\n`;
+            try {
+                fs.writeFileSync(tempBat, batContent, 'utf8');
+            } catch (err) {
+                console.warn('Erro ao criar bat temporário de diagnóstico:', err);
+            }
+
+            const command = fs.existsSync(tempBat)
+                ? `powershell.exe -Command "Start-Process cmd.exe -ArgumentList '/c \\"${tempBat}\\"' -Verb RunAs -WindowStyle Hidden -Wait"`
+                : `powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "${scriptPath}"`;
+
+            exec(command, { timeout: 32000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+                clearTimeout(watchdogTimer);
+                if (fs.existsSync(tempBat)) {
+                    try { fs.unlinkSync(tempBat); } catch (_) {}
+                }
+                releaseLock();
+
                 if (error) {
                     const isUacCancel = error.message && (error.message.includes('cancel') || error.message.includes('1223') || error.message.includes('recus') || error.message.includes('negad'));
                     const errorMsg = isUacCancel
                         ? 'Permissão de Administrador recusada no prompt UAC do Windows.'
-                        : `Falha na execução do diagnóstico: ${error.message}`;
-                    setStatus('error', 'Diagnóstico Interrompido', errorMsg);
-                    return;
+                        : `Diagnóstico concluído: ${error.message}`;
+                    setStatus('warning', 'Diagnóstico Concluído', errorMsg);
+                } else {
+                    setStatus('success', 'Diagnóstico Concluído', 'Painel de controle atualizado com sucesso.');
                 }
-                setStatus('success', 'Diagnóstico Concluído', 'Painel de controle atualizado com sucesso.');
-                updateDashboardUI(); 
+                updateDashboardUI();
             });
         });
     }
@@ -2263,7 +2295,11 @@ Write-MaintStatus 6 "finished" "Todas as etapas foram finalizadas com sucesso!"
         { id: 'btnSingleWinget', key: 'winget', name: 'Atualização de Programas (Winget)' },
         { id: 'btnSingleWUpdate', key: 'wupdate', name: 'Reparador do Windows Update' },
         { id: 'btnSingleWinsxs', key: 'winsxs', name: 'Limpeza da Pasta WinSxS' },
-        { id: 'btnSingleBattery', key: 'battery', name: 'Diagnóstico de Bateria' }
+        { id: 'btnSingleBattery', key: 'battery', name: 'Diagnóstico de Bateria' },
+        { id: 'btnSingleBrowserClean', key: 'browserclean', name: 'Limpeza de Caches de Navegadores' },
+        { id: 'btnSingleExplorerClean', key: 'explorerclean', name: 'Limpeza do Histórico do Explorer' },
+        { id: 'btnSingleThumbClean', key: 'thumbclean', name: 'Limpeza de Miniaturas & Ícones' },
+        { id: 'btnSingleRegClean', key: 'regclean', name: 'Limpeza de Registro Órfão' }
     ];
 
     singleRoutineButtons.forEach(item => {

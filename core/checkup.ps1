@@ -330,21 +330,28 @@ $loss = 0
 if ($internetStatus) {
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $client = New-Object System.Net.WebClient
+        $req = [System.Net.HttpWebRequest]::Create("https://speed.cloudflare.com/__down?bytes=500000")
+        $req.Timeout = 3500
+        $req.ReadWriteTimeout = 3500
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        $client.DownloadData("https://speed.cloudflare.com/__down?bytes=5000000") | Out-Null
-        $client.DownloadData("https://speed.cloudflare.com/__down?bytes=1000000") | Out-Null
+        $resp = $req.GetResponse()
+        $stream = $resp.GetResponseStream()
+        $buffer = New-Object byte[] 65536
+        $totalRead = 0
+        while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            $totalRead += $read
+        }
         $sw.Stop()
-        $speedText = "$([math]::Round((40 / $sw.Elapsed.TotalSeconds), 1)) Mbps"
-        $speedText = "$([math]::Round((8 / $sw.Elapsed.TotalSeconds), 1)) Mbps"
-        $client.Dispose()
+        $resp.Close()
+        if ($sw.Elapsed.TotalSeconds -gt 0 -and $totalRead -gt 0) {
+            $mbps = [math]::Round((($totalRead * 8) / 1000000) / $sw.Elapsed.TotalSeconds, 1)
+            $speedText = "$mbps Mbps"
+        }
     } catch { $speedText = "Falha no teste" }
 
-    $pingTest = Test-Connection -ComputerName "8.8.8.8" -Count 10 -ErrorAction SilentlyContinue
     $pingTest = Test-Connection -ComputerName "8.8.8.8" -Count 2 -ErrorAction SilentlyContinue
     if ($pingTest) {
         $received = ($pingTest | Where-Object { $_.Status -eq 'Success' -or $_.ReplySize -gt 0 -or $_.ResponseTime -ge 0 }).Count
-        $loss = ((10 - $received) / 10) * 100
         $loss = ((2 - $received) / 2) * 100
         $avgLatency = [math]::Round(($pingTest | Measure-Object -Property ResponseTime -Average -ErrorAction SilentlyContinue).Average, 0)
     }

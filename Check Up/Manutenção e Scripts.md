@@ -27,6 +27,23 @@ Para atender à demanda de **Opções Individuais de Melhoria** sem obrigar o us
 - **`battery`:** Diagnóstico ACPI via `Win32_Battery` / WMI e emissão do relatório oficial `powercfg /batteryreport`.
 - **`profile`:** Calibração modular de serviços (`SysMain`, `WSearch`, `Spooler`, `DiagTrack`, `MapsBroker`) e planos de energia via `powercfg /setactive` (`-Modo gamer|economia|equilibrado`).
 - **`restore`:** Criação de snapshot nativo via `Checkpoint-Computer` ou invocação direta da UI nativa `rstrui.exe` (`-Modo criar|abrir`).
+- **`browserclean`:** Limpeza nativa de caches e shaders de navegadores Chromium (Edge, Chrome, Brave, Opera) e Gecko (Firefox).
+- **`explorerclean`:** Purga de documentos recentes (`Recent`), Jump Lists da barra de tarefas (`AutomaticDestinations`), histórico do Executar (`RunMRU`) e caixas de diálogo.
+- **`thumbclean`:** Encerramento gracioso do Explorer, exclusão de bancos de miniaturas `thumbcache_*.db` e regeneração automática do processo.
+- **`regclean`:** Scanner e higienização segura de referências órfãs de registro (SharedDLLs ausentes, App Paths fantasmas, MuiCache e desinstaladores mortos).
+- **`recyclebin`:** Esvaziamento forçado de lixeira em todos os volumes com `Clear-RecycleBin -Force`.
+
+---
+
+## 🧰 Submódulo Avançado de Limpeza (`core/RotinasLimpeza.ps1`)
+
+Inspirado nas regras do CCleaner e do projeto Winapp2.ini, este submódulo consolida funções especializadas para inspeção e limpeza sem carregar binários proprietários:
+- `Invoke-CheckupBrowserCleanup`: Varredura recursiva de diretórios de dados de perfil com fechamento detectado.
+- `Invoke-CheckupExplorerMRUCleanup`: Eliminação cirúrgica de valores MRU em `HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer`.
+- `Invoke-CheckupThumbcacheCleanup`: Desbloqueio e purga de caches gráficos do shell.
+- `Invoke-CheckupRegistryCleaner`: Validação de ponteiros no disco (`Test-Path`) com suporte a auditoria prévia (`-DryRun`).
+- `Get-CheckupRecycleBinTelemetry`: Coleta de itens e bytes através da interface COM `Shell.Application`.
+
 
 ---
 

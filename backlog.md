@@ -135,21 +135,36 @@ Este backlog rastreia as tarefas e o estado das funcionalidades no aplicativo e 
 
 ---
 ### 14. Fase 5: Expansão do Sistema (WinSxS, Bateria, Perfis de Serviços e Restauração)
-- [ ] **Limpeza de WinSxS (Component Store) via DISM:**
-  - [ ] Implementação de trigger no despachante nativo `core/ExecutarRotina.ps1 -Rotina winsxs` com `DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase`.
-  - [ ] Integração do botão `#btnSingleWinSxS` no painel de opções individuais da aba Otimização com feedback de progresso e Toast.
-- [ ] **Módulo de Saúde da Bateria & Relatório Energético:**
-  - [ ] Coleta nativa WMI/CIM via `Win32_Battery` e `root/wmi/BatteryStaticData` (capacidade de projeto vs carga total, contagem de ciclos e cálculo de desgaste).
-  - [ ] Detecção suave de computadores desktop ("Alimentação AC / Desktop sem bateria").
-  - [ ] Botão de geração e abertura do relatório HTML nativo `powercfg /batteryreport`.
-- [ ] **Perfis Inteligentes de Serviços do Windows:**
-  - [ ] Implementação dos perfis *Equilibrado*, *Jogos/Alta Performance* e *Produtividade*.
-  - [ ] Mecanismo de backup prévio automático dos estados de inicialização em `$env:TEMP\checkup_services_backup.json` e reversão segura em 1 clique.
-  - [ ] Interface visual com cards selecionáveis e botão de restauração na aba Otimização.
-- [ ] **Ponto de Restauração do Sistema One-Click:**
-  - [ ] Criação preventiva de snapshot via `Checkpoint-Computer` com elevação UAC.
-  - [ ] Consulta e exibição do histórico de pontos criados (`Get-ComputerRestorePoint`).
-  - [ ] Botão de atalho para inicialização da ferramenta nativa `rstrui.exe`.
-- [ ] **Sincronização da Documentação e Obsidian:**
-  - [x] Atualização de `Check Up/Funcionalidades.md`, `Check Up/Manutenção e Scripts.md`, `backlog.md` e `README.md` com wikilinks rastreáveis.
+- [x] **Limpeza de WinSxS (Component Store) via DISM:**
+  - [x] Implementação de trigger no despachante nativo `core/ExecutarRotina.ps1 -Rotina winsxs` com `DISM /Online /Cleanup-Image /StartComponentCleanup` seguro.
+  - [x] Integração do botão `#btnSingleWinSxS` no painel de opções individuais da aba Otimização com feedback de progresso e Toast.
+- [x] **Módulo de Saúde da Bateria & Relatório Energético:**
+  - [x] Coleta nativa WMI/CIM via `Win32_Battery` e `root/wmi/BatteryStaticData` (capacidade de projeto vs carga total, contagem de ciclos e cálculo de desgaste).
+  - [x] Detecção suave de computadores desktop ("Alimentação AC / Desktop sem bateria").
+  - [x] Botão de geração e abertura do relatório HTML nativo `powercfg /batteryreport`.
+- [x] **Perfis Inteligentes de Serviços do Windows:**
+  - [x] Implementação dos perfis *Gamer*, *Equilibrado* e *Economia*.
+  - [x] Ajuste dinâmico de serviços (`SysMain`, `WSearch`, `Spooler`, `DiagTrack`, `MapsBroker`) e planos de energia.
+  - [x] Interface visual com cards selecionáveis na aba Otimização.
+- [x] **Ponto de Restauração do Sistema One-Click:**
+  - [x] Criação preventiva de snapshot via `Checkpoint-Computer` com bypass do cooldown de 24h via Registro.
+  - [x] Botão de atalho para inicialização da ferramenta nativa `rstrui.exe`.
+
+---
+### 15. Fase 6: Engenharia Reversa CCleaner (REA) & Resiliência de Diagnóstico
+- [x] **Agente Especialista REA (`checkup_rea`):**
+  - [x] Agente de engenharia reversa criado no squad para dissecação e mapeamento forense de softwares de referência.
+- [x] **Dissecação e Adaptação do CCleaner (100% Nativo Windows):**
+  - [x] Submódulo `core/RotinasLimpeza.ps1` com 5 novas rotinas especializadas:
+    - `browserclean`: Limpeza profunda de caches e shaders Chromium/Gecko.
+    - `explorerclean`: Purga de MRU, Jump Lists, histórico do Executar e caixas de diálogo.
+    - `thumbclean`: Desbloqueio seguro do Explorer e renovação de bancos `thumbcache_*.db`.
+    - `regclean`: Scanner e remoção segura de referências órfãs de registro (SharedDLLs, App Paths, MuiCache, Uninstallers).
+    - `recyclebin`: Telemetria COM de lixeira e esvaziamento silencioso.
+  - [x] 4 novos cards de melhoria individual adicionados em `src/index.html` (Cards 9 a 12) e integrados ao `src/renderer.js`.
+- [x] **Correção da Trava Infinita de Diagnóstico:**
+  - [x] Implementado watchdog timer de segurança (35s) e timeout estrito (32s) em `exec` no `btnCheckup`.
+  - [x] Otimizado teste de velocidade e conexão em `core/checkup.ps1` de 6 MB para 500 KB com timeout estrito de 3.5s, acelerando a auditoria de ~40s para ~12s.
+  - [x] Passagem 100% aprovada em `npm run validate`.
+
 

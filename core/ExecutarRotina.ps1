@@ -7,7 +7,7 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true)]
-    [ValidateSet("dns", "temp", "trim", "sfc", "dism", "winget", "wupdate", "shield", "winsxs", "battery", "profile", "restore")]
+    [ValidateSet("dns", "temp", "trim", "sfc", "dism", "winget", "wupdate", "shield", "winsxs", "battery", "profile", "restore", "browserclean", "explorerclean", "thumbclean", "regclean", "recyclebin")]
     [string]$Rotina,
 
     [Parameter(Mandatory = $false)]
@@ -19,6 +19,12 @@ param (
 
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# Carrega submódulo de rotinas avançadas de limpeza inspiradas no CCleaner
+$rotinasLimpezaScript = Join-Path $PSScriptRoot "RotinasLimpeza.ps1"
+if (Test-Path $rotinasLimpezaScript) {
+    . $rotinasLimpezaScript
+}
 
 function Write-RoutineLog([string]$status, [string]$msg, [int]$percent = 100) {
     $payload = [PSCustomObject]@{
@@ -407,5 +413,54 @@ switch ($Rotina) {
             exit 1
         }
     }
+
+    "browserclean" {
+        try {
+            Invoke-CheckupBrowserCleanup
+        } catch {
+            Write-RoutineLog "error" "Falha na limpeza de navegadores: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "explorerclean" {
+        try {
+            Invoke-CheckupExplorerMRUCleanup
+        } catch {
+            Write-RoutineLog "error" "Falha na limpeza de histórico do Explorer: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "thumbclean" {
+        try {
+            Invoke-CheckupThumbcacheCleanup
+        } catch {
+            Write-RoutineLog "error" "Falha na limpeza de cache de miniaturas: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "regclean" {
+        try {
+            $isScan = ($Modo -eq "scan")
+            Invoke-CheckupRegistryCleaner -DryRun:$isScan
+        } catch {
+            Write-RoutineLog "error" "Falha na auditoria/limpeza de registro: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
+
+    "recyclebin" {
+        try {
+            Write-RoutineLog "running" "Esvaziando a Lixeira do Windows em todos os discos..." 50
+            Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+            Write-RoutineLog "done" "Lixeira esvaziada e espaço reciclado com sucesso!" 100
+        } catch {
+            Write-RoutineLog "error" "Falha ao esvaziar lixeira: $($_.Exception.Message)" 100
+            exit 1
+        }
+    }
 }
+
 

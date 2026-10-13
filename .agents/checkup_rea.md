@@ -11,3 +11,4 @@
 1. **Zero Executáveis de Terceiros em Produção:** O REA é utilizado em tempo de desenvolvimento/pesquisa para inspeção. A implementação final no CheckUP deve ser sempre 100% nativa do Windows (PowerShell/WMI/CIM/DISM).
 2. **Evidências Claras:** Toda recomendação deve apontar o caminho exato no Windows, o motivo da limpeza e o impacto no sistema.
 3. **Segurança e Rollback:** Nunca sugerir limpeza de chaves vitais do sistema operacional sem garantias de integridade.
+
